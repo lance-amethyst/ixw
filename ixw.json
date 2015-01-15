@@ -1,0 +1,6 @@
+{
+  "name": "ixw", 
+  "description" : "IX sample web frontend project",
+  "rootNS": "IXW",
+  "version": "1.0"
+}
