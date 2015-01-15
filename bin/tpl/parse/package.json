@@ -1,0 +1,23 @@
+{
+  "author": "gewei",
+  "name": "IXTplParser",
+  "description": "",
+  "version": "0.1.0",
+  "main": "tplgen.js",
+  "engines": {
+    "node": "*"
+  },
+  "bundleDependencies": [
+    "jison"
+  ],
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "jison":  "= 0.4.13"
+  },
+  "license": "BSD-2-Clause",
+  "devDependencies": {
+	  "jison": "= 0.4.13"
+  }
+}

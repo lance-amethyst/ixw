@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<script type="text/javascript" src="jquery/jquery-1.5.1.js"></script>
+<script type="text/javascript" src="jquery/jquery.jsonp.js"></script>
+</head>
+<body>
+  <div class="dialog">
+	<input type="text" id="urlfix" tabindex="2">
+	<textarea id="request" style="width: 416px; height: 100px;" placeholder="输入请求参数"></textarea>
+	<input type="button" id="sendbtn" value="Send" tabindex="3">
+  </div>
+  <pre id="restxt" style="word-wrap: break-word; white-space: pre-wrap;" ></pre>
+</body>
+<script type="text/javascript">
+	var reqTxt = document.getElementById("request");
+	var sendBtn = document.getElementById("sendbtn");
+	var urlfixTxt = document.getElementById("urlfix");
+	var resTxt = document.getElementById("restxt");
+	sendBtn.addEventListener("click", function(data){
+		var content = reqTxt.value;
+		var urlfix = urlfixTxt.value;
+		window.console.log("1");
+		$.ajax({
+			url: "http://192.168.9.12/box/v1/"+urlfix.toString(),
+			type: "POST",
+			data: '{"from":"box/1.0.0 (Android 2.3)","p":{'+content.toString()+'}}',
+			//async: false,
+			//dataType:"jsonp",
+			//jsonp: "jsoncallback",
+			contentType: "application/json",
+			success: function(data){
+				window.console.log(data);
+				resTxt.innerText = JSON.stringify(data);
+			},
+			error: function(){}
+		})
+	}, false);
+</script>
+</html>

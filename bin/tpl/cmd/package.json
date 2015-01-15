@@ -1,0 +1,17 @@
+{
+  "name": "tplc",
+  "version": "0.0.42",
+  "description": "IX template compiler",
+  "preferGlobal": "true",
+  "bin": {
+    "tplc": "./tplc.js"
+  },
+  "author": "jiangzongwen@netposa.com, znzwmz@gmail.com, gewei@netposa.com",
+  "engines": {
+    "node": "*"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "repository": {}
+}

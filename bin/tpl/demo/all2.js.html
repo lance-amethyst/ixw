@@ -1,0 +1,19 @@
+<tpl id = 'pages' export = 'pagination'>
+	<div></div>
+</tpl>
+
+<tpl id = 'users'>
+	<table class = 'list'>
+		<tpl id = 'context' export = 'list'>
+			<tr><td>{name}</td></tr>
+		</tpl>
+	</table>
+	<use id = 'pages' data = '{}'>
+</tpl>
+
+<script>
+	var userList = function(){
+		var tpl = t_users;
+		tpl.renderData();
+	};
+</script>
