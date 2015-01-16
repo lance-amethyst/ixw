@@ -6,7 +6,7 @@
  * Licensed under the MIT license.
  */
 /*
- * IX Distribution for Browsers.
+ * IX Distribution for Node.js
  */
 (function(){
 /**  
@@ -1472,1290 +1472,144 @@ IX.ITask = function(taskFn, interval, times){
 };
 })();
 
-(function(){
-/** 
- * Extended Shortcut list: 
-$X(id) = IX.get;
-$Xw = IX.win
-$XD = IX.Dom;
-$XH = IX.HtmlDocument;
-$Xc = IX.Cookie;
- */
-
 /**
- * Base DOM related utilities for IX project. All can be called as IX.xxxx(...) anywhere:
+ * IX utilities extended for node.js;
+ * @processOwner should be global variable which show the process and its files owner
  * 
- * IX utilities extended for DOM:
- * 
-	isOpera   
-	isChrome
-	isFirefox
-	isSafari
-	
-	isMSIE
-	isMSIE7
-
-	isMSWin
-	
-	isAndroid
-	isAppleHD
-	isIPhone
-	isIPad
-	
-	getUrlParam(key, defV) : get value from url query string by key , or return defV if key not exist.
-	toAnchor(name) : reset hash for current page;
-
-	bind(el, handlers) : bind event handler on el
-	unbind(el, handlers) : remove event handler on el
-	
-	getComputedStyle(el) : get the computed style after render in browser;
-	decodeTXT(txt) : decode from encoded text,
-	encodeTXT(txt) : make txt can be shown in document,
-	isElement(el) : check if el is valid DOM element
-	createDiv(id,clz) : create a div tag under body with id and clz
-	get(domEl) : get DOM element by id/el
- * }
- * 
- * IX.win is an utilities for action on window only: {
-	bind(handlers)
-	unbind (handlerIds)
-	scrollTo(x,y)
- * }
- * IX.Xml is a library to deal with XML string or document. It includes: {
-	parser(xmlString): it convert xmlString to XML document object and return.
-	getXmlString(xmlDocument) : it convert XML document to string and return.
-	duplicate(xmlDocument) : it duplicate xml document object and return.
- * }
+ * File Utilities:
+ 	safeMkdirSync(path) : create folder for path
+ 	saveFileIfNotExist(path, name, data, cbFn) : save data only if path/name not existed.
+	safeChkPath(filePath, filename) : make sure filePath existed 
+			and return "~/+" before path "filePath/filename" to mark if file existed or not, 
+	safeChkFile(filePath, filename) : similar as safeChkFile but return null if file not existed. 
+	safeRenameAs(oldFilename, filePath, filename) : check if filePath/filename existed, 
+			if yes, remove oldFilename only; else rename it to new path.
+	safeCopyTo(srcFile, filePath, filename) :check if filePath/filename existed, 
+			if yes, do noting; else copy it to new path.
  *
- * IX.Dom is a library to deal with DOM. It includes :{
-	first(node, tagN): try to get the first child of DOM element node which tag name is tagN.
- 	next(node, tagN): try to get the first next sibling of DOM element node which tag name is tagN.
-	cdata(node, tagN): try to get the text of DOM element node which is involved by CDATA tag.
-	text (node, tagN): try to get the text of DOM element node.
-	attr (node, attN): try to get the value of attribute of DOM element node which name is attrN.
-	setAttr(node, attN, v) : try to set attribute value.
-	dataAttr(node, attN) : get the value of attribute "data-{attN}" 
-	setDataAttr(node, arrN, v) : similar as setAttr to set value of attribute "data-{attN}" 
- * 		
- 	remove(node) : remove node from DOM tree;
- 	isAncestor(node, annode) : check if annode is ancestor of node;
- 	ancestor(node, tagName) : get first ancestor node of node with tagname;
- 	is(el, tagName) : check if el is tagName element
- 	
-	inTag(tagN, content, attrs) : get html fragment by tagN, content,attrs
-	inPureTag(tagN, content, attrs) : similar with inTag, but content is include by CDATA mark
- * }
- *
- * IX.HtmlDocument is an utilities to deal with DOM element by class. It includes : {
-	getStyle(node, styleName): get node's style. 
-			e.g. $XH.getStyle(node, "border-left-width"), $XH.getStyle(node, "font-size")
-	hasClass(el, clzName)
-	removeClass(el, clzName)
-	addClass(el, clzName)
-	toggleClass(el, clzName) : if el has clzName, remove it, otherwise add it;
-	next(el, clzName) : get el's first sibling with clzName,
-	first(parentEl, clzName) : get parentel, first child node with clzName
-	isAncestor(node, pnode) : check if pnode is ancestor of node;
-	ancestor(node, clzName) : get first ancestor of node which has clzName
-	getWindowScreen() : get current screen status:
-			scroll : [scrollX, scrollY, body.scrollWidth, body.scrollHeight],
-			size : [body.clientWidth, body.clientHeight]
-	getScroll(el) : get el's curre scroll status :
-			scrollTop
-			scrollLeft
-	getZIndex(el) :  get z-index of el
-	rect(el, ri) : set el position and area (ri: [left, top, width, height])
-	getWindowScrollTop():
-	getPosition(el, isFixed) : get position in DOM flow.
-		return [left, top, width, height]
- * }	
- *
- * IX.Cookie is used to handle cookie special , it include :{
-	get(name),
-	set(name, cookie)
-	remove(name)
- * }
- * 
- * IX.Util.Event is used to handle DOM event, it include : {
-	target(e) :  get event target
-	stopPropagation(e) : stop event bubble up;
-	preventDefault(e) : stop event default behavior
-	stop(e) : make browser not response event.
- * }
- *
+ * Error/Log Utilities:
+	setLogPath(path) : reset the log file output path, for example: 
+			if path is "/tmp/ix", the log/err file should be "/tmp/ix.log"/"tmp/ix.err"
+	err(errMsg) : output to *.err file
+	log(errMsg) : output to *.log file
+ *}
  */
-var ua = window.navigator.userAgent.toLowerCase();
-function checkUA(keywords){return ua.indexOf(keywords)!==-1;}
+var fs = require('fs');
+var util = require('util');
+var childProcess = require('child_process');
 
-var _isIPad = checkUA('ipad'), _isIPhone = checkUA('iphone');
-
-IX.extend(IX, {
-	isOpera : checkUA("opera"),   
-	isChrome : checkUA("chrome"),  
-	isFirefox : checkUA("firefox") && !checkUA("webkit"),  
-	isSafari : window.openDatabase && checkUA("safari") && checkUA('version'),
-	
-	isMSIE : checkUA("msie") && !checkUA("opera"), 
-	isMSIE7 : document.all && checkUA("msie 7.0"),
-
-	isMSWin : checkUA("windows"),
-	
-	 isAndroid: (checkUA("gecko") && checkUA('safari') && checkUA('mobile') && checkUA('android')),
-     isAppleHD: _isIPad || _isIPhone,
-     isIPhone: _isIPhone,
-     isIPad: _isIPad,
-	
-	getUrlParam : function(key, defV){
-		var v = defV;
-		IX.loopbreak(window.location.search.substring(1).split("&"), function(item){
-			if(item.indexOf(key+"=")!==0)
-				return;
-			v = item.substring(key.length+1);
-			throw v;
+function chownFileOwner(filePath){
+	if (global.processOwner)
+		childProcess.exec("chown -R " + global.processOwner  + " " + filePath);
+}
+function _safeMkdirSync(_path){
+	var dirs = _path.split("/"), currentDir = "";
+	dirs.shift();
+	try {
+		dirs.forEach(function(dir){
+			currentDir = currentDir + "/"  + dir;
+			if (!fs.existsSync(currentDir))		
+				fs.mkdirSync(currentDir, 0755);
 		});
-		return v;
-	},
-	toAnchor : function(name){window.location.hash = "#" + name;}
-});
-
-var hasEventListener = ("addEventListener" in window);
-var ix_attachEvent = hasEventListener?function(target, eName, fn){
-	target.addEventListener(eName, fn, false);
-}:function(target, eName, fn){
-	target.attachEvent("on" + eName, fn);
-};
-var ix_detachEvent = hasEventListener?function(target, eName, fn){
-	target.removeEventListener(eName, fn, false);
-}:function(target, eName, fn){
-	target.detachEvent("on" + eName, fn);
-};
-
-function EventBindManager(){
-	var ht = new IX.I1ToNManager();
-	function _evtWrapper(ehKey, evt){
-		if (!ht.hasValue(ehKey))
-			return;
-		var e = evt || window.event;
-		if (e && !("target" in e) )
-			e.target = e.srcElement; // for IE hack
-		IX.iterate(ht.get(ehKey), function(fn){
-			if (IX.isFn(fn))
-				fn(e);
-		});
-	}
-	function _bind(el, evtName, handler){
-		var evtKeys = el.data_ixEvtKeys;
-		if (!evtKeys)
-			evtKeys.id = IX.id();
-		var ehKey = evtKeys.id + "." + evtName;
-		if (!evtKeys[evtName]) { // never bind!
-			evtKeys[evtName] = function(evt){return ht.exec(ehKey, evt);};
-			ix_attachEvent(el, evtName, evtKeys[evtName]);
-		}
-		ht.add(ehKey, handler);
-		el.data_ixEvtKeys = evtKeys;
-	}
-	function _unbind(el, evtName, handler){
-		var evtKeys = el.data_ixEvtKeys;
-		if (!evtKeys)
-			return;
-		if (!evtKeys[evtName])
-			return;
-		var ehKey = evtKeys.id + "." + evtName;
-		ht.remove(ehKey, handler);
-		if (!ht.isEmpty(ehKey)){
-			ix_detachEvent(el, evtName, evtKeys[evtName]);
-			evtKeys[evtName] = null;
-		}
-	}
-	return {
-		exec : _evtWrapper,
-		bind : _bind,
-		unbind : _unbind
-	};
-}
-var DOM_EventList = [
-	"click", "dblclick", "focus", "blur", 
-	"keyup", "keydown", 
-	"mouseover", "mouseout", "mousedown", "mousemove", "mouseup",
-	"resize", "scroll",
-	"touchstart", "touchend", "touchmove"
-];
-var bindMgr = new EventBindManager();
-function _bindHandlers(el, handlers, isUnbind){
-	if(!el || !handlers) return;
-	var bindFn = bindMgr[isUnbind ? "unbind" : "bind"];
-	IX.iterate(DOM_EventList, function(evtName){
-		if (IX.isFn(handlers[evtName]))
-			bindFn(el, evtName, handlers[evtName]);
-	});
-}
-	
-IX.extend(IX, {
-	bind : function(el, handlers) {_bindHandlers(el, handlers);},		
-	unbind : function(el, handlers) {_bindHandlers(el, handlers, true);},
-	
-	getComputedStyle : "getComputedStyle" in document.defaultView? function(el){
-		return document.defaultView.getComputedStyle(el);
-	}:function(el){		
-		return el.currentStyle || el.style; 
-	},
-	decodeTXT : function(txt){
-		return (txt+"").replaceAll("&nbsp;", ' ').replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&amp;", "&");
-	},
-	encodeTXT : function(txt){
-		return (txt+"").replaceAll('&', '&amp;').replaceAll("<","&lt;").replaceAll(">", "&gt;").replaceAll(" ", "&nbsp;");
-	},
-	isElement: function(el){return el.nodeType===1;},
-	createDiv : function(id,clz){
-		var node = document.createElement('div');
-		if (!IX.isEmpty(clz))
-			node.className = clz;
-		node.id = id;
-		document.body.appendChild(node);
-		return node;
-	},
-	get : function(domEl){
-		if (IX.isEmpty(domEl))
-			return null;
-		if (IX.isString(domEl) || IX.isNumber(domEl) )
-			return document.getElementById(domEl);
-		if ("ownerDocument" in domEl)
-			return domEl;
-		return null;	
-	}
-});
-window.$X = IX.get;
-
-var winBindMgr = new EventBindManager();
-var Win_EventList = ["click", "resize", "scroll" ,"mousedown", "mouseover", "mouseout"];
-function _winBindHandlers(handlers, isUnbind){
-	if(!handlers) return;
-	var bindFn = winBindMgr[isUnbind ? "unbind" : "bind"];
-	IX.iterate(Win_EventList, function(evtName){
-		if (IX.isFn(handlers[evtName]))
-			bindFn(window, evtName, handlers[evtName]);
-	});
-}
-IX.win =  {
-	bind : function(handlers){_winBindHandlers(handlers);},
-	unbind : function(handlerIds){_winBindHandlers(handlerIds, true);},
-	scrollTo : function(x,y){
-		window.scrollTo(x, y);
-		winBindMgr.exec("scroll", null);
-	}	
-};
-window.$Xw = IX.win;
-
-/**
- * 	IX.Xml is a library to deal with XML string or document. It includes: {
- * 		parser(xmlString): it convert xmlString to XML document object and return.
- * 		getXmlString(xmlDocument) : it convert XML document to string and return.
- *  	duplicate(xmlDocument) : it duplicate xml document object and return.
- * 	}
- */
-IX.Xml = {
-	parser:function(str){
-		str = IX.isString(str)?str:"";
-		var doc = null;
-		if ("DOMParser" in window) {
-			doc = (new window.DOMParser()).parseFromString(str, "text/xml");
-		}else if ("ActiveXObject" in window){
-			doc=new window.ActiveXObject("Microsoft.XMLDOM");
-			doc.async="false";
-			doc.loadXML(str);
-		} else {
-			$XE("this browser can't support XML parser.");
-		}
-		return doc;
-	},
-	getXmlString:function(xmlDoc){
-		if(!xmlDoc){
-			return "";
-		}
-		if(IX.nsExisted("document.implementation.createDocument")) {
-			return (new window.XMLSerializer()).serializeToString(xmlDoc);
-		}else if ("ActiveXObject" in window){
-			return xmlDoc.xml;
-		} else {
-			$XE("this browser can't support XML parser.");
-		}
-		return "";
-	},
-	duplicate:function(xmlDoc){
-		return this.parser(this.getXmlString(xmlDoc));
-	}
-};
-
-/**
- * 	IX.Dom is a library to deal with DOM. It includes :{
- * 		first(node, tagN): try to get the first child of DOM element node which tag name is tagN.
- * 		next(node, tagN): try to get the first next sibling of DOM element node which tag name is tagN.
- * 		cdata(node, tagN): try to get the text of DOM element node which is involved by CDATA tag.
- * 		text (node, tagN): try to get the text of DOM element node.
- * 		attr (node, attN): try to get the value of attribute of DOM element node which name is attrN.
- * 		
- * 		inTag(tagN, content, attrs): 
- * 		inPureTag(tagN, content, attrs): 
- * }
- */
-IX.Dom = (function(){
-	var loopFn = function(node, type, checkFn, valueFn) {
-		if (!node) return valueFn(null);
-		var cnode = ("firstChild" in node)?node[type==="first"?"firstChild":"nextSibling"]:null;
-		while(cnode!==null && !checkFn(cnode))
-			cnode = cnode.nextSibling;
-		return valueFn(cnode);
-	};
-	
-	var getFn = function(node, tagN, type){
-		return IX.isString(tagN)?loopFn(node, type, function(cnode){
-					return cnode.nodeName.toLowerCase()==tagN;
-				},function(cnode){
-					return cnode;
-				}
-			):null;
-	};
-	var textFn = IX.isMSIE ?
-		function(node){return node? node.innerText:"";} :
-		function(node){return node?node.textContent:"";};
-	
-	var cdataFn = function(node){
-		if (!node)
-			return "";
-		return loopFn(node,"first",function(cnode){
-				return cnode.nodeType==4;
-			},function(cnode){
-				return cnode?cnode.nodeValue:"";
-			}
-		);
-	};
-	var firstFn = function(node,tagN) {
-		return getFn(node,tagN, "first");
-	};
-		
-	var inTagFn = function(tag, content, attrs){//attrs should like [[pramName, paramValue],...
-		var _attrs = IX.loop(attrs, [],  function(acc, item){
-			return acc.concat(' ', item[0], '="', item[1], '"');
-		});
-		var arr = [].concat("<", tag, _attrs, ">", content, "</", tag, ">");
-		return arr.join("");
-	};
-	var inPureTagFn = function(tag, content, attrs){
-		return inTagFn(tag, ["<![CDATA[", content, "]]>"].join(""),  attrs);
-	};
-	var attrFn = function(node, attN){
-		if(!node)
-			return "";
-		var val = node.getAttribute(attN);
-		return IX.isEmpty(val)?"":val;
-	};
-	var setAttrFn = function(node, attN, val){
-		if(!node)
-			return;
-		if (val)
-			node.setAttribute(attN, val);
-		else
-			node.removeAttribute(attN);			
-	};
-	return {
-		first:firstFn,
-		next:function(node, tagN){
-			return getFn(node, tagN,"next");
-		},
-		cdata:function(node, tagN){
-			return cdataFn(firstFn(node, tagN));
-		},
-		text:function(node, tagN){
-			return textFn(firstFn(node, tagN));
-		},
-		attr:attrFn,
-		setAttr:setAttrFn,
-		dataAttr :function(node, name){
-			return attrFn(node, "data-" + name);
-		},
-		setDataAttr : function(node, name, val){
-			setAttrFn(node, "data-" + name, val);
-		},
-		remove: function(node){
-			if(node)
-				if(node.parentNode)
-					node.parentNode.removeChild(node);
-		},
-		isAncestor : function(node, ancestor){
-			var el = node;
-			while(el){				
-				if (el == ancestor)
-					return true;
-				var nodeName = el.nodeName.toLowerCase();
-				el = (nodeName==="body")? null: el.parentNode;
-			}
-			return false;
-		},
-		ancestor : function(node, tagName){
-			if (!node)
-				return null;
-			var el =  node;
-			while(el){
-				var nodeName = el.nodeName.toLowerCase();
-				if (nodeName==tagName)
-					break;
-				el =(nodeName==="body")? null: el.parentNode;
-			}
-			return el;
-		},
-		is : function(el, tagName){
-			return el.nodeName.toLowerCase() == tagName;
-		},
-		inTag : inTagFn,
-		inPureTag : inPureTagFn
-	};
-})();
-window.$XD = IX.Dom;
-/*
-*		getStyle(node, styleName): get node's style. e.g. $XD.getStyle(node, "border-left-width"), $XD.getStyle(node, "font-size")
-*/
-IX.HtmlDocument = (function(){
-	var hasFn = function(el, clzName){
-		return el!==null && ("className" in el)&& IX.Array.isFound(clzName, (el.className+"").split(" "));
-	};
-	var removeFn = function(el, clzName){
-		if (!el) return;
-		var clz = IX.Array.remove(el.className.split(" "), clzName);
-		el.className = clz.join(" ");
-	};
-	var addFn = function(el, clzName) {
-		if (!el) return;
-		var clzs = IX.Array.toSet(el.className.split(" ").concat(clzName));
-		el.className = clzs.join(" ");
-	};
-	var nextFn = function(node, clzName){
-		if (!node)
-			return null;
-		var el = node.nextSibling;
-		while(el){
-			if (hasFn(el, clzName))
-				return el;
-			el = el.nextSibling;
-		}
-		return el;
-	};
-
-	var getStyle = function(_elem,styles){
-		var _value=null, elem= IX.get(_elem);
-		styles = styles !== "float" ? styles : document.defaultView ? "float" : "styleFloat";
-		if(styles === "opacity"){
-			if(elem.filters){//IE, two ways to get opacity because two ways to set opacity and must be set opacity before get
-				if(elem.filters.length > 0){
-					try {
-						_value = elem.filters['DXImageTransform.Microsoft.Alpha'].opacity / 100;
-					}catch(e) {
-						try {
-							_value = elem.filters('alpha').opacity;
-						} catch(err){}
-					}
-				}else
-					_value = "1";
-			}else//w3c
-				_value = elem.style.opacity;
-		}else{
-			_value=elem.style[styles] || elem.style[styles.camelize()];
-			if(!_value){
-				if (document.defaultView && document.defaultView.getComputedStyle) {
-					var _css=document.defaultView.getComputedStyle(elem, null);
-					_value= _css ? _css.getPropertyValue(styles) : null;
-				}else if (elem.currentStyle){
-					_value = elem.currentStyle[styles.camelize()];
-				}
-			}
-			if(_value==="auto" && IX.Array.indexOf(["width","height"], function(_i){return styles == _i;}) > -1 && 
-					elem.style.display!="none")
-				_value=elem["offset"+styles.capitalize()]+"px";
-        }
-        return _value==="auto" ? null :_value;
-    };
-	return {
-		getStyle : getStyle,
-		hasClass : hasFn,
-		removeClass : removeFn,
-		addClass : addFn,
-		toggleClass : function(el, clzName){
-			if (!el) return;
-			if (hasFn(el, clzName))
-				removeFn(el, clzName);
-			else addFn(el, clzName);
-		},
-		next :nextFn,
-		first : function(parentEl, clzName){
-			if (!parentEl)
-				return null;
-			var el = parentEl.firstChild;
-			return hasFn(el, clzName)?el: nextFn(el, clzName);
-		},
-		isAncestor : function(node, pnode) {
-			if (!node)
-				return false;
-			var el =  node;
-			while(el!==null){
-				if (el==pnode)
-					return true;
-				el = el.parentNode;
-				if (el && el.nodeName.toLowerCase()=="body")
-					break;
-			}
-			return false;
-		},
-		ancestor : function(node, clzName){
-			if (!node)
-				return null;
-			var el =  node;
-			while(el!==null && !hasFn(el, clzName)){
-				el = el.parentNode;
-				if (el && el.nodeName.toLowerCase()=="body")
-					el = null;
-			}
-			return el;
-		},
-		
-		getWindowScreen : function(){
-			var body = document.documentElement;
-			var win = window;
-			var _scrollX = "scrollX" in win?win.scrollX:body.scrollLeft,
-				_scrollY = "scrollX" in win?win.scrollY:body.scrollTop;
-			
-			return {
-				scroll : [_scrollX, _scrollY, body.scrollWidth, body.scrollHeight],
-				size : [body.clientWidth, body.clientHeight]
-			};
-		},
-		getScroll: function(_dom){
-			if (_dom && _dom.nodeType != 9)//not document
-				return {
-					scrollTop: _dom.scrollTop,
-					scrollLeft: _dom.scrollLeft
-				};
-			var _window = !_dom ? window : _dom.defaultView || _dom.parentWindow;
-			return {
-				scrollTop: _window.pageYOffset ||
-					_window.document.documentElement.scrollTop ||
-					_window.document.body.scrollTop || 0,
-				scrollLeft: _window.pageXOffset ||
-					_window.document.documentElement.scrollLeft ||
-					_window.document.body.scrollLeft || 0
-            };
-		},
-		getZIndex : function(el) {
-			var style = null;
-			while(el && el.tagName.toLowerCase()!="body"){
-				style = IX.getComputedStyle(el);				
-				if (style.zIndex !="auto")
-					return style.zIndex - 0;
-				el = el.offsetParent;
-			}
-			return 0;
-		},
-		/* ri : [ left, top, width, height] */
-		rect : function(el, ri){
-			IX.iterate(["left", "top", "width", "height"], function(attr, idx){
-				if (ri[idx]!==null)
-					el.style[attr] = ri[idx] + "px";
-			});
-		},
-		getWindowScrollTop : function() {
-			return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop	|| 0;
-		},
-		getPosition : function(el, isFixed){
-			// getBoundingClientRect : Supported by firefox,chrome,IE8+,opera,safari
-			// Return {top, left, right, bottom[, width, height]}
-			// width and height are not supported in IE
-			// top|left|right|bottom are offset value for visible part of window.
-			var rect = el.getBoundingClientRect(),
-				doc = document.documentElement || document.body;
-			return [
-				rect.left + (isFixed ? 0 : window.scrollX || doc.scrollLeft),
-				rect.top + (isFixed ? 0 : window.scrollY || doc.scrollTop),
-				el.offsetWidth,
-				el.offsetHeight
-			];
-		}
-	};	
-})();
-window.$XH = IX.HtmlDocument;
-
-IX.Cookie = (function(){
-	var getOptions = function(options){
-		if (!options)
-			return [];
-		var vals = [];
-		if (options.expires && (typeof options.expires == 'number' || options.expires.toUTCString)) {
-			var date;
-			if (typeof options.expires == 'number') {
-				date = new Date();
-				date.setTime(date.getTime() + (options.expires * 24 * 60 * 60 * 1000));
-			} else {
-				date = options.expires;
-			}
-			vals.push('; expires=' + date.toUTCString()); // use expires attribute, max-age is not supported by IE
-		}
-		if ("path" in options)vals.push('; path=' + options.path);
-		if ("domain" in options)vals.push('; domain=' + options.domain);
-		if ("secure" in options)vals.push('; secure=' + options.secure);
-		vals.push(';HttpOnly');
-		return vals;
-	};
-	var _set = function(name, value, options){
-		var vals = [name, '=', encodeURIComponent(value)].concat(getOptions(options));
-		document.cookie = vals.join('');	
-	};
-	
-	return {
-		get : function(name){
-			if (IX.isEmpty(document.cookie))
-				return "";
-			var cookies = document.cookie.split(';');
-			for (var i = 0; i < cookies.length; i++) {
-				var cookieN = cookies[i].trim();
-				// Does this cookie string begin with the name we want?
-				if (cookieN.substring(0, name.length + 1) == (name + '='))
-					return decodeURIComponent(cookieN.substring(name.length + 1));
-	        }
-	        return "";
-		},
-		set : _set,
-		remove : function(name){
-			_set(name, '', {
-				expires: -1
-			});
-		}
-	};
-})();
-window.$Xc = IX.Cookie;
-
-var eventUtil = {
-	target: function(e){
-		return e.target||e.srcElement;
-	},
-	stopPropagation : function(e) {
-		//如果提供了事件对象，则这是一个非IE浏览器
-		if ( e && e.stopPropagation )
-			//因此它支持W3C的stopPropagation()方法
-			e.stopPropagation();
-		else
-			//否则，我们需要使用IE的方式来取消事件冒泡
-			window.event.cancelBubble = true;
-	},
-	preventDefault : function(e) {	//阻止浏览器的默认行为
-		//阻止默认浏览器动作(W3C)
-		if ( e && e.preventDefault )
-			e.preventDefault();
-		//IE中阻止函数器默认动作的方式
-		else
-			window.event.returnValue = false;
-		return false;
-	}
-};
-eventUtil.stop =function(e){
-	eventUtil.preventDefault(e);
-	eventUtil.stopPropagation(e);
-};
-IX.ns("IX.Util");
-IX.Util.Event = eventUtil;
-
-})();
-
-
-
-
-
-
-(function(){
-/**
- * Base NET related utilities for IX project based on DOM. All can be called as IX.xxxx(...) anywhere:
- * 
- * 
- * 
- * IX.Ajax is an lib utitlities for simple ajax request. It always be replaced by jQuery.ajax : {
- * 	request(cfg) : start ajax request. 
-  	@params cfg :{
-		url : "http://abc.com/request",
-		type :  "GET" or "POST",
-		contentType : 'application/json' or 'application/x-www-form-urlencoded',
-		data : JSON or params ...
-		success(data) : when success, it is called.
-		fail(data) : ,
-		error(data):
-	}
-	stopAll()
- * }
- * 
- * IX.Net is a library for networking. It includes: {
-	loadFile(url, responseHandler): active AJAX requirement and let responseHandler deal with response(Text).
-	loadCss(cssUrl): load CSS and  apply to current document.
-	loadJsFiles(jsFileUrlArray, postHandler): load all js files in array, and execute postHandler 
-			after all jsFiles are loaded.
-	tryFn(fnName, argsArray,  dependency): try to execute function fnName with parameters argsArray.
-			If the function is not existed, resolve the dependency and try it again.
-		@params	dependency:{
-			beforeFn: function before applying dependency.
-			cssFiles: all required CSS files for current function call.
-			jsFiles: all required JS files for current function call.
-			afterFn: function after executing current function call.
-			delay: the milliseconds for waiting after js files are loaded.
-		}
- *	}
- *
- * IX.urlEngine is a utilities to manage URL routines. {
-	init(cfg) : to add/update url routine prefix
-		@params cfg : {
-		  	baseUrl : "https://abc.com/",
-		  	[name]Url : "https: //...."
-		}
-	reset(cfg) : same as init	
-	createRouter(routes) : create url routers
-		@params routes : [{ 
-			name : "page.entry",
-			url : can be "/get" or function(params){return "/get";}, url should start with "/"
-			urlType : default "base", the url's prefix set by init/reset.
-		}]	
-		@return : function(name, params){return url;}
- * }
- *
- * IX.ajaxEngine is a utilities to manage AJAX routines. {
-	init(cfg) : to add/update ajax routine prefix, 
-		@params cfg : {
-		  	ajaxFn(ajaxParams) : can be jQuery.ajax, or will use built-in AJAX function.
-		  	baseUrl : "https://abc.com/",
-		  	[name]Url : "https: //...."
-		}
-		@sub-params :ajaxParams {
-			url : url
-			type :  "GET",
-			contentType : 'application/json' , ...
-			data : jsonData
-			success(data) :
-			fail(data) :
-			error(data):
-		}
-	reset(cfg) : same as init	
-	createCaller(routes) : create ajax routers
-		@params routes : [{ 
-			name : "signIn",
-	 		url : "/session" / function(params){return "/abc";},
-			urlType : default "base", the url's prefix set by init/reset.
-	 		
-	 		channel : used to lock channel to prevent request;
-	  		type : "POST"/"GET"/"DELETE" , //default "POST"
-	  		preAjax(name, params){return params;}
-			postAjax(name, params, cbFn), 
-			onsuccess(data,cbFn, params), 
-			onfail(data, failFn, params)
-		}]	
-	 	@return : function(name, params, cbFn, failFn){}
-		@sub-params :params {
-			...
-			_channel_ : assign to temporary channel to prevent duplicate call;
-		}
- * };
- */
-
-function createAjaxProxy(){
-	if (window.XMLHttpRequest)
-		return new window.XMLHttpRequest();
-	if (typeof ActiveXObject == "undefined")
-		return null;
-	// IE
-	var xmlhttpObj = ['MSXML2.XMLHTTP.3.0','MSXML2.XMLHTTP','Microsoft.XMLHTTP'];
-	for (var i = 0, len = xmlhttpObj.length; i < len; i++) {
-		try{
-			var proxy =  new window.ActiveXObject(xmlhttpObj[i]);
-			if (proxy)
-				return proxy;
-		}catch(e){}
-	}
-	return null;
-}
-var isPhoneGapOnAppleHD = IX.nsExisted("IX.PhoneGap") && IX.isAppleHD;
-function ajaxLoading(){
-	//Show statusBar network status for iOS
-	if (isPhoneGapOnAppleHD)
-		window.location="myspecialurl:start";
-}
-function ajaxLoaded(){
-	//Cancel statusBar network status for iOS
-	if(isPhoneGapOnAppleHD)
-		window.location="myspecialurl:end";
-}
-
-var r20 = /%20/g,
-	rbracket = /\[\]$/,
-	PATTERN_ESCAPED = /["'%\1-\x1f]/g;
-function escapeText(text) {
-	return (text)? text.replace(PATTERN_ESCAPED, function(c){
-		var x=c.charCodeAt(0); return (x<16? "%0": "%")+x.toString(16); 
-	}) : "";
-}
-function ajaxParam(a, traditional) {//traditional : 规定是否使用传统的方式浅层次的进行序列化（参数序列化），默认为 false(深层次)
-	if (typeof(a) === 'string') {//处理JSON Params
-		return escapeText(a);
-	} else {
-		var s = [],
-		add = function( key, value ) {
-			if(IX.isFn( value )) return;
-			s[s.length] = encodeURIComponent(key) + "=" + encodeURIComponent(value);
-		};
-		if ( traditional === undefined )
-			traditional = false;
-		if ( IX.isArray( a ) || ( !IX.isObject( a ) ) ) {
-			IX.each( a, [],function(acc, name, value, idx) {
-				if (!a.hasOwnProperty || a.hasOwnProperty(value))
-				add( name, value );
-			} );
-		} else {
-			for ( var prefix in a )
-				buildAjaxParams( prefix, a[ prefix ], traditional, add );
-		}
-		return s.join( "&" ).replace( r20, "+" );
-	}
-}
-function buildAjaxParams( prefix, obj, traditional, add ) {
-	if ( IX.isArray( obj ) && obj.length ) {
-		IX.each( obj, [],function(acc, v, name, i) {
-			if ( traditional || rbracket.test( prefix ) )
-				add( prefix, v );
-			else
-				buildAjaxParams( prefix + "[" + ( typeof v === "object" || IX.isArray(v) ? i : "" ) + "]", v, traditional, add );
-		});
-	} else if ( !traditional && obj !== null && typeof obj === "object" ) {
-		if ( IX.isArray( obj ) || IX.isEmpty( obj ) )
-			add( prefix, "" );
-		else {
-			for ( var name in obj )
-				buildAjaxParams( prefix + "[" + name + "]", obj[ name ], traditional, add );
-		}
-	} else
-		add( prefix, obj );
-}
-
-var ajaxHT = new IX.IListManager();
-function ajaxProxyStateChange(proxy, callback, failCbFn){
-	var timer = proxy.timer;
-	if (proxy.readyState == 4) {
-		if(proxy.status == 200){
-			if (debugIsAllow('ajax'))
-				IX.log("ajaxProxyStateChange: "+ proxy.status + " " + proxy.responseText);
-			clearTimeout(timer);
-			proxy.timer = null;
-			callback(proxy.responseText, proxy);
-		}else{
-			if (timer)
-				clearTimeout(timer);
-			failCbFn({
-				retCode: 0,
-				ajaxStatus: proxy.status
-				//isTimeout: false
-			}, proxy);
-		}
-	}
-	ajaxHT.remove(proxy.id);
-	proxy = null;
-	ajaxLoaded();
-}
-
-var DefaultAjaxContentType = "application/x-www-form-urlencoded";
-var ajaxArray = [];
-function ajaxCall(cfg){
-	var type = cfg.type || "GET";
-	var failFn =  $XF(cfg, "fail");
-	var params = ajaxParam(cfg.data);
-	var url = cfg.url;
-	if(type == "GET")
-		url = url + "?" + params;
-	
-	var proxy = createAjaxProxy();
-	if(!proxy){
-		IX.err("unsupport AJAX. Failed");
-		return failFn({
-			retCode : 0,
-			error: "unsupport AJAX. Failed"
-		});
-	}
-
-	ajaxArray.push(proxy);
-	proxy.timer = setTimeout(function(){
-		failFn({
-			retCode: 0,
-			isTimeout: true
-		});	    
-	}, 60000);
-	proxy.onreadystatechange = function(){
-		ajaxProxyStateChange(proxy, $XF(cfg, "success"), failFn);
-	};
-
-	try{
-		proxy.open(type, url, "async" in cfg ? cfg.async : true);
-		IX.each(cfg.headers || {}, {}, function(acc, value, key){
-			proxy.setRequestHeader(key, value);
-			return acc;
-		});
-		proxy.setRequestHeader("Content-type", $XP(cfg, "contentType", DefaultAjaxContentType));
-		proxy.send(params);
-		
-		proxy.id = IX.id();
-		ajaxHT.register(proxy.id, proxy);
-		ajaxLoading();
 	}catch(ex){
-		failFn({
-			retCode : 0,
-			error:ex.message
-		});
-		ajaxLoaded();
+		console.error("Exception as mkdir :" + currentDir + "::" +  ex);
 	}
 }
+function saveFileIfNotExist(filePath, filename, fileData, cbFn){
+	var fileName = filePath + "/" +filename;	
+	if (fs.existsSync(fileName))
+		return cbFn(new Error("File existed: " + fileName));
 
-IX.Ajax = {
-	request : function(cfg){
-		ajaxCall({
-			url: cfg.url,
-			type: cfg.type,
-			contentType : cfg.contentType || null,
-			headers : IX.inherit({
-				"Accept": "application/json"
-			}, cfg.headers),
-			data: cfg.data,
-			fail : cfg.fail,
-			success: function(responseTxt) {
-				var succFn = $XF(cfg.success);
-				try{
-					succFn(JSON.parse(responseTxt));
-				}catch(e) {
-					succFn({
-						retCode : 1,
-						text : responseTxt
-					});
-				}
-			}
-		});
-	},
-	stopAll :function(){
-		ajaxHT.iterate(ajaxArray, function(proxy){
-			proxy.abort();
-			ajaxHT.remove(proxy.id);
-			proxy = null;
-		});
-		ajaxHT.clear();
-		ajaxArray = []; 
+	if (!fs.existsSync(filePath)){
+		_safeMkdirSync(filePath);
+		chownFileOwner(filePath);
 	}
-};
-
-function loadFn(durl, cbFun){
-	ajaxCall({
-		url: durl,
-		type: "GET",
-		success: cbFun
+	if (debugIsAllow("file"))
+		IX.log("SAVE " +  fileName + ":" + fileData.length);
+	fs.writeFile(fileName, fileData, {
+		mode : 0755
+	},function(err) {
+		chownFileOwner(filePath + "/" + fileName);
+		cbFn(err, fileName);
 	});
 }
-function _afterLoadJsFn(script, nextFn){
-	if (!script.readyState){
-		 script.onload= nextFn;
-		 return;
+function safeChkPath(filePath, filename){
+	var fileName = filePath + "/" + filename;
+	if (fs.existsSync(fileName))
+		return "~" + fileName;
+	if (!fs.existsSync(filePath)){
+		fs.mkdirSync(filePath, 0755);
+		chownFileOwner(filePath);
 	}
-	// IE
-	script.onreadystatechange= function () {
-		if (debugIsAllow('net'))
-			IX.log("STATE: [" +script.src +"]:" +  this.readyState);
-		if (script.readyState == 'complete' || script.readyState == 'loaded') {
-			script.onreadystatechange = null;
-			nextFn();
-		}
-	};
+	return "+" + fileName;
 }
-var _head= document.getElementsByTagName('head')[0];
-function loadJsFn(durl, nextFn){
-	var script= document.createElement('script');
-	script.type= 'text/javascript';
-	script.src= durl;
-	if (IX.isFn(nextFn))
-		_afterLoadJsFn(script, nextFn);
-	_head.appendChild(script);
+function safeChkFile(filePath, filename){
+	var result = safeChkPath(filePath, filename);
+	return result.charAt(0) == '~' ? null : result.substring(1);
 }
-function loadJsFilesInSeqFn(jsFiles, nextFn){
-	var _nextFn = IX.isFn(nextFn)?nextFn:IX.emptyFn;
-	if (!jsFiles || jsFiles.length===0)
-		return _nextFn();
-	var n = jsFiles.length;
-	var idx =0;
-	var fn = function(){
-		loadJsFn(jsFiles[idx], function(){
-			idx +=1;
-			return (idx<n)?fn():_nextFn();
-		});
-	};
-	fn();
+function safeRenameAs(oldFilename, filePath, filename){
+	var fileName = safeChkFile(filePath, filename);
+	if (debugIsAllow("file"))
+		IX.log("try RENAME  " +  fileName + " from " + oldFilename);
+	if (!fileName)
+		return fs.unlinkSync(oldFilename);
+	fs.renameSync(oldFilename, fileName);
+	chownFileOwner(fileName);
 }
-function loadCssFn(cssFile){
-	var cssNode = document.createElement('link');
-	cssNode.type = 'text/css';
-	cssNode.rel = 'stylesheet';
-	cssNode.href = cssFile;
-	cssNode.media = 'screen';
-	_head.appendChild(cssNode);
-}
-function tryExecute(fnName, argList, dependencyConfig){
-	var fn = function(){				
-		IX.execute(fnName, argList);
-		IX.tryFn(dependencyConfig.afterFn);
-	};
-	if (IX.nsExisted(fnName))
-		return fn();
-	if (!dependencyConfig){
+function safeCopyTo(srcFile, filePath, filename){
+	var fileName = safeChkFile(filePath, filename);
+	if (debugIsAllow("file"))
+		IX.log("try COPY  " +  fileName + " from " + srcFile);
+	if (!fileName)
 		return;
-	}
-	var config = dependencyConfig;
-	IX.tryFn(config.beforeFn);
-	IX.iterate(config.cssFiles, loadCssFn);
-	var delay = config.delay || 100;
-	loadJsFilesInSeqFn(config.jsFiles, function(){
-		setTimeout(fn, delay);
-	});
+	fs.createReadStream(srcFile).pipe(fs.createWriteStream(fileName));
+	chownFileOwner(fileName);
 }
 
-IX.Net = {
-	loadFile:loadFn,
-	loadCss:loadCssFn,
-	loadJsFiles:function(jsFiles, nextFun, mode){
-		//if (!mode || mode=="seq" ){
-			loadJsFilesInSeqFn(jsFiles, nextFun);
-		//}
-	},
-	tryFn:tryExecute
-};
-
-// IX.ajaxEngine && IX.urlEngine
-function defaultParamFn(_name, _params){return _params;}
-function defaulRspFn(data, cbFn){if (IX.isFn(cbFn)) cbFn(data);}
-function getFunProp(_cfg, _name, defFn){
-	var _fn = $XP(_cfg, _name);
-	return IX.isFn(_fn)?_fn :defFn;
-}
-
-function urlRouteFn(routeDef, ifAjax){
-	var _url = $XP(routeDef, "url");
-	if (IX.isEmpty(_url))
-		return null;
-	var route = ifAjax ? {
-		channel : $XP(routeDef, "channel"),
-		type : $XP(routeDef, "type", "POST"),
-		dataType : $XP(routeDef, "dataType", "form"),
-		onsuccess : getFunProp(routeDef, "onsuccess", defaulRspFn),
-		preAjax : getFunProp(routeDef, "preAjax", defaultParamFn),
-		postAjax : $XF(routeDef, "postAjax"),
-		onfail : getFunProp(routeDef, "onfail", defaulRspFn)
-	} : {};
-	route.url = _url;
-	route.urlType = $XP(routeDef, "urlType", "base") + "Url";	
-	return route;	
-}
-function createRouteHT(routes, ifAjax){
-	return IX.loop(routes, {}, function(acc, routeDef){
-		var _name = $XP(routeDef, "name");
-		if (IX.isEmpty(_name))
-			return acc;
-		var route = urlRouteFn(routeDef, ifAjax);
-		if (route)
-			acc [_name] = route;
-		return acc;
-	});
-}
-
-var urlFac = (function UrlFactory(){
-	var _urls = {};
-	var genUrl = function(_route, params){
-		if (!_route)
-			return "";
-		var url = _route.url;
-		var _url = IX.isFn(url)?url(params):url.replaceByParams(params);
-		var _urlBase = (_route.urlType in _urls)?_urls[_route.urlType] : _urls.baseUrl;
-		return _urlBase + _url;
-	};
-	return {
-		init : function(cfg){_urls = IX.inherit(_urls, cfg);},
-		genUrl : genUrl
-	};
-})();
-
-function createUrlRouter(routes){
-	var _routeHT = createRouteHT(routes);
-	return function(_name, params){
-		return urlFac.genUrl(_routeHT[_name], params);
-	};
-}
-
-function tryLockChannel(channel){
-	if (IX.isEmpty(channel))
-		return true;
-	var id = "ajaxChannel_" + channel;
-	if ($X(id))
-		return false;
-	IX.createDiv(id, "ajax-channel");
-	if (debugIsAllow("channel"))
-		IX.log ("lock channel: " + channel);
-	return true;
-}
-function unlockChannel(channel){
-	if (IX.isEmpty(channel))
+var logDir = "/tmp/ix";
+function setLogPath(logPath) {
+	if (IX.isEmpty(logPath))
 		return;
-	var el = $X("ajaxChannel_" + channel);
-	if (el)
-		el.parentNode.removeChild(el);
-	if (debugIsAllow("channel"))
-		IX.log ("unlock channel: " + channel);
+	var arr = logPath.split("/");
+	arr.pop();
+	var _path = arr.join("/");
+	if (!fs.existsSync(_path))
+		IX.safeMkdirSync(_path);
+	try{
+		fs.appendFileSync(logPath + '.log', "\n");	
+		logDir = logPath;
+		console.log("success set log path : " + _path);
+	}catch(ex){
+		console.error("Exception as set log dir: " + _path  + "\n" + ex);
+	}
 }
-function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
-	var channel = $XP(params, "_channel_", _caller.channel);
-	if (!tryLockChannel(channel))
-		return _caller.onfail({
-			retCode : 0,
-			err : "channel in using:"+ channel
-		}, failFn, params);	
+
+function _log(type, msg) {
+	var dstr = IX.getTimeStrInMS();
+	var _msg =  "[" + dstr + "]:" + msg;
+	if ("Test" in global && global.Test.debug != "file")
+		return console.log(_msg);
 	
-	var _cbFn = IX.isFn(cbFn) ? cbFn : IX.emptyFn;
-	var isJson = _caller.dataType == 'json';
-	var _data = _caller.preAjax(_name, params);
-	_ajaxFn({
-		url : urlFac.genUrl(_caller, params),
-		type :  _caller.type,
-		contentType : isJson ? 'application/json' : 'application/x-www-form-urlencoded',
-		data : isJson ? JSON.stringify(_data) : _data,
-		success : function(data) {
-			unlockChannel(channel);
-			_caller.onsuccess(data, _cbFn, params);
-		},
-		fail: function(data){
-			unlockChannel(channel);
-			_caller.onfail(data, failFn, params);
-		},
-		error: function(data){
-			unlockChannel(channel);
-			_caller.onfail(data, failFn, params);
-		}
-	});
-	_caller.postAjax(_name, params, _cbFn);
-}
-
-var _ajaxEngineFn = null;
-function initAjaxEngine(cfg){
-	if (cfg && IX.isFn(cfg.ajaxFn))
-		_ajaxEngineFn = cfg.ajaxFn;
-	urlFac.init(cfg);		
-}
-function createAjaxCaller(routes){
-	var _callerHT = createRouteHT(routes, true);
-	return function(_name, params, cbFn, failFn){
-		var _caller = _callerHT[_name];
-		if (!_caller || !IX.isFn(_ajaxEngineFn))
-			return;
-		if (!$XP(params, '_t')) 
-			params = IX.inherit(params, {_t : IX.getTimeInMS()});
-		executeCaller(_caller, _ajaxEngineFn, _name, params, cbFn, failFn);
-	};
-}
-
-IX.urlEngine = {
-	init : urlFac.init,
-	reset : urlFac.init,	
-	createRouter : createUrlRouter	
-};
-IX.ajaxEngine ={
-	init : initAjaxEngine,
-	reset : initAjaxEngine,
-	createCaller: createAjaxCaller
-};
-
-})();
-(function(){
-/**  
- * IX constant can be access anywhere;
- * 		IX_SCRIPT_PATH
- */
-
-/**
- * IX.Util.Image is an utilities to deal with image data. It only support on HTML5 browsers:
- 	getData(imgEl, cfg): 
- 		cfg : {width, height}
-	  	return : {url, w, h, data}
-	setData(imgEl, imgData, keepRatio)
- * };
- */
-function _getImageDataUrl(img,cw,ch, w, h){
-	var canvas = document.createElement("canvas");
-	canvas.width = cw;  
-	canvas.height = ch;
-	var ctx = canvas.getContext("2d");
-	ctx.drawImage(img, (cw-w)/2, (ch-h)/2, w, h);
-	var dataURL = canvas.toDataURL("image/png");
-	canvas.parentNode.removeChild(canvas);
-	canvas = null;
-	return dataURL;
-}
-function getRatioWH(w, h, rw, rh){
-	var wratio = w/rw, hratio = h/rh;
-	if (wratio>=1 && hratio>=1)
-		return [rw, rh];
-	wratio = Math.min(wratio, hratio);
-	return [rw * wratio, rh *wratio];		
-}
-
-function getImageData(imgEl, cfg){
-	if (!imgEl)
-		return null;
-	var img = new window.Image();
-	img.src = imgEl.src;
-	var wh =getRatioWH($XP(cfg, "width", img.width), $XP(cfg, "height", img.height), img.width, img.height);
-	if (wh[0] * wh[1] === 0)
-		return null;
-	var dataURL = _getImageDataUrl(img, wh[0], wh[1], wh[0], wh[1]);
-	return {
-		url : imgEl.src,
-		w: wh[0], 
-		h: wh[1],
-		data : dataURL
-	};
-}
-function setImageData(imgEl, imgData, keepRatio){
-	if (!imgEl)
-		return;
-	var img = new window.Image();
-	img.src = imgData.data;
-	var cwEl = keepRatio?imgEl:img;
-	var wh =getRatioWH(cwEl.width, cwEl.height, img.width, img.height);
-	var dataURL = _getImageDataUrl(img,cwEl.width, cwEl.height, wh[0], wh[1]);
-	imgEl.src = dataURL;
-}
-IX.ns("IX.Util");
-IX.Util.Image =  {
-	getData : getImageData,
-	setData : setImageData
-};
-
-var getIXScriptEl = function(){
-	if ("scripts" in document) {
-		var scripts =document.scripts;
-		for(var i=0; i<scripts.length; i++) {
-			if (scripts[i].src.indexOf(IX_SCRIPT_NAME)>=0)
-				return scripts[i];
-		}
+	var fname = logDir + "." + type.toLowerCase();
+	try{
+		var fstat = fs.statSync(fname);
+		if (fstat && fstat.size > 10000000) // log file size is over 10M, rename file; 
+			fs.renameSync(fname, fname + "." + dstr);
+	}catch(ex){
+		console.error("Exception as rename to log file " +  fname + "." + dstr + " : \n" + ex);
 	}
-	var head = $XD.first(document.documentElement, "head");
-	var ixEl = $XD.first(head, "script");
-	while(ixEl){
-		if (ixEl.src.indexOf(IX_SCRIPT_NAME)>=0)
-			break;			
-		ixEl = $XD.next(ixEl, "script");
-	}
-	return ixEl;
-};
+	fs.appendFileSync(fname, _msg + "\n");
+}
 
-var ixEl = getIXScriptEl();
-var path = ixEl?ixEl.src:"";
-window.IX_SCRIPT_PATH = path.substring(0, path.indexOf(IX_SCRIPT_NAME)); 
-})();
+IX.extend(IX, {
+	safeMkdirSync : _safeMkdirSync,
+	saveFileIfNotExist : saveFileIfNotExist,
+	safeChkPath : safeChkPath,
+	safeChkFile : safeChkFile,
+	safeRenameAs : safeRenameAs,
+	safeCopyTo : safeCopyTo,
+	
+	setLogPath : setLogPath,
+	err : function(errMsg) {_log("ERR", errMsg);},
+	log : function(errMsg) {_log("LOG", errMsg);}
+});

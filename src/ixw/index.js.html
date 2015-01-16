@@ -1,0 +1,642 @@
+<script>
+IX.ns("Entos");
+IX.ns("Entos.Session");
+
+var isClient = !!navigator.userAgent.match(/Yunfis/);
+Entos.isClient = isClient;
+
+var loadSessionTimeTick = null;
+var sessionData = null;
+var isFirstLogin = false;
+var isVisitor = false;
+Entos.Session = {};
+Entos.isFirstLogin = function () {
+	return isFirstLogin;
+};
+Entos.isVisitor = function(){return isVisitor;};
+Entos.isEmailVerify = function(){return true;}//Entos.Session.isEmailVerify!==false};
+Entos.getFeedFilterInfo = function(){return Entos.Session.get("feedFilterInfo",{})};
+
+Entos.getSessionData = function(){return sessionData;};
+Entos.getSessionUser = function(){return sessionData;};
+Entos.getSessionUserId = function(){return $XP(sessionData, "id");};
+Entos.getSessionUserAvatar = function(){return $XP(sessionData, "avatar");};
+Entos.isSessionUser = function(userId){return sessionData && sessionData.id==userId;};
+Entos.getSessionSite = function(){return $XP(sessionData, "site");};
+Entos.getSessionSiteId = function(){return $XP(sessionData, "site.id");};
+
+Entos.getSessionRootOrgunit = function(){return $XP(sessionData, "site.orgunitRoot");};
+Entos.getSessionDefaultOrgunit = function(){
+	if (!sessionData)
+		return null;
+	var org = $XP(sessionData, "orgunit");
+	if (org)
+		return org;
+	if ("orgunits" in sessionData &&  sessionData.orgunits.length>0)
+		return sessionData.orgunits[0];
+	return null;
+};
+Entos.getSessionOrgunits = function(){
+	var ret = [];	
+	var rootOrg = Entos.getSessionRootOrgunit();
+	var orgs = $XP(sessionData, "orgunits",[]);
+	if(orgs.length){
+		IX.iterate(orgs,function(o){				
+			if(o&&o.id!=rootOrg.id){
+				var _org = Entos.UserManager.getOrgunits([o.id])[o.id];
+				ret.push(_org||o);
+			}
+		});
+	}
+	else{
+		var org = $XP(sessionData, "orgunit");
+		if(org){
+			var	_org = Entos.UserManager.getOrgunits([org.id])[org.id];
+			ret.push(_org||org);
+		}
+	}
+	return ret;
+};
+/*
+	param: org{
+		id, reportTo, manager, operators
+	}
+    return 
+    -1: unknow
+    0 : no access
+    1 : 直接管理的部门 领导
+    2 : 直接管理的部门 管理员  
+    3 : 直接管理的部门 汇报给
+    4 : all accesses
+*/
+Entos.getSessionRoleForOrgunit = function(org){
+    var loginData = Entos.Session;
+    if(!loginData) return -1;
+    if(loginData.isAdmin) return 4;
+    var canManageTopOrgunits = Entos.getSessionTopManagableOrgunits();
+    if(!canManageTopOrgunits) return 0;
+    if(("," + canManageTopOrgunits.join(",") + ",").indexOf("," + org.id + ",") > -1){
+    	if(org.reportTo && org.reportTo == loginData.id) return 3;
+    	if(org.manager && org.manager.id == loginData.id) return 1;
+    	if(org.operators && ("," + org.operators.join(",") + ",").indexOf("," + loginData.id + ",") > -1) return 2;
+    }
+    
+    var parentOrgunits = Entos.UserManager.getParentOrgunits(org.id);
+    if(parentOrgunits.length == 0) return 0;
+    parentOrgunits = "," + parentOrgunits.join(",") + ",";
+    if(canManageTopOrgunits){
+        for(var i = 0, ci; ci = canManageTopOrgunits[i]; i ++){
+            if(parentOrgunits.indexOf("," + ci + ",") > -1) return 4;
+        }
+    }
+
+    return 0;
+};
+Entos.getSessionTopManagableOrgunits = function(){
+    var loginData = Entos.Session;
+    if(!loginData) return null;
+    if(loginData.isAdmin) return [1];
+	var orgunits = [], include = {}, result = [];
+
+	var dorgunits = Entos.UserManager.getOrgunitsInfo().items;
+
+	for(var i = 0;ci = dorgunits[i]; i ++){
+		if(ci.manager && ci.manager.id == loginData.id
+			|| ci.reportTo && ci.reportTo == loginData.id
+			|| ci.operators && (","+ci.operators.join()+",").indexOf(","+loginData.id+",")>-1){
+			orgunits.push(ci);
+			result.push(ci.id);
+		}
+	}
+	if(orgunits.length == 0) return null;
+
+	var canFind = true, index = orgunits.length - 1;
+	while(1){
+		if(Entos.UserManager.isChildOrgunit(orgunits[index].id, orgunits)){
+			orgunits.splice(index , 1);
+			result.splice(index, 1);
+		}
+		index --;
+		if(orgunits.length == 1 || index < 0) break;
+	}
+	return result.length == 0 ? null : result;
+};
+Entos.getSessionCanManageOrgs = function(){
+	var orgs = [];
+	if(!sessionData) return orgs;
+	if(sessionData.orgunit && sessionData.orgunit.roleId == -5){
+		orgs.push(sessionData.orgunit.id);
+	}
+
+	if(sessionData.orgunits){
+		for(var i = 0, ci; ci = sessionData.orgunits[i]; i ++){
+			if(ci.roleId == -5) orgs.push(ci.id);
+		}
+	}
+	return orgs;
+};
+Entos.getMyBrief = function(){
+	var user = sessionData;
+
+	return {
+		id: user.id,
+		name: user.name,
+		email: user.email,
+		avatar: user.avatar
+	};
+};
+Entos.getMyProjects = function(){
+	var projects = Entos.Session.get("projects")||[];
+	var myProjects = [];
+	IX.iterate(projects,function(item){
+		if(Entos.Common.isMe($XP(item,"manager.id"))){
+			myProjects.push(item);
+		}
+	});
+
+	return myProjects;
+};
+Entos.getProjectById = function(id){
+	 var project;
+	 IX.iterate(Entos.Session.get("projects"),function(item){
+	 	if(item.id==id){
+	 		project = item;	 		
+	 	}
+	 });
+	 return project;
+};
+
+Entos.setFirstLoginStatus = function (_isFirstLogin) {
+	isFirstLogin = !_isFirstLogin ? false : true;
+	sessionData&&(sessionData['isFirstLogin'] = isFirstLogin);
+};
+Entos.setSessionUser = function (user) {
+	if(!user) return;
+		
+	for(var k in user){
+		if(k in sessionData){
+			(k=="name")&&(user[k]=IX.encodeTXT(user[k]));
+			sessionData[k] = user[k];			
+		}
+	}
+
+	Entos.Layout.updateTopUser(user);
+};
+Entos.setFeedFilterInfo = function(info){Entos.Session.set("feedFilterInfo",info||{});};
+Entos.setCurrentProject = function(projectId){
+	var projects = sessionData.projects||[],
+		len = projects.length;
+	if(!len)return;
+
+	var current = projects[0];
+	if(projectId !== current.id){
+		for (var i = len - 1; i >= 0; i--) {
+			current = projects[i];
+			if(projectId === current.id)
+				break;
+		}
+	}
+
+	if(current){
+		sessionData.currentProject = current;
+		sessionData.currentProjectId = current.id;
+	}
+};
+
+function TaskTrigger() {
+	var FuncLibHT = new IX.IListManager();
+	var _model = {
+		register : function (_params) {
+			if (!IX.isObject(_params)) return;
+			//channelKey : 'feeds' || 'boxThreads'
+			var _key = $XP(_params, 'channelKey', '');
+			var _fnName = $XP(_params, 'fnName', '');
+			var _func = $XP(_params, 'func', null);
+			if (IX.isFn(_fnName)) return;
+			if (!IX.isFn(_func)) return;
+			if (_key.length == 0 || _fnName.length == 0) return;
+			var _channelFuncHT = FuncLibHT.getByKeys([_key])[0];
+			if (!_channelFuncHT) {
+				_channelFuncHT = new IX.IListManager();
+				FuncLibHT.register(_key, _channelFuncHT);
+			}
+			_channelFuncHT.register(_fnName, _func);
+		},
+		unregister : function (_params) {
+			if (!IX.isObject(_params)) return;
+			//channelKey : 'feeds' || 'boxThreads'
+			var _key = $XP(_params, 'channelKey', '');
+			var _fnName = $XP(_params, 'fnName', '');
+			if (_key.length == 0 || _fnName.length == 0) return;
+			var _channelFuncHT = FuncLibHT.getByKeys([_key])[0];
+			if (!_channelFuncHT) return;
+			_channelFuncHT.unregister(_fnName);
+		},
+		clear : function () {
+			FuncLibHT.clear();
+		},
+		fire : function (_data) {
+			var _channels = FuncLibHT.getKeys();
+			if (_channels.length == 0) return;
+			IX.map(_channels, function (_channelKey, idx) {
+				var _channelData = $XP(_data, _channelKey, []);
+				var _channelFuncHT = FuncLibHT.getByKeys([_channelKey])[0];
+				if (_channelData.length != 0 && _channelFuncHT.getKeys().length > 0) {
+					var _funcList = _channelFuncHT.getAll();
+					IX.map(_funcList, function (_fn, idx) {
+						_fn(_channelData);
+					});
+				}
+			});
+		}
+	};
+	return _model;
+};
+Entos.CurrentTaskTrigger = new TaskTrigger();
+Entos.CurrentTaskTriggerData = {};
+</script>
+<tpl id="unsupportHTML">
+	<div class="bu">
+		<div class="hdrp"><i class="pic logo"></i></div>
+		<div class="content">
+			<div class="t">
+				<p>当前使用的浏览器版本过低，无法正常使用infobox服务，推荐您下载安装以下浏览器中的任一款，然后再用新浏览器访问（www.infoboxme.com），给您带来不便，非常抱歉。</p>
+			</div>
+			<div class="label">
+				<ul>
+					<tpl id = 'bs'>
+						<li>
+							<a class ='i {icon}'></a>
+							<span>{name}</span>
+							<a class = 'href' target="_blank" href="{href}">{href}</a>
+						</li>
+					</tpl>
+				</ul>
+			</div>
+		</div>
+	</div>
+</tpl>
+<script>
+function checkBrowserIfSupport(){
+	var mainVersion = ("" + $.browser.version).split(".")[0] - 0;
+	var ifSupported = document.location.href.indexOf("#unSupport") > -1 ? false : !($.browser.msie && mainVersion<9);	
+	var browsers = [
+		{
+		// 	name: "IE的Chrome插件",
+		// 	href: "http://www.google.com/chromeframe?hl=zh-CN&prefersystemlevel=true",
+		// 	icon: "ie"
+		// },{
+			name: "IE10",
+			href: "http://windows.microsoft.com/zh-cn/internet-explorer/ie-10-worldwide-languages",
+			icon: "ie"
+		},{
+			name: "IE11",
+			href: "http://windows.microsoft.com/zh-cn/internet-explorer/ie-11-worldwide-languages",
+			icon: "ie"
+		},{
+			name: "Firefox",
+			href: "http://firefox.com.cn/",
+			icon: "firefox"
+		},{
+			name: "Safari浏览器",
+			href: "http://www.apple.com.cn/safari/",
+			icon: "safari"
+		},{
+			name: "chrome浏览器",
+			href: "http://rj.baidu.com/soft/detail/14744.html",
+			icon: "chrome"
+		},{
+			name: "360极速浏览器",
+			href: "http://chrome.360.cn/",
+			icon: "chrome360"
+		}
+	];
+	if (!ifSupported){
+		document.body.className = "minor browser_unsupport";
+		document.body.innerHTML = t_unsupportHTML.renderData('', {
+			bs: browsers
+		});
+	}
+
+	return ifSupported;
+}
+
+function addEventToBody4Client(){
+	if(!isClient)
+		return;
+	document.body.addEventListener("click", function(e){
+		var target = e.target;
+		if(target instanceof HTMLAnchorElement === false)
+			return;		
+		target.target = "";
+	}, true);
+}
+
+function initRouteEngine(){
+	// 判定非真实环境，不用初始化与服务器交互
+	if (!IX.nsExisted("Entos.ajaxEngine.init"))
+		return;
+	
+	$.ajaxSetup({beforeSend: function(xhr) {
+		xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+	}});
+
+	Entos.ajaxEngine.init({
+		ajaxFn : Entos.TestAjax || jQuery.ajax,
+		baseUrl : Entos.Global.HOME,
+		commonUrl : Entos.Global.CommonSite,		
+		imgUrl : Entos.Global.IMAGE_ROOT
+	});
+	IX.execute("Entos.Cmps.Lightbox.init",["pdfView",Entos.Global.pdfViewUrl]);  //TODO:
+	//Entos.urlEngine would be initialized as ajaxEngine was initialized! ignore urlEngine's initializing.
+	//Entos.urlEngine.init(routeEngineCfg);	
+}
+
+function mapSessionData(appData){
+	sessionData = appData;
+
+	var util = {
+		get: function(name, defVal){
+			return $XP(sessionData,name,defVal);
+		},		
+		set: function(name, value){
+			if(name){
+				lastIndex = name.lastIndexOf(".");
+				if(lastIndex>-1){
+					var _name = name.substring(0,lastIndex),
+						_name2 = name.substring(lastIndex+1),
+						obj = util.get(_name);
+					obj&&(obj[_name2]=value);
+				}
+				else{
+					sessionData[name] = value;
+				}
+			}
+		},
+		append: function(name,value){
+			var context = util.get(name);
+			if(IX.isArray(context)){
+				if(IX.isArray(value))
+					context.concat(value);
+				else
+					context.push(value);
+				return true;
+			}
+			if(context!==undefined){
+				sessionData[name]=value;
+				return true;
+			}
+			return false;			
+		},
+		//name, id
+		//name, {keyName, key}
+		remove: function(name, id){
+			var obj = util.get(name);
+			if(!obj)return;
+
+			if(IX.isArray(obj)){
+				var keyName = "id",
+					key = id;
+				if(IX.isObject(id)){
+					keyName = $XP(id,"keyName",keyName);
+					key = $XP(id,"key");
+				}
+
+				for (var i=0,l=obj.length;i<l;i++) {
+					var obj2 = obj[i];
+					if(key===obj2[keyName]){
+						obj.splice(i,1);
+						break;
+					}
+				};
+			}
+			else{
+				delete Entos.Session[name] ;
+			}
+		},
+		getExtend: function(name, defVal){
+			if(name)
+				return util.get("extendData."+name,defVal);
+			return util.get("extendData",defVal);
+		},
+		setExtend: function(name, value, needCallServer){
+			if(!sessionData.extendData)
+				sessionData.extendData = {};
+			sessionData.extendData[name] = value;
+			needCallServer&&Entos.Global.profileCallServer("setExtendData",{name: name, value: value});
+		}
+	};
+
+	isVisitor = $XP(sessionData,"ustat")==4;
+	isFirstLogin = $XP(sessionData, 'isFirstLogin', true);
+	sessionData.isFirstLogin = isFirstLogin;
+	sessionData.isVisitor = isVisitor;
+	//sessionData.name = IX.encodeTXT(sessionData.name);
+		
+	//get current site
+	var site = sessionData.site||{};
+	//site.typeName = site.typeName||"团队版";
+	sessionData.site = site;
+	//get current project
+	sessionData.projects = sessionData.projects||[];
+	Entos.setCurrentProject(util.getExtend("currentProjectId"));
+
+	Entos.Session = IX.extend(sessionData,util);
+}
+
+function loadSession(appData, cbFn){
+	isVisitor = $XP(appData,"ustat")==4;
+	if (!isVisitor&&!$XP(appData, "id")){ //非登录状态
+		alert("您没有登录infobox系统，不能打开链接！");
+		return;
+	}
+
+	mapSessionData(appData);
+	
+	var mode = Entos.Global.workMode || "pesudo";
+	IX.execute("Entos.Socket.init", [mode, Entos.Global.socketUrl]);
+	//IX.execute("Entos.DocUI.init", [Entos.Global.fullscreenUrl]);
+	IX.execute("Entos.Emotion.init", [Entos.Global.emotionImgUrl]);
+	// need siteUrl ...
+	IX.execute("Entos.Lib.FileUploader.init", [mode, Entos.Global.getFileUploaderUrl()]);	
+	
+	var cacheNames = ["contacts"];
+	//!isVisitor&&cacheNames.push("im");
+	//cacheNames = cacheNames.concat(['users', 'orgunit', 'circles', 'contacts']);	
+	IX.execute("Entos.UserManager.loadAllData", [cacheNames, function () {
+		Entos.PageRoute.start(function(){
+			cbFn&&cbFn();
+		});
+		Entos.Common.bindGoTop();
+	}]);
+}
+/*
+	reload session data
+*/
+Entos.reloadSession = function (_cbFn, _timeTick) {
+	if (_timeTick && _timeTick == loadSessionTimeTick) return;
+	
+	var params = {includeIM : !isClient};
+
+	Entos.Global.loadEntosAppData(params, function (res) {
+		var data = $XP(res, 'data', {});
+		mapSessionData(data);		
+		_cbFn(sessionData);
+		if (_timeTick) {
+			loadSessionTimeTick = _timeTick;
+		}
+	});
+};
+
+/**
+	cfg:{
+		cbFn,
+		feedId, //for isVisitor
+	}
+*/
+function initMainPage(cfg){
+	cfg = cfg||{};
+	var tick = IX.getTimeInMS();
+	var cbFn = $XF(cfg,"cbFn");
+	var params = {includeIM:!isClient};
+	cfg.feedId&&(params.feedId=cfg.feedId);
+	
+	log("Entos INIT: " + tick);
+	Entos.Global.loadEntosAppData(params, function(res){
+		log("load Entos app data in (ms): " + (IX.getTimeInMS() - tick));
+		if (res.code != 1) return;
+
+		var data = $XP(res, 'data', {});		
+
+		loadSession(data, function(){
+			log("Entos INIT done in (ms): " + (IX.getTimeInMS() - tick));
+			Entos.Task.RemindDataCache = new Entos.Task.TaskRemindPush(data.taskReminds);
+			Entos.Cmps.showSysNoticeBar();
+			if(isVisitor){	
+				cbFn();
+				return;
+			}
+
+			// if (Entos.isFirstLogin()) {
+			// 	Entos.Profile.FirstSettingProfile();
+			// }
+			if(Entos.isFirstLogin()){
+				Entos.Guide.play("usageForBox");
+			}
+
+			Entos.CurrentTaskTrigger.register({
+				channelKey: "feeds",
+				fnName: "feedNotice",
+				func: Entos.MsgNotice.feedNotice
+			});
+
+			Entos.CurrentTaskTrigger.register({
+				channelKey: "boxThreads",
+				fnName: "boxNotice",
+				func: Entos.MsgNotice.boxNotice
+			});
+
+			Entos.CurrentTaskTrigger.register({
+				channelKey: "taskReminds",
+				fnName: "taskRemindNotice",
+				func: Entos.MsgNotice.taskRemindNotice
+			});
+
+			Entos.CurrentTaskTrigger.register({
+				channelKey : "reloadSession",
+				fnName : "reloadSession",
+				func : function (_timeTick) {
+					Entos.reloadSession(function () {
+						// console.info(_timeTick + " : reload session!");
+					}, _timeTick);
+				}
+			});
+
+			cbFn();			
+		});
+	});
+}
+Entos.initMainPage = initMainPage;
+
+/** entosCfg :{
+ * 		type : "entry"/"manage"/"main" default main
+ *  }
+ */
+var entosAppInitialized = false, currentType;
+Entos.init = function(entosCfg) {
+	if (entosAppInitialized)
+		return;
+	entosAppInitialized = true;
+
+	if (!checkBrowserIfSupport())
+		return;
+	currentType = $XP(entosCfg, "type", "main");
+	Entos.Global.init();
+
+	Entos.Urls = {
+		homeUrl: "/",	
+		imgPath: Entos.Global.IMAGE_ROOT,
+		jsPath: Entos.Global.SCRIPT_ROOT,	
+		loginUrl: Entos.Global.loginUrl,
+		registerUrl: Entos.Global.registerUrl,
+		resetPwdUrl: Entos.Global.resetPwdUrl,
+		recoverPwdUrl: Entos.Global.recoverPwdUrl,
+		downloadUrl: Entos.Global.downloadUrl,
+		functionUrl:Entos.Global.functionUrl,
+		indexUrl: Entos.Global.indexUrl
+	};
+
+	 Entos.Brief && new Entos.Brief.UserBrief();
+	addEventToBody4Client();
+	initRouteEngine();
+
+	entosCfg = IX.inherit(entosCfg,{
+		cbFn: function(){
+			if($XP(entosCfg,"emailVerifySuccess")===true){
+				// if(Entos.isEmailVerify())
+				// 	Entos.Dialog.Tips({"content":"你的帐户已经激活，请勿重复操作！","type":"warning"});
+				// else
+				Entos.Dialog.Tips({"content":"您的帐户激活成功!"});
+			}
+		}
+	});
+	
+	switch(currentType){
+		case "entry":
+			Entos.Entry.Index(entosCfg);
+			break;		
+		case "signIn":
+			Entos.Storage.logout();
+			Entos.Entry.SignIn(entosCfg);			
+			break;		
+		case "inviteEntry":
+			Entos.Storage.logout();
+			Entos.Entry.inviteInit(entosCfg);
+			break;
+		case "inviteLogin":
+			Entos.Storage.logout();
+			Entos.Entry.inviteLoginInit(entosCfg);	
+			break;
+		case "register":
+			Entos.Entry.Register(entosCfg);
+			break;
+		case "recoverPwd":
+			Entos.Entry.RecoverPwd(entosCfg);
+			break;
+		case "resetPwd":
+			Entos.Entry.ResetPwd(entosCfg);
+			break;
+		case "manage":
+			break;
+		case "download":
+			Entos.Entry.Download(entosCfg);
+			break;
+		case "function":
+			Entos.Entry.Functions(entosCfg);
+			break;
+		default : //"main"
+			initMainPage(entosCfg);
+			break;
+	}
+};
+</script>
