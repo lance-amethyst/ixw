@@ -1,9 +1,0 @@
-{
-  "name": "sample", 
-  "description" : "IX sample web frontend project",
-  "rootNS": "Sameple",
-  "version": "1.0",
-  
-  "release-target" : "dist",
-  "defaultTask" : ["deploy"]
-}
