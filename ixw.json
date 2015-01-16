@@ -1,6 +1,9 @@
 {
-  "name": "ixw", 
+  "name": "sample", 
   "description" : "IX sample web frontend project",
-  "rootNS": "IXW",
-  "version": "1.0"
+  "rootNS": "Sameple",
+  "version": "1.0",
+  
+  "release-target" : "dist",
+  "defaultTask" : ["deploy"]
 }
