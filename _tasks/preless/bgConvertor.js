@@ -1,8 +1,6 @@
 var fs = require('fs');
 var util = require('util');
 
-var lessTpl = Preless.lessTpl;
-
 function getFileInfoList(srcPath, clzPrefix){
 	function base64_encode(filename) {
 		return new Buffer(fs.readFileSync(srcPath + "/" + filename)).toString('base64');
@@ -34,7 +32,6 @@ function getFileInfoList(srcPath, clzPrefix){
  *		classPrefix : prefix for all background in src folder
  * 		src : the direction contain origin background images
  * 		dest : directoy to contain less file
- * 		demoDest : directory to contain demo files
  * } 
  */
 exports.merge = function(cfg, cb) {
@@ -43,24 +40,9 @@ exports.merge = function(cfg, cb) {
 	if (list.length==0)
 		return cb(null);
 	//console.info("backgrounds : " + clzPrefix + "::" + util.inspect(list));
-	
-	var lessStr = lessTpl.renderData("", {
-		bg : list,
-		pic : []
-	});
-	//console.info("backgrounds : " + lessStr);
-	var bgPath = cfg.path;
-	var destFile = "/less/" + bgPath + ".less";
-	var demoDest = cfg.demoDest; 
-
-	IX.safeWriteFileSync(cfg.dest + destFile, lessStr);
-	console.log("Output background css to " + destFile);
-	if (!demoDest)
-		return cb(null);
-	IX.safeWriteFileSync(demoDest + destFile, lessStr);
 	cb({
 		type : "bg",
-		path : bgPath,
+		path : cfg.path,
 		prefix : clzPrefix,
 		list : list
 	});

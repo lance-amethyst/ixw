@@ -17,12 +17,11 @@ function dupFile(srcFile, destFile){
 	var dir = path.dirname(dstFName);
 	IX.safeMkdirSync(dir);
 	
-	//IX.saveFileIfNotExist(path.dirname(dstFName), path.basename(dstFName), fileData, IX.emptyFn);
+//	IX.saveFileIfNotExist(path.dirname(dstFName), path.basename(dstFName), fileData, IX.emptyFn);
 //	if (!fs.existsSync(dstFName))
 		fs.writeFileSync(dstFName, fileData, {encoding : "utf8"});
 //	else
 //		console.log(dstFName + "existed!");
-		
 }
 
 function dupETSFiles(){
@@ -53,8 +52,8 @@ function copyFiles(){
 	dupFile('_package.json', "package.json");
 	dupFile('_proto.dist.index.htm', "proto/dist/index.htm");
 	dupFile('_src.ixw.index.js.html', "src/ixw/index.js.html");
-	dupFile('_tasks.deploy.jshintOptions.js', "_tasks/deploy/jshintOptions.js");
-	dupFile('_tasks.deploy.less.js', "_tasks/deploy/less.js");
+	dupFile('_tasks.deploy.config.jshintOptions.js', "_tasks/deploy/config/jshintOptions.js");
+	dupFile('_tasks.deploy.config.lessOptions.js', "_tasks/deploy/config/lessOptions.js");
 	
 	dupETSFiles();
 }

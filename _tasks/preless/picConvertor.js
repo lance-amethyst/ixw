@@ -37,7 +37,7 @@ function packImages(list) {
 }
 function drawImages(list, callback){
 	var imgInfoArr = packImages(list);
-	console.log("after packImages:" + util.inspect(imgInfoArr));
+	//console.log("after packImages:" + util.inspect(imgInfoArr));
 	var imgPng = createPng(imgInfoArr.root.w, imgInfoArr.root.h);
 	imgInfoArr.forEach(function(obj){
 		var img = obj.image, x = obj.fit.x, y = obj.fit.y;
@@ -45,18 +45,18 @@ function drawImages(list, callback){
 		obj.ypos = y==0?"0": ("-" + y+ "px");
 		img.bitblt(imgPng, 0, 0, img.width, img.height, x, y);
 	});
-	console.log("after bitblt all:" + util.inspect(imgPng));
+	//console.log("after bitblt all:" + util.inspect(imgPng));
 	var bitBuf = new Buffer(0);
 	imgPng.on('data', function(chunk){
-		console.log(" pack: " +  (chunk instanceof Buffer));
+		//console.log(" pack: " +  (chunk instanceof Buffer));
 		bitBuf = Buffer.concat([bitBuf, chunk]);
 		
 	});
 	imgPng.on('end', function(chunk){
-		console.log("end packed: " + bitBuf.length);
+		//console.log("end packed: " + bitBuf.length);
 		if(chunk)
 			bitBuf = Buffer.concat([bitBuf, chunk]);
-		console.log("packed: " + bitBuf.length);
+		//console.log("packed: " + bitBuf.length);
 		callback(list, bitBuf);
 	});
 	imgPng.pack();
@@ -123,28 +123,18 @@ function getFileInfoList(srcPath, clzPrefix, margin, cbFn){
 * } 
  */
 exports.merge = function (cfg, cb) {
-	var clzPrefix = cfg.classPrefix ||"pic",
-		margin = cfg.margin || 8;
+	var clzPrefix = cfg.classPrefix ||"pic";
 	
 	function outputFiles(list, bitBuf){
-		var lessStr = Preless.lessTpl.renderData("", {
-			bg : [],
-			pic : list
-		});
-		console.info("pic maps : " + lessStr);
 		var picPath = cfg.path;
-		var destLessFile = "/less/" + picPath + ".less";
 		var destImgFile = "/images/" + picPath + ".png";
 		var dest = cfg.dest;
 		var demoDest = cfg.demoDest; 
 
-		IX.safeWriteFileSync(dest + destLessFile, lessStr);
 		IX.safeWriteFileSync(dest + destImgFile, bitBuf);
-		console.log("Output pic map less to " + destLessFile);
-		if (!demoDest)
-			return cb(null);
-		IX.safeWriteFileSync(demoDest + destLessFile, lessStr);
-		IX.safeWriteFileSync(demoDest + destImgFile, bitBuf);
+		if (demoDest)
+			IX.safeWriteFileSync(demoDest + destImgFile, bitBuf);
+		console.log("Output pic map png to " + destImgFile);
 		cb({
 			type : "pic",
 			path : picPath,
@@ -153,10 +143,10 @@ exports.merge = function (cfg, cb) {
 		});
 	}
 	console.log("get images for picmap :" + cfg.src);
-	getFileInfoList(cfg.src, clzPrefix, margin, function(list){
+	getFileInfoList(cfg.src, clzPrefix, cfg.margin || 8, function(list){
 		if (list.length==0)
 			return cb(null);
-		console.log("draw images for picmap : " + clzPrefix + "\n" + util.inspect(list));
+		//console.log("draw images for picmap : " + clzPrefix + "\n" + util.inspect(list));
 		drawImages(list, outputFiles);
 	});
 };

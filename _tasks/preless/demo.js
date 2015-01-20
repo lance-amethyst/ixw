@@ -14,14 +14,11 @@ exports.set = function(name, result){
 		return;
 	tplData[result.type].push(result);
 };
-exports.check = function(demoPath) {
-	function renderTpl(tplfile, destFile, data){
+exports.check = function(demoPath, data) {
+	function renderTpl(tplfile, destFile){
 		var tpl = Preless.loadTplFromFile(tplfile);
 		IX.safeWriteFileSync(demoPath +"/" +  destFile, tpl.renderData("", data));	
 	}
-	renderTpl("preview.htm", "preview.htm", tplData);
-	renderTpl("demo.less", "less/demo.less", {
-		hdr : [tplData],
-		body : [tplData]
-	});
+	renderTpl("preview.htm", "preview.htm");
+	renderTpl("demo.less", "less/demo.less");
 };

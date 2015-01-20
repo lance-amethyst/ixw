@@ -5,7 +5,7 @@ module.exports = {
 	version: "1.0",
 	distrib: "dev",
 	"release-target": "./dist",
-	
+
 	defaultTasks : "deploy",
 
 	preless :{

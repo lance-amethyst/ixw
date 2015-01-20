@@ -4,8 +4,8 @@ module.exports = function (grunt) {
 	var prjCfg = require('./ixw_config.js');
 	
 	var gruntCfg = {
-		pkg : $XP(grunt.file.readJSON("package.json"), {
-				distribNo :  IX.getTimeInMS()
+		pkg : IX.inherit(grunt.file.readJSON("./package.json"), {
+			distribNo :  IX.getTimeStrInMS().substring(2, 13)
 		})
 	};
 	

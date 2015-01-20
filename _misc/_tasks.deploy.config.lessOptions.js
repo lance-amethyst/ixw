@@ -2,8 +2,7 @@ module.exports ={
 	options: {
 		paths: ["src/less"],
 		modifyVars: {
-			imgPath: 'http://sample.com/images',
-			distrib: '<%= pkg.distribNo %>'
+			imgPath: 'http://sample.com/images'
 		}
 	},
 	

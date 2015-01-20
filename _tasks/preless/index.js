@@ -10,7 +10,6 @@ function loadTplFromFile(filename){
 }
 IX.ns("Preless");
 Preless.loadTplFromFile = loadTplFromFile;
-Preless.lessTpl = loadTplFromFile("tpl.less");
 
 var demo = require("./demo.js");
 var bgConvertor = require("./bgConvertor.js");
@@ -18,6 +17,20 @@ var picConvertor = require("./picConvertor.js");
 
 var allTasks = [];
 var taskStatus = {};
+var lessData ={
+	bg :[],
+	pic :[]
+};
+
+function writeLessFile(destPath, demoDest){
+	var lessTpl = loadTplFromFile("tpl.less");
+	var lessStr = lessTpl.renderData("", lessData);
+	var destFile = "/less/ixwpre.less";
+	IX.safeWriteFileSync(destPath + destFile, lessStr);
+	//console.log("Output less to " + destFile + ":\n" + lessStr);
+	if (demoDest)
+		IX.safeWriteFileSync(demoDest + destFile, lessStr);
+}
 
 module.exports = function(grunt, gruntCfg, prjCfg, done){
 	var taskCfg = prjCfg.preless || {};
@@ -31,8 +44,10 @@ module.exports = function(grunt, gruntCfg, prjCfg, done){
 			if (!(allTasks[i] in taskStatus))
 				return setTimeout(checkReady, 500);
 		}
+		writeLessFile(destPath, demoDest)
+		
 		if (demoDest)
-			demo.check(demoDest);
+			demo.check(demoDest, lessData);
 		console.log("preless convert all done!");
 		done();
 	}
@@ -42,10 +57,12 @@ module.exports = function(grunt, gruntCfg, prjCfg, done){
 		if (demoDest)
 			demo.register(taskName);
 		allTasks.push(taskName);
-		convertor.merge(task, function(previewInfo){
+		convertor.merge(task, function(lessInfo){
 			console.log("after merge!" + taskName);
 			taskStatus[taskName] = true;
-			demo.set(taskName, previewInfo);
+			if (!lessInfo)
+				return;
+			lessData[lessInfo.type].push(lessInfo);
 		});
 	}
 	//console.log("start preless convert all!");
@@ -56,8 +73,7 @@ module.exports = function(grunt, gruntCfg, prjCfg, done){
 			classPrefix : "bg",
 
 			src : srcPath + "/" + taskPath,
-			dest : destPath,
-			demoDest : demoDest
+			dest : destPath
 		}, task),  bgConvertor);
 	});
 

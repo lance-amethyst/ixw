@@ -1,13 +1,5 @@
-<tpl id="hdr">
-<tpl id="bg">@import "{path}";
-</tpl>
-<tpl id="pic">.x-{prefix}() {
-	display : inline-block;
-	background-image : url(../images/{path}.png);
-	background-repeat: no-repeat;
-}
-@import "{path}";
-</tpl></tpl>
+@import "ixwpre";
+
 @x-bg-color:rgba(127,127,127, 0.5);
 
 body {width:100%; height:100%;}
@@ -45,8 +37,8 @@ div .label {float:right;}
 
 .bg_area>div>div {width:100%; height:16px;}
 
-<tpl id="body"><tpl id="bg"><tpl id="list">.{prefix}-{name} {{info} .x-{prefix}-{name};}
+<tpl id="bg"><tpl id="list">.{prefix}-{name} {{info} .x-{prefix}-{name};}
 </tpl></tpl><tpl id="pic">
 [class^="{prefix}"], [class*=" {prefix}"] {.x-{prefix};}
 <tpl id="list">.{prefix}-{name} {{info} .x-{prefix}-{name};}
-</tpl></tpl></tpl>
+</tpl></tpl>
