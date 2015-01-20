@@ -37,7 +37,7 @@ function dupETSFiles(){
 	fs.appendFileSync(destFile, fs.readFileSync("./_bin/tpl/browser/ets.js"));
 	fs.appendFileSync(destFile, "\n})();");
 	
-	childProcess.exec("cp -r _bin/tpl/lib/*.js " + ixwPrjDir + "/_tasks/_lib");
+	childProcess.exec("cp -r _bin/tpl/lib " + ixwPrjDir + "/_tasks/deploy/_lib");
 }
 function copyFiles(){
 	IX.safeMkdirSync(ixwPrjDir + "/dist");
@@ -52,8 +52,6 @@ function copyFiles(){
 	dupFile('_package.json', "package.json");
 	dupFile('_proto.dist.index.htm', "proto/dist/index.htm");
 	dupFile('_src.ixw.index.js.html', "src/ixw/index.js.html");
-	dupFile('_tasks.deploy.config.jshintOptions.js', "_tasks/deploy/config/jshintOptions.js");
-	dupFile('_tasks.deploy.config.lessOptions.js', "_tasks/deploy/config/lessOptions.js");
 	
 	dupETSFiles();
 }

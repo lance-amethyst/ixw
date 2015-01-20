@@ -31,7 +31,7 @@ function _parse_file(filepath, opt) {
 function checkpath(filepath, opt){
 	var file = fs.statSync(filepath);
 	if(file.isFile() && TplFileReg.test(filepath))
-		_parse_file(filepath, opt);
+		return _parse_file(filepath, opt);
 	else if(!file.isDirectory())
 		return;
 
@@ -45,7 +45,7 @@ function checkpath(filepath, opt){
  * 	clean : true to clean all middle files by etsc
  * }
  */
-module.exports = function(fpath, options, cbFn){
+module.exports = function(fpath, options){
 	var opt = {
 		nsName : "IXE.Tpl",
 		clean : false
@@ -53,12 +53,13 @@ module.exports = function(fpath, options, cbFn){
 	if (IX.isFn(options))
 		cbFn = options;
 	else
-		IX.extend(opt, option)
+		IX.extend(opt, options);
 		
 	try{
 		checkpath(fpath, opt);
+		return true;
 	} catch(ex){
 		console.error(ex);
+		return false;
 	}
-	cbFn();
 };

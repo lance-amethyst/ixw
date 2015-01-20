@@ -3,11 +3,11 @@ require("./_tasks/_lib/ix.js");
 module.exports = function (grunt) {
 	var prjCfg = require('./ixw_config.js');
 	
-	var gruntCfg = {
+	grunt.initConfig(IX.inherit({
 		pkg : IX.inherit(grunt.file.readJSON("./package.json"), {
 			distribNo :  IX.getTimeStrInMS().substring(2, 13)
-		})
-	};
+		}),
+	}, prjCfg.grunt));
 	
 	grunt.loadNpmTasks("grunt-contrib-jshint");
 	grunt.loadNpmTasks("grunt-contrib-uglify");
@@ -19,13 +19,12 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks("grunt-contrib-compress");
 	
 	["preless", "deploy", "release"].forEach(function(taskName){
-		grunt.task.registerTask(taskName, 'Initialize project base on ixw_config.json.', function() {
+		grunt.registerTask(taskName, 'Initialize project base on ixw_config.json.', function() {
 			var taskEntry = require("./_tasks/" + taskName + "/index.js");
-			taskEntry(grunt, gruntCfg, prjCfg, this.async());
+			taskEntry(grunt, prjCfg, this.async());
 		});
 	});
-	grunt.task.registerTask("publish", ["deploy", "release"]);
-	grunt.initConfig(gruntCfg);
+	grunt.registerTask("publish", ["deploy", "release"]);
 
 	grunt.registerTask('default', prjCfg.defaultTasks || ["deploy"]);
 };

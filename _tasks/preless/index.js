@@ -32,7 +32,7 @@ function writeLessFile(destPath, demoDest){
 		IX.safeWriteFileSync(demoDest + destFile, lessStr);
 }
 
-module.exports = function(grunt, gruntCfg, prjCfg, done){
+module.exports = function(grunt, prjCfg, done){
 	var taskCfg = prjCfg.preless || {};
 	var srcPath = process.cwd() + "/" + taskCfg.src;
 	var destPath = process.cwd() + "/" + taskCfg.dest;
