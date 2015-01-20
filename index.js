@@ -24,6 +24,22 @@ function dupFile(srcFile, destFile){
 //		console.log(dstFName + "existed!");
 		
 }
+
+function dupETSFiles(){
+	var destFile = ixwPrjDir + "/src/lib/ets.js";
+	IX.safeMkdirSync(path.dirname(destFile));
+	if(fs.existsSync(destFile))
+		fs.unlinkSync(destFile);
+	fs.appendFileSync(destFile, "(function () {\n");
+	fs.appendFileSync(destFile, fs.readFileSync("./_bin/tpl/lib/parser.js"));
+	fs.appendFileSync(destFile, "\n");
+	fs.appendFileSync(destFile, fs.readFileSync("./_bin/tpl/lib/translator.js"));
+	fs.appendFileSync(destFile, '\nvar ETS_NS = "' + ixwPrjNS + '.Tpl";\n');
+	fs.appendFileSync(destFile, fs.readFileSync("./_bin/tpl/browser/ets.js"));
+	fs.appendFileSync(destFile, "\n})();");
+	
+	childProcess.exec("cp -r _bin/tpl/lib/*.js " + ixwPrjDir + "/_tasks/_lib");
+}
 function copyFiles(){
 	IX.safeMkdirSync(ixwPrjDir + "/dist");
 	childProcess.exec("cp -r _asserts " + ixwPrjDir);
@@ -39,6 +55,8 @@ function copyFiles(){
 	dupFile('_src.ixw.index.js.html', "src/ixw/index.js.html");
 	dupFile('_tasks.deploy.jshintOptions.js', "_tasks/deploy/jshintOptions.js");
 	dupFile('_tasks.deploy.less.js', "_tasks/deploy/less.js");
+	
+	dupETSFiles();
 }
 
 function print(s){
