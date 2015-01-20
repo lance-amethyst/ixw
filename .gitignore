@@ -1,0 +1,9 @@
+.eunit
+deps
+*.o
+*.beam
+*.plt
+.DS_Store
+.settings
+.project
+node_modules

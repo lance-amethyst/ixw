@@ -1,8 +1,7 @@
 require("./_tasks/_lib/ix.js");
 
-
 module.exports = function (grunt) {
-	var prjCfg = require('./ixw.json');
+	var prjCfg = require('./ixw_config.js');
 	
 	var gruntCfg = {
 		pkg : $XP(grunt.file.readJSON("package.json"), {
@@ -20,9 +19,9 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks("grunt-contrib-compress");
 	
 	["preless", "deploy", "release"].forEach(function(taskName){
-		grunt.task.registerTask(taskName, 'Initialize project base on ixw.json.', function() {
-			 var taskEntry = require("./gruntTasks/" + taskName + "/index.js");
-			 taskEntry(grunt, gruntCfg, prjCfg);
+		grunt.task.registerTask(taskName, 'Initialize project base on ixw_config.json.', function() {
+			var taskEntry = require("./_tasks/" + taskName + "/index.js");
+			taskEntry(grunt, gruntCfg, prjCfg, this.async());
 		});
 	});
 	grunt.task.registerTask("publish", ["deploy", "release"]);

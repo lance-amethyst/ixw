@@ -1495,6 +1495,7 @@ IX.ITask = function(taskFn, interval, times){
  *}
  */
 var fs = require('fs');
+var path = require('path');
 var util = require('util');
 var childProcess = require('child_process');
 
@@ -1565,6 +1566,11 @@ function safeCopyTo(srcFile, filePath, filename){
 	fs.createReadStream(srcFile).pipe(fs.createWriteStream(fileName));
 	chownFileOwner(fileName);
 }
+function safeWriteFileSync(filePath, fileData){
+	var dir = path.dirname(filePath);
+	_safeMkdirSync(dir);
+	fs.writeFileSync(filePath, fileData);
+}
 
 var logDir = "/tmp/ix";
 function setLogPath(logPath) {
@@ -1608,6 +1614,7 @@ IX.extend(IX, {
 	safeChkFile : safeChkFile,
 	safeRenameAs : safeRenameAs,
 	safeCopyTo : safeCopyTo,
+	safeWriteFileSync : safeWriteFileSync,
 	
 	setLogPath : setLogPath,
 	err : function(errMsg) {_log("ERR", errMsg);},

@@ -1,8 +1,0 @@
-{
-  "name": "{PRJ}", 
-  "description" : "IX sample web frontend project",
-  "namespace": "{NS}",
-  "version": "1.0",
-  "distrib": "dev",
-  "release-target" : "./dist"
-}

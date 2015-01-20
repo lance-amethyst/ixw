@@ -33,7 +33,7 @@ function copyFiles(){
 	childProcess.exec("cp -r src " + ixwPrjDir);
 	
 	dupFile("Gruntfile.js", "Gruntfile.js");
-	dupFile('_ixw.json', "ixw.json");
+	dupFile('_ixw_config.js', "ixw_config.js");
 	dupFile('_package.json', "package.json");
 	dupFile('_proto.dist.index.htm', "proto/dist/index.htm");
 	dupFile('_src.ixw.index.js.html', "src/ixw/index.js.html");
@@ -79,8 +79,8 @@ function inputHandler(cmdData){
 		return;
 	default :
 		copyFiles();
-		console.log("\n\nAbove settings will be writen into " + ixwPrjDir + "/ixw.json; you can change it manually." );
-		console.log("\tIn ixw.json, the prject name can be changed simply, but namespace should be carefule except you know what will happen." );
+		console.log("\n\nAbove settings will be writen into " + ixwPrjDir + "/ixw_config.js; you can change it manually." );
+		console.log("\tIn ixw_config.js, the prject name can be changed simply, but namespace should be carefule except you know what will happen." );
 		console.log("The new project has three grunt tasks, please check Gruntfile.js to get more information.");
 		console.log("Before you start up project, please run 'npm install' to load node modules under directory " + ixwPrjDir );
 		

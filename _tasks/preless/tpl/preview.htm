@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>spirite preview</title>
+	<link href="less/demo.less" rel="stylesheet/less">
+</head>
+<body>
+	<tpl id="bg">
+		<h1>less/{path}.less contain all "{prefix}" background style </h1>
+		<div class="bg_area"><tpl id="list">
+			<div>
+				<h3>.x-{prefix}-{name}</h3>
+				<div class="{prefix}-{name}" style="{info}">{info}</div>
+			</div>	
+		</tpl></div>
+	</tpl>
+	<tpl id="pic">
+		<h1>less/{path}.less contain all "{prefix}" style </h1>
+		<div class="pic_area"><tpl id="list">
+			<div>
+				<h3>.x-{prefix}-{name}</h3>
+				<span class="{prefix}-{name}" style="{info}"></span>
+				<span class="label">{info}</span>
+			</div>	
+		</tpl></div>
+	</tpl>
+
+	<iframe src="./less/demo.less" style="height:800px;width:500px;"></iframe>
+</body>
+<script src="../src/lib/less.min.js"></script>
+</html>
