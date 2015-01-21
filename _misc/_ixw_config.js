@@ -3,10 +3,6 @@ module.exports = {
 	description : "sample web frontend project based on IXW",
 	namespace: "{NS}",
 	version: "1.0",
-	distrib: "dev",
-	"release-target": "./dist",
-
-	defaultTasks : "deploy",
 
 	preless :{
   		src : "./_asserts",
@@ -27,14 +23,19 @@ module.exports = {
 		}]
 	},
 	deploy: {
-		
 	},
-
 	release :{
-
+//		jsUrl : "http://localhost/{PRJ}/_rel/js",
+//		imagesUrl : "http://localhost/{PRJ}/_rel/img",
+//		cssUrl : "http://localhost/{PRJ}/_rel/css"
 	},
 
 	grunt : {
+		clean :{
+			deploy : ["_dist/"],
+			release : ["_rel/"],
+			afterRel : ["_dist.copy/"]
+		},
 		jshint :{
 			options: {	
 				//curly:true,  //大括号包裹  
@@ -65,7 +66,7 @@ module.exports = {
 				}
 			},
 			files : {src : ['src/ixw/*.js']},
-			afterconcat: ['dist/js/{PRJ}.js',]
+			afterconcat: ['_dist/js/<%= pkg.name %>.js']
 		},
 		less :{
 			deploy:{
@@ -73,7 +74,7 @@ module.exports = {
 					paths: ["src/less"]
 				},
 				files: {
-					"dist/css/{PRJ}.css": "src/less/core.less"
+					"_dist/css/<%= pkg.name %>.css": "src/less/core.less"
 				}
 			}
 		},
@@ -84,7 +85,7 @@ module.exports = {
 			},
 			project :{
 			   src : ["src/ixw/index.js"],
-			   dest : "dist/js/{PRJ}.js"
+			   dest : "_dist/js/<%= pkg.name %>.js"
 			}
 		},
 		copy: {
@@ -92,10 +93,39 @@ module.exports = {
 				files: [
 				    //{src: ['path/*'], dest: 'dest/', filter: 'isFile'},// 复制path目录下的所有文件  
 				    //{src: ['path/**'], dest: 'dest/'},// 复制path目录下的所有目录和文件  
-					{src: ['src/bootstrap/fonts/*'], dest: 'dist/bootstrap/fonts/', expand: true, flatten: true, filter: 'isFile'},
-					{src: ['proto/dist/*'], dest: 'dist/', expand: true, flatten: true, filter: 'isFile'}
+					{cwd: 'src/bootstrap/', src: ['fonts/**'], dest: '_dist/bootstrap/', expand: true, filter: 'isFile'},
+					{cwd: 'src/', src: ['images/**'], dest: '_dist/', expand: true, filter: 'isFile'},
+					{cwd: 'proto/dist/', src: ['*'], dest: '_dist/', expand: true, filter: 'isFile'}
+				]
+			},
+			beforeRel : {
+				files : [
+					{cwd : '_dist', src: ['bootstrap/**'], dest: '_rel/', expand: true, filter: 'isFile'},
+					{cwd : '_dist', src: ['css/**'], dest: '_dist.copy/', expand: true, filter: 'isFile'},
+					{cwd : '_dist', src: ['js/**'], dest: '_dist.copy/', expand: true, filter: 'isFile'},
+					{cwd : '_dist', src: ['images/**'], dest: '_dist.copy/', expand: true, filter: 'isFile'}
+				]
+			},
+			release : {
+				files: [
+					{cwd : '_dist.copy', src: ['images/**'], dest: '_rel/', expand: true, filter: 'isFile'}
 				]
 			}
+		},
+		uglify :{
+			options: {
+				banner:' /*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
+				beautify: {ascii_only:true},
+				maxLineLen : 8192
+			},
+			release :{files :[
+			    {cwd: '_dist.copy/js', src: '**/*.js', dest: '_rel/js', expand  :true}
+			]}
+		},
+		cssmin : {
+			release : {files :[
+				{cwd: '_dist.copy/css', src : ["*.css"], dest : '_rel/css', expand  :true}
+			]}
 		}
 	}
 };

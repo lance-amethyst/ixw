@@ -2,11 +2,10 @@ require("./_tasks/_lib/ix.js");
 
 module.exports = function (grunt) {
 	var prjCfg = require('./ixw_config.js');
+	prjCfg.relNo =  IX.getTimeStrInMS().substring(2, 13).replace("T", "");
 	
 	grunt.initConfig(IX.inherit({
-		pkg : IX.inherit(grunt.file.readJSON("./package.json"), {
-			distribNo :  IX.getTimeStrInMS().substring(2, 13)
-		}),
+		pkg : grunt.file.readJSON("./package.json"),
 	}, prjCfg.grunt));
 	
 	grunt.loadNpmTasks("grunt-contrib-jshint");
@@ -15,8 +14,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks("grunt-contrib-less");
 	grunt.loadNpmTasks("grunt-contrib-clean");
 	grunt.loadNpmTasks("grunt-contrib-copy");
-	grunt.loadNpmTasks("grunt-contrib-connect");
-	grunt.loadNpmTasks("grunt-contrib-compress");
+	grunt.loadNpmTasks("grunt-contrib-cssmin");
 	
 	["preless", "deploy", "release"].forEach(function(taskName){
 		grunt.registerTask(taskName, 'Initialize project base on ixw_config.json.', function() {

@@ -21,7 +21,7 @@ module.exports = function(grunt, prjCfg, done){
 		if (!_etsc(tplNS, true))
 			console.error("clean compile ETS failed");
 	});
-	grunt.task.run(["less:deploy", "compileETS", "jshint:files",
+	grunt.task.run(["clean:deploy", "less:deploy", "compileETS", "jshint:files",
 		"concat", "jshint:afterconcat", "copy:deploy", 
 		"cleanCompiledETS"]);
 	done();
