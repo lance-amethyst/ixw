@@ -68,11 +68,13 @@ module.exports = {
 			afterconcat: ['dist/js/{PRJ}.js',]
 		},
 		less :{
-			options: {
-				paths: ["src/less"]
-			},
-			files: {
-				"dist/css/{PRJ}.css": "src/less/core.less"
+			deploy:{
+				options: {
+					paths: ["src/less"]
+				},
+				files: {
+					"dist/css/{PRJ}.css": "src/less/core.less"
+				}
 			}
 		},
 		concat: {
@@ -90,7 +92,8 @@ module.exports = {
 				files:[  
 				    //{src: ['path/*'], dest: 'dest/', filter: 'isFile'},// 复制path目录下的所有文件  
 				    //{src: ['path/**'], dest: 'dest/'},// 复制path目录下的所有目录和文件  
-					{src: ['src/bootstrap/font/*'], dest: 'dist/bootstrap/font', filter: 'isFile'}		
+					{src: ['src/bootstrap/fonts/*'], dest: 'dist/bootstrap/fonts/', expand: true, flatten: true, filter: 'isFile'},
+					{src: ['proto/dist/*'], dest: 'dist/', expand: true, flatten: true, filter: 'isFile'}	
 				]
 			}
 		}

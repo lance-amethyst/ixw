@@ -41,15 +41,15 @@ function dupETSFiles(){
 }
 function copyFiles(){
 	IX.safeMkdirSync(ixwPrjDir + "/dist");
+	IX.safeMkdirSync(ixwPrjDir + "/proto/dist");
 	childProcess.exec("cp -r _asserts " + ixwPrjDir);
 	childProcess.exec("cp -r _tasks " + ixwPrjDir);
-	childProcess.exec("cp -r proto " + ixwPrjDir);
-	IX.safeMkdirSync(ixwPrjDir + "/proto/dist");
 	childProcess.exec("cp -r src " + ixwPrjDir);
 	
 	dupFile("Gruntfile.js", "Gruntfile.js");
 	dupFile('_ixw_config.js', "ixw_config.js");
 	dupFile('_package.json', "package.json");
+	dupFile('_proto.index.htm', "proto/index.htm");
 	dupFile('_proto.dist.index.htm', "proto/dist/index.htm");
 	dupFile('_src.ixw.index.js.html', "src/ixw/index.js.html");
 	
