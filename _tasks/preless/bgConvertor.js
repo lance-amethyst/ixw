@@ -34,7 +34,7 @@ function getFileInfoList(srcPath, clzPrefix){
  * 		dest : directoy to contain less file
  * } 
  */
-exports.merge = function(cfg, cb) {
+module.exports = function(cfg, cb) {
 	var clzPrefix = cfg.classPrefix || "bg";
 	var list = getFileInfoList(cfg.src, clzPrefix);
 	if (list.length==0)

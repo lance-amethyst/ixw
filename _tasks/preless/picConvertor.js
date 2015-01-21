@@ -121,7 +121,7 @@ function getFileInfoList(srcPath, clzPrefix, margin, cbFn){
  * 		demoDest : directory to contain demo files
 * } 
  */
-exports.merge = function (cfg, cb) {
+module.exports = function (cfg, cb) {
 	var clzPrefix = cfg.classPrefix ||"pic";
 	
 	function outputFiles(list, bitBuf){

@@ -2,18 +2,14 @@ var util = require('util');
 var fs = require('fs');
 var path = require('path');
 
-var bgConvertor = require("./bgConvertor.js");
-var picConvertor = require("./picConvertor.js");
-
-var allTasks = [];
-var taskStatus = {};
-var lessData ={
-	bg :[],
-	pic :[]
+var DefSetttings = {
+	"background" : {clz :"bg", merge : require("./bgConvertor.js")},
+	"picmap" : {clz :"pic", merge : require("./picConvertor.js")}	
 };
 
-var tplDir = process.cwd() + "/_tasks/preless/tpl/";
-function renderTplToFile(tplfile, destPath){
+var _cwd = process.cwd() + "/" ;
+var tplDir = _cwd + "_tasks/preless/tpl/";
+function renderTplToFile(tplfile, lessData, destPath){
 	var tpl = fs.readFileSync(tplDir + tplfile);
 	//console.log("TPL: \n" + tpl);
 	var tpl = new IX.ITemplate({tpl :tpl});
@@ -22,20 +18,45 @@ function renderTplToFile(tplfile, destPath){
 	return renderStr;
 }
 
-function writeLessFile(destPath, demoDest){
-	var lessStr = renderTplToFile("tpl.less", destPath + "/less/ixwpre.less");
-	if (demoDest) {
-		IX.safeWriteFileSync(demoDest + "/less/ixwpre.less", lessStr);
-		renderTplToFile("preview.htm",  demoDest + "/preview.htm");
-		renderTplToFile("demo.less", demoDest + "/less/demo.less");
-	}
+function writeLessFile(lessData, destPath, demoDest){
+	var lessStr = renderTplToFile("tpl.less", lessData, destPath + "/less/ixwpre.less");
+	if (!demoDest) 
+		return;
+	IX.safeWriteFileSync(demoDest + "/less/ixwpre.less", lessStr);
+	renderTplToFile("preview.htm", lessData, demoDest + "/preview.htm");
+	renderTplToFile("demo.less", lessData, demoDest + "/less/demo.less");
 }
 
 module.exports = function(grunt, prjCfg, done){
 	var taskCfg = prjCfg.preless || {};
-	var srcPath = process.cwd() + "/" + taskCfg.src;
-	var destPath = process.cwd() + "/" + taskCfg.dest;
-	var demoDest = !taskCfg.demoDest ? null : (process.cwd() + "/" + taskCfg.demoDest);
+	var srcPath = _cwd + taskCfg.src;
+	var destPath = _cwd + taskCfg.dest;
+	var demoDest = !taskCfg.demoDest ? null : (_cwd + taskCfg.demoDest);
+	
+	var allTasks = [], taskStatus = {};
+	var lessData ={
+		bg :[],
+		pic :[]
+	};
+	
+	function convertTask(task, taskType, defCfg){
+		var settings = DefSetttings[taskType];
+		var defClz = settings.clz;
+		var taskPath = $XP(task, "path", taskType);
+		console.log("start convert : " + taskPath);
+		allTasks.push(taskPath);
+		settings.merge(IX.inherit({
+			path : taskPath,
+			classPrefix : defClz,
+			src : srcPath + "/" + taskPath,
+			dest : destPath
+		}, defCfg, task), function(lessInfo){
+			console.log("after convert!" + taskPath);
+			taskStatus[taskPath] = true;
+			if (lessInfo)
+				lessData[defClz].push(lessInfo);
+		});
+	}
 	
 	function checkReady(){
 		console.log("preless check ready?!");
@@ -43,45 +64,21 @@ module.exports = function(grunt, prjCfg, done){
 			if (!(allTasks[i] in taskStatus))
 				return setTimeout(checkReady, 500);
 		}
-		writeLessFile(destPath, demoDest);
+		writeLessFile(lessData, destPath, demoDest);
 		console.log("preless convert all done!");
 		done();
 	}
-	function _convert(task, convertor) {
-		var taskName = "cvt-" + task.path;
-		var taskPrefix = $XP(task, "classPrefix", "");
-		allTasks.push(taskName);
-		convertor.merge(task, function(lessInfo){
-			console.log("after merge!" + taskName);
-			taskStatus[taskName] = true;
-			if (!lessInfo)
-				return;
-			lessData[lessInfo.type].push(lessInfo);
+	
+	function convert(taskType, defCfg){
+		$XP(taskCfg, taskType, []).forEach(function(task){
+			convertTask(task, taskType, defCfg);
 		});
 	}
 	//console.log("start preless convert all!");
-	$XP(taskCfg, "background", []).forEach(function(task){
-		var taskPath = $XP(task, "path", "background");
-		_convert(IX.inherit({
-			path : taskPath,
-			classPrefix : "bg",
-
-			src : srcPath + "/" + taskPath,
-			dest : destPath
-		}, task),  bgConvertor);
-	});
-
-	$XP(taskCfg, "picmap", []).forEach(function(task){
-		var taskPath = $XP(task, "path", "pic");
-		console.log("start convert picmap : " + taskPath);
-	 	_convert(IX.inherit({
-	 		margin : 8,
-	 		path : taskPath,
-	 		classPrefix : "pic",
-	 		src : srcPath + "/" + taskPath,
-	 		dest : destPath,
-	 		demoDest : demoDest
-	 	}, task),  picConvertor);
+	convert("background", {});
+	convert("picmap",{
+		margin : 8,
+		demoDest : demoDest
 	});
 
 	checkReady();
