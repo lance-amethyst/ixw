@@ -26,7 +26,6 @@ function packImages(list) {
 				return v>0?1:-1;
 		}
 		return a.length>len? 1: (b.length>len?-1 : 0);
-		//return b.h - a.h;
 	});
 	var packer = new GrowingPacker();
 	packer.fit(IX.Array.sort(list, function(a, b) {
@@ -57,7 +56,7 @@ function drawImages(list, callback){
 		if(chunk)
 			bitBuf = Buffer.concat([bitBuf, chunk]);
 		//console.log("packed: " + bitBuf.length);
-		callback(list, bitBuf);
+		callback(imgInfoArr, bitBuf);
 	});
 	imgPng.pack();
 }

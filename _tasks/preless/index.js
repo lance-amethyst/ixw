@@ -2,16 +2,6 @@ var util = require('util');
 var fs = require('fs');
 var path = require('path');
 
-var tplDir = process.cwd() + "/_tasks/preless/tpl/";
-function loadTplFromFile(filename){
-	var tpl = fs.readFileSync(tplDir + filename);
-	//console.log("TPL: \n" + tpl);
-	return new IX.ITemplate({tpl :tpl});
-}
-IX.ns("Preless");
-Preless.loadTplFromFile = loadTplFromFile;
-
-var demo = require("./demo.js");
 var bgConvertor = require("./bgConvertor.js");
 var picConvertor = require("./picConvertor.js");
 
@@ -22,14 +12,23 @@ var lessData ={
 	pic :[]
 };
 
+var tplDir = process.cwd() + "/_tasks/preless/tpl/";
+function renderTplToFile(tplfile, destPath){
+	var tpl = fs.readFileSync(tplDir + tplfile);
+	//console.log("TPL: \n" + tpl);
+	var tpl = new IX.ITemplate({tpl :tpl});
+	var renderStr = tpl.renderData("", lessData);
+	IX.safeWriteFileSync(destPath, renderStr);	
+	return renderStr;
+}
+
 function writeLessFile(destPath, demoDest){
-	var lessTpl = loadTplFromFile("tpl.less");
-	var lessStr = lessTpl.renderData("", lessData);
-	var destFile = "/less/ixwpre.less";
-	IX.safeWriteFileSync(destPath + destFile, lessStr);
-	//console.log("Output less to " + destFile + ":\n" + lessStr);
-	if (demoDest)
-		IX.safeWriteFileSync(demoDest + destFile, lessStr);
+	var lessStr = renderTplToFile("tpl.less", destPath + "/less/ixwpre.less");
+	if (demoDest) {
+		IX.safeWriteFileSync(demoDest + "/less/ixwpre.less", lessStr);
+		renderTplToFile("preview.htm",  demoDest + "/preview.htm");
+		renderTplToFile("demo.less", demoDest + "/less/demo.less");
+	}
 }
 
 module.exports = function(grunt, prjCfg, done){
@@ -44,18 +43,13 @@ module.exports = function(grunt, prjCfg, done){
 			if (!(allTasks[i] in taskStatus))
 				return setTimeout(checkReady, 500);
 		}
-		writeLessFile(destPath, demoDest)
-		
-		if (demoDest)
-			demo.check(demoDest, lessData);
+		writeLessFile(destPath, demoDest);
 		console.log("preless convert all done!");
 		done();
 	}
 	function _convert(task, convertor) {
 		var taskName = "cvt-" + task.path;
 		var taskPrefix = $XP(task, "classPrefix", "");
-		if (demoDest)
-			demo.register(taskName);
 		allTasks.push(taskName);
 		convertor.merge(task, function(lessInfo){
 			console.log("after merge!" + taskName);
