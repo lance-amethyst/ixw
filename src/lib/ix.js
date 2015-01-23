@@ -116,6 +116,8 @@ $XF(obj, fname) = IX.getPropertyAsFunction.
  		as function(item, indexOfItemInArray)
  	fnIterate(arr, fname) : similar with iterate function, but no need to provide function.
 		fname is a string which each element in arr will execute its function named by pname.
+	iterbreak(arr, iterfn) : similar with iterate function but can be broken by thrown exception 
+ 		from iterFn
  	loop(arr, acc, iterFn) : iterate to do accumulation for every elements in arr by sequence.
  		iterFn can be defined as function(oldAccumulator, item, indexOfItemInArray), its task is
  		deal with the item and the oldAccumulator and return the newAccumulator to help loop 
@@ -308,6 +310,10 @@ function _nsCheck(name, obj){
 	if (isUndefined(obj[name])) obj[name] = {};
 	return true;
 }
+function _nsAssign(name, obj){
+	if (isUndefined(obj[name])) obj[name] = {};
+	return obj[name];
+}
 function _nsExisted(name, obj){ return !isUndefined(obj[name]);}
 function _nsGet(name, obj){return isUndefined(obj[name]) ? undefined : obj[name];}
 
@@ -336,9 +342,7 @@ function assignToObjFn(obj, nsname, value){
 		return;
 	var names = nsname.split(".");
 	var lastName = names.pop();
-	if (names.length === 0) 
-		return ;
-	var nsObj = __objLoop(obj, names, _nsGet);
+	var nsObj = names.length === 0? obj : __objLoop(obj, names, _nsAssign);
 	if (nsObj)
 		nsObj[lastName] = value;
 }
@@ -395,6 +399,11 @@ var loopUtils = {
 			if (fn && typeUtils.isFn(fn))
 				fn();
 		});
+	},
+	iterbreak: function(varr, fun){
+		try{
+			iterateFn(varr, fun);
+		}catch(_ex){}
 	},
 	loop:function(varr, acc0, fun){return loopFn(varr, 0, -1, acc0, fun, true);},
 	loopDsc:function(varr, acc0, fun){return loopFn(varr,0, -1, acc0, fun, false);},
@@ -1607,7 +1616,7 @@ IX.extend(IX, {
 	
 	getUrlParam : function(key, defV){
 		var v = defV;
-		IX.loopbreak(window.location.search.substring(1).split("&"), function(item){
+		IX.iterbreak(window.location.search.substring(1).split("&"), function(item){
 			if(item.indexOf(key+"=")!==0)
 				return;
 			v = item.substring(key.length+1);
