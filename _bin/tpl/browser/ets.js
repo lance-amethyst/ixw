@@ -249,9 +249,9 @@ function loadLinks(ci){
 			 fileType: "js"
 	 };
 	 
-	 if (TplFileReg.test(ciHref)) 
+	 if (ciHref.match(TplFileReg)) 
 		 _file.fileType = "js.htm";
-	 else if (! /\.js$/.test(ciHref)) 
+	 else if (! ciHref.match(/\.js$/)) 
 		 return addErrorInfo(_file, "loadLinks", 
 				 !ciHref ? "缺少属性“href”或href属性值为空" : "不能解析的文件，目前只支持以.js.html、.js.htm、.js为后缀的文件解析。");
 	 scriptPaths.unshift(_file);
