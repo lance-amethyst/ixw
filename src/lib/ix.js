@@ -335,7 +335,7 @@ function __objLoop(obj, names, fn){
 	return flag;
 }
 function objLoopFn(obj, nsname, fn){
-	return isValidString(nsname) ? __objLoop(obj, nsname.split("."), fn) : undefined;
+	return (obj && isValidString(nsname)) ? __objLoop(obj, nsname.split("."), fn) : undefined;
 }
 function assignToObjFn(obj, nsname, value){
 	if (!isValidString(nsname) || isGlobalNS(obj, nsname))
@@ -356,7 +356,10 @@ var nsUtils = {
 
 var propertyUtils = {
 	hasProperty : function(obj, pname){return objLoopFn(obj, pname, _nsExisted);},
-	getProperty : function(obj, pname, defV){return objLoopFn(obj, pname, _nsGet) || defV;},
+	getProperty : function(obj, pname, defV){
+		var v = objLoopFn(obj, pname, _nsGet);
+		return isUndefined(v) ? defV : v;
+	},
 	setProperty : function(obj, pname, v){assignToObjFn(obj, pname, v);},
 	getPropertyAsFunction:function(obj, fname){
 		var fn = objLoopFn(obj, fname, _nsGet);
@@ -1655,13 +1658,13 @@ function EventBindManager(){
 	function _bind(el, evtName, handler){
 		var evtKeys = el.data_ixEvtKeys;
 		if (!evtKeys)
-			evtKeys.id = IX.id();
+			evtKeys = {id : IX.id()};
 		var ehKey = evtKeys.id + "." + evtName;
 		if (!evtKeys[evtName]) { // never bind!
-			evtKeys[evtName] = function(evt){return ht.exec(ehKey, evt);};
+			evtKeys[evtName] = function(evt){return _evtWrapper(ehKey, evt);};
 			ix_attachEvent(el, evtName, evtKeys[evtName]);
 		}
-		ht.add(ehKey, handler);
+		ht.put(ehKey, handler);
 		el.data_ixEvtKeys = evtKeys;
 	}
 	function _unbind(el, evtName, handler){
@@ -2643,9 +2646,13 @@ function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 			unlockChannel(channel);
 			_caller.onfail(data, failFn, params);
 		},
-		error: function(data){
+		error: function(data, errMsg, error){
 			unlockChannel(channel);
-			_caller.onfail(data, failFn, params);
+			console.error(error);
+			_caller.onfail({
+				retCode : 0,
+				err : error.message
+			}, failFn, params);
 		}
 	});
 	_caller.postAjax(_name, params, _cbFn);

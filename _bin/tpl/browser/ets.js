@@ -237,24 +237,24 @@ function parseFiles() {
 
 var SCRIPT_TYPE = "ets" ;
 function loadLinks(ci){
-	 if (ci.type != SCRIPT_TYPE)
-		 return;
-	 var ciHref = ci.href;
-	 var _file = {
-			 path: ciHref,
-			 code: "",
-			 load: false,
-			 parseCode: "",
-			 error: null,
-			 fileType: "js"
-	 };
+	if (ci.type != SCRIPT_TYPE)
+		return;
+	var ciHref = ci.href;
+	var _file = {
+		path: ciHref,
+		code: "",
+		load: false,
+		parseCode: "",
+		error: null,
+		fileType: "js"
+	};
 	 
-	 if (ciHref.match(TplFileReg)) 
-		 _file.fileType = "js.htm";
-	 else if (! ciHref.match(/\.js$/)) 
-		 return addErrorInfo(_file, "loadLinks", 
-				 !ciHref ? "缺少属性“href”或href属性值为空" : "不能解析的文件，目前只支持以.js.html、.js.htm、.js为后缀的文件解析。");
-	 scriptPaths.unshift(_file);
+	if (ciHref.match(TplFileReg)) 
+		_file.fileType = "js.htm";
+	else if (! ciHref.match(/\.js$/)) 
+		return addErrorInfo(_file, "loadLinks", 
+				!ciHref ? "缺少属性“href”或href属性值为空" : "不能解析的文件，目前只支持以.js.html、.js.htm、.js为后缀的文件解析。");
+	scriptPaths.unshift(_file);
 }
 function loadFiles(_i) {
 	var scriptPath = scriptPaths[_i];

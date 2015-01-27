@@ -335,7 +335,7 @@ function __objLoop(obj, names, fn){
 	return flag;
 }
 function objLoopFn(obj, nsname, fn){
-	return isValidString(nsname) ? __objLoop(obj, nsname.split("."), fn) : undefined;
+	return (obj && isValidString(nsname)) ? __objLoop(obj, nsname.split("."), fn) : undefined;
 }
 function assignToObjFn(obj, nsname, value){
 	if (!isValidString(nsname) || isGlobalNS(obj, nsname))
@@ -356,7 +356,10 @@ var nsUtils = {
 
 var propertyUtils = {
 	hasProperty : function(obj, pname){return objLoopFn(obj, pname, _nsExisted);},
-	getProperty : function(obj, pname, defV){return objLoopFn(obj, pname, _nsGet) || defV;},
+	getProperty : function(obj, pname, defV){
+		var v = objLoopFn(obj, pname, _nsGet);
+		return isUndefined(v) ? defV : v;
+	},
 	setProperty : function(obj, pname, v){assignToObjFn(obj, pname, v);},
 	getPropertyAsFunction:function(obj, fname){
 		var fn = objLoopFn(obj, fname, _nsGet);
