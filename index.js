@@ -23,6 +23,15 @@ function dupFile(srcFile, destFile){
 //	else
 //		console.log(dstFName + "existed!");
 }
+function dupIXWLib(){
+	var destFile = ixwPrjDir + "/src/lib/ixw.js";
+	IX.safeMkdirSync(path.dirname(destFile));
+	if(fs.existsSync(destFile))
+		fs.unlinkSync(destFile);
+	fs.appendFileSync(destFile, fs.readFileSync("./_bin/ixw/base.js"));
+	fs.appendFileSync(destFile, fs.readFileSync("./_bin/ixw/engine.js"));
+	fs.appendFileSync(destFile, fs.readFileSync("./_bin/ixw/pages.js"));
+}
 
 function dupETSFiles(){
 	var destFile = ixwPrjDir + "/src/lib/ets.js";
@@ -54,6 +63,7 @@ function copyFiles(){
 	dupFile('_src.ixw.index.js.html', "src/ixw/index.js.html");
 	
 	dupETSFiles();
+	dupIXWLib();
 }
 
 function print(s){

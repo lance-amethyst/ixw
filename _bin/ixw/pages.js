@@ -1,0 +1,285 @@
+/*
+ * IXW library  
+ * https://github.com/lance-amethyst/IXW
+ *
+ * Copyright (c) 2015 Lance GE, contributors
+ * Licensed under the MIT license.
+ */
+(function(){
+IX.ns("IXW.Pages");
+
+var DefaultPageName = null;
+var Path2NameMapping = {};
+var PageConfigurations = {};
+var PageParamKeys = {};
+
+function _checkDyncPath(_p){
+	var l = _p.length;
+	return l>2 && _p.charAt(0)=="{" && _p.charAt(l-1) == "}" ?_p.substring(1, l-1) : null;
+}
+function _splitPath(_path){
+	return IX.Array.compact(_path.split("/"));
+}
+function mapPageConfig(_name, cfg){
+	var _pathFormat = cfg.path.replace(/\./g, "#");
+	if (IX.isEmpty(_name) || IX.isEmpty(_pathFormat))
+		return false;
+	var keys = [];
+
+	var _arr = IX.map(_splitPath(_pathFormat), function(_p){
+		var dp = _checkDyncPath(_p);
+		if (dp) keys.push(dp);
+		return dp ? "*" : _p;
+	});
+	_arr.push("#");
+
+	IX.setProperty(Path2NameMapping, _arr.join("."), _name);
+	Path2NameMapping["#" + _pathFormat] = _name;
+	PageConfigurations[_name] = cfg;
+	if (keys.length>0)
+		PageParamKeys[_name] = keys;
+	return true;
+}
+
+function getNameByPath(path){
+	var obj = Path2NameMapping;
+	IX.iterbreak(_splitPath(path), function(item){
+		if (item in obj) obj = obj[item];
+		else if (obj["*"]) obj = obj["*"];
+		else{
+			obj = null;
+			throw IX;
+		}
+	});
+	return (obj && "#" in obj) ? obj["#"] : null;
+}
+function getPageParams(_pathFormat, path){
+	var params = {
+		_name : Path2NameMapping["#" + _pathFormat.replace(/\./g, "#")] ,
+	}
+	var arr = _splitPath(_pathFormat), 
+		_arr = _splitPath(path);
+	IX.iterate(arr, function(_p, idx){
+		var dp = _checkDyncPath(_p);
+		if(dp) params[dp] = _arr[idx];
+	});
+	return params;
+}
+function getPathByName(name, params){
+	var cfg = PageConfigurations[name];
+	if (!cfg){		
+		console.err("Can't find route : " + name);
+		return "";
+	}
+	return IX.loop(PageParamKeys[name] || [], cfg.path, function(acc, key){
+		return acc.replace('{' + key + '}', params[key]);
+	});
+}
+
+function checkPageConfigs(pageConfigs, done){
+	var ht = new IX.I1ToNManager();
+	var fnames = [];
+
+	function _detect(name, fname){
+		var _fn = null;
+		if (IX.isFn(fname))
+			_fn = fname;
+		else if (!IX.isString(fname))
+			return alert("Configuration failed : invalid Page initialized for " + name);
+		else if (IX.nsExisted(fname))
+			_fn = IX.getNS(fname);
+		
+		if (IX.isFn(_fn)) {
+			PageConfigurations[name].init = _fn;
+			return;
+		}
+		ht.put(fname, name);
+		fnames.push(fname);
+	}
+	function _checkItem(acc, fname){
+		var _fn = IX.getNS(fname);
+		if (!IX.isFn(_fn)) {
+			acc.push(fname);
+			return acc;
+		}
+		IX.iterate(ht.get(fname), function(_name){
+			PageConfigurations[_name].init = _fn;
+		});
+		ht.remove(fname);
+		return acc;
+	}
+	
+	IX.iterate(pageConfigs, function(cfg){
+		var _name = cfg.name;
+		if (!mapPageConfig(_name, cfg))
+			return;;
+
+		var _pageInit = "initiator" in cfg? cfg.initiator : null;
+		if (IX.isString(_pageInit))
+			_detect(_name, _pageInit);
+		else if (!IX.isFn(_pageInit))
+			alert("Configuration : error page initiator for " + _name);
+	});
+	fnames = IX.Array.toSet(fnames);		
+	IX.checkReady(function(){
+		fnames = IX.loop(fnames, [], _checkItem);
+		return fnames.length==0;
+	}, done, 40, {
+		maxAge : 15000, //15 seconds
+		expire : function(){ alert("Can't find page initalizor: \n" + fnames.join("\n"));}
+	});
+}
+
+var isSupportPushState = "pushState" in window.history; 
+function _updByContext(_context, isNew){
+	var path = _context.path;
+	// console.log((isNew?"push state :" : "replace state :") + path);
+	if (isSupportPushState )
+		window.history[isNew ? "pushState" : "replaceState"](_context, "", "#" + path);
+	else if (isNew)
+		document.location.hash = path;
+}
+function _loadByContext(_context, _saveFn, cbFn){
+	//console.log("_load: " + _context.path + "::" + !!_saveFn);
+	var cfg = PageConfigurations[_context.name];
+	var pageParams = _context.page;
+
+	var _bodyClz = $XP(cfg, "bodyClz", "");
+	if (document.body.className != _bodyClz)
+		document.body.className = _bodyClz;	
+
+	var navRefresh = $XP(cfg, "nav");
+	if (IX.isString(navRefresh))
+		navRefresh = IXW.Navs.getInstance(navRefresh);
+	if (IX.isFn(navRefresh))
+		navRefresh(cfg, pageParams);
+
+	IXW.ready(cfg.init, function(initFn){
+		if (!IX.isFn(initFn))
+			return console.error("in Framework: " + initFn  + " is not function");
+		_context.serialNo = IX.UUID.generate();
+		(_saveFn || IX.emptyFn)(_context);
+
+		initFn(cfg, pageParams, cbFn || IX.emptyFn);
+	});
+}
+
+function PageHelper(){
+	var isInitialized = false;
+	var context = null; //{name, path, page, serialNo}
+	var pageAuthCheckFn = function(){return true;};
+
+	function _loadByPath(path, isNewRec, cbFn){
+		var name = getNameByPath(path || "home"),
+			cfg = PageConfigurations[name];
+		if(!pageAuthCheckFn(name, cfg))
+			return;
+		//console.log('load:' + path + ":::" +name);
+		_loadByContext({
+			path : path,
+			name :  name,
+			page : getPageParams(cfg.path, path)
+		}, function(_context){
+			context = _context;
+			_updByContext(_context, isNewRec);
+		}, cbFn);
+	}
+	function _loadByState(state, cbFn){
+		var name = state.name;
+		var cfg = PageConfigurations[name];
+		if(!pageAuthCheckFn(name, cfg))
+			return window.alert("该页面已经失效，无法浏览。请登录之后重新尝试。")
+		_loadByContext(state, null, cbFn);
+	}
+	function _stateChange(e){
+		//console.log("popstate:",e, e.state);
+		if (!history.state || !e.state)
+			return;
+		var state = e.state;
+		if (!isInitialized)
+			context = state;
+		else
+			_loadByState(state, IX.emptyFn);
+	}
+	function _hashChange(e){
+		//console.log("onhashchange:", e, context);
+		if (!(context && "serialNo" in context)) //hashchanged by pop state
+			return;
+		// if (window.history.state && window.history.state.path == e.newURL.split('#')[1]) 
+		// 	return;
+		var path = e.newURL.split("#");
+		_loadByPath(path.length>1?path[1]:"");
+	}
+
+	if (isSupportPushState)
+		window.onpopstate= _stateChange;
+	else if ("onhashchange" in window)	
+		window.onhashchange = _hashChange;
+
+	return {
+		init : function(authCheckFn){pageAuthCheckFn = authCheckFn;},
+		start : function(cbFn){
+			isInitialized = true;
+			if (context)
+				return _loadByState(context, cbFn);
+			_loadByPath(document.location.hash.replace(/^#/, ''), false, cbFn);
+		},
+		reload : function(name, params){
+			if (arguments.length>0)
+				 _loadByPath(getPathByName(name, params), true);
+			else
+				_loadByPath(context.path);
+		},
+		load : function(path, cbFn){_loadByPath(path, true, cbFn);},
+		getCurrentContext : function(){return context;},
+		getCurrentPath : function(){return $XP(context, "path");},
+		isCurrentPage : function(hash){return hash == $XP(context, "path");}
+	};
+}
+var pageHelper = new PageHelper();
+
+/**  
+pageConfigs : [{
+	name: "prjConfig", 
+	path: "projects/{key}/config", 
+	initiator : "Prj.Project.init",
+	[Optional:]
+	isDefault : true/, default false
+	bodyClz : "minor projectPage projectConfigPage",
+	nav : "String" or function navRefresh(){}
+	...
+	[user-defined page config :]
+	needAuth : true/false
+	}]
+pageAuthCheckFn :function(name, cfg)
+ *
+ */
+IXW.Pages.configPages = function(pageConfigs, pageAuthCheckFn){
+	checkPageConfigs(pageConfigs, IX.emptyFn);
+	if (IX.isFn(pageAuthCheckFn))
+		pageHelper.init(pageAuthCheckFn); 
+};
+IXW.Pages.createPath = getPathByName;	
+IXW.Pages.start = pageHelper.start;
+IXW.Pages.load = pageHelper.load;
+IXW.Pages.getCurrentContext = pageHelper.getCurrentContext;
+IXW.Pages.getCurrentPath = pageHelper.getCurrentPath;
+IXW.Pages.isCurrentPage = pageHelper.isCurrentPage;
+IXW.Pages.reload = pageHelper.reload;
+
+IXW.Pages.jump = function(el){
+	var _href = $XD.dataAttr(el, "href");
+	if (IX.isEmpty(_href))
+		return;	
+	var ch = _href.charAt(0), name = _href.substring(1);
+	if (ch ==="~"){ // pop up panel
+		var instance = IXW.Popups.getInstance(name);
+		instance && instance.show(el);
+	} else if (ch ==='+')
+		IXW.openUrl(document.location.href.split("#")[0] + "#" + name);
+	else if(ch === '$')
+		IXW.Actions.doAction(name);
+	else if (!pageHelper.isCurrentPage(_href))
+		pageHelper.load(_href);
+};
+})();
