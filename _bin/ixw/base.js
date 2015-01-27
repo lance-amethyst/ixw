@@ -35,20 +35,18 @@ function CmpManager(){
 			ht[name] = cmpClz;
 		},
 		getInstance : function(name){
-			return new ht[name]();
+			return ht[name];
 		}
 	};
 }
 
 IXW.Popups = new CmpManager();
-IXW.Popups.AbsClass = function(){
-	return {
-		setOffset :function(el){},
-		show : function(el){},
-		hide : function(){},
-		toggle : function(){},
-		destory : function(){}
-	};
+IXW.Popups.defInstance = {
+	setOffset :function(el){},
+	show : function(el){},
+	hide : function(){},
+	toggle : function(){},
+	destory : function(){}
 };
 IXW.Navs = new CmpManager();
 IXW.Navs.AbsNavRefresh = function(cfg, pageParams){};

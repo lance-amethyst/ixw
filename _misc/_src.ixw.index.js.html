@@ -2,7 +2,10 @@
 	<h1>Hello world</h1>
 </tpl>
 <script>
-IX.ns("FR");
-document.body.innerHTML = t_nav.renderData();
+IX.ns("{NS}");
+
+{NS}.init = function(){
+	document.body.innerHTML = t_nav.renderData();
+};
 
 </script>
