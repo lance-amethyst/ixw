@@ -22,8 +22,6 @@ IXW.ready = function(_fname, fn){
 	});
 };
 
-IXW.Date = IX.Util.Date;
-
 IXW.openUrl = function openUrl(url) {
 	window.open(url);
 };
