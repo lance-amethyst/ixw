@@ -232,6 +232,7 @@ function PageHelper(){
 		},
 		load : function(path, cbFn){_loadByPath(path, true, cbFn);},
 		getCurrentContext : function(){return context;},
+		getCurrentName : function(){return $XP(context, "name");},
 		getCurrentPath : function(){return $XP(context, "path");},
 		isCurrentPage : function(hash){return hash == $XP(context, "path");}
 	};
@@ -263,6 +264,7 @@ IXW.Pages.createPath = getPathByName;
 IXW.Pages.start = pageHelper.start;
 IXW.Pages.load = pageHelper.load;
 IXW.Pages.getCurrentContext = pageHelper.getCurrentContext;
+IXW.Pages.getCurrentName = pageHelper.getCurrentName;
 IXW.Pages.getCurrentPath = pageHelper.getCurrentPath;
 IXW.Pages.isCurrentPage = pageHelper.isCurrentPage;
 IXW.Pages.reload = pageHelper.reload;
@@ -278,7 +280,7 @@ IXW.Pages.jump = function(el){
 	} else if (ch ==='+')
 		IXW.openUrl(document.location.href.split("#")[0] + "#" + name);
 	else if(ch === '$')
-		IXW.Actions.doAction(name);
+		IXW.Actions.doAction(name, {key : $XD.dataAttr(el, "key")}, el);
 	else if (!pageHelper.isCurrentPage(_href))
 		pageHelper.load(_href);
 };

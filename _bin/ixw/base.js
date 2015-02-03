@@ -73,8 +73,10 @@ IXW.Actions = {
 	configActions : function(actionConfigs){
 		IX.iterate(actionConfigs, newAction);
 	},
-	doAction : function(name){
-		IX.tryFn(actionsHT.get(name));
+	doAction : function(name, params, el){
+		var fn = actionsHT.get(name);
+		if (IX.isFn(fn))
+			fn(params, el);
 	}
 };
 })();
