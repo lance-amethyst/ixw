@@ -31,6 +31,15 @@ function dupIXWLib(){
 	fs.appendFileSync(destFile, fs.readFileSync("./_bin/ixw/base.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_bin/ixw/engine.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_bin/ixw/pages.js"));
+
+	destFile = ixwPrjDir + "/src/lib/ixwui.js";
+	IX.safeMkdirSync(path.dirname(destFile));
+	if(fs.existsSync(destFile))
+		fs.unlinkSync(destFile);
+	fs.appendFileSync(destFile, fs.readFileSync("./_bin/ixw/lib/dialog.js"));
+	fs.appendFileSync(destFile, fs.readFileSync("./_bin/ixw/lib/fileUploader.js"));
+	
+	childProcess.exec("cp -r _bin/ixw/lib/ixwui.less " + ixwPrjDir + "/src/less/ixwui.less");
 }
 
 function dupETSFiles(){
