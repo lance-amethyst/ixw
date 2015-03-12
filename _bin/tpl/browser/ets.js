@@ -1,6 +1,6 @@
 // ets : easy template script
 window.ETS = {};
-ETS.namespace = ETS_NS || "IX.Tpl";
+ETS.namespace = window["ETS_NS"] || "IX.Tpl";
 ETS.lineDelimiter = "\n";
 var etsParseErros = [];
 ETS.parseErrors = etsParseErros;
@@ -251,7 +251,7 @@ function loadLinks(ci){
 	 
 	if (ciHref.match(TplFileReg)) 
 		_file.fileType = "js.htm";
-	else if (! ciHref.match(/\.js$/)) 
+	else if (!ciHref.match(/\.js$/)) 
 		return addErrorInfo(_file, "loadLinks", 
 				!ciHref ? "缺少属性“href”或href属性值为空" : "不能解析的文件，目前只支持以.js.html、.js.htm、.js为后缀的文件解析。");
 	scriptPaths.unshift(_file);

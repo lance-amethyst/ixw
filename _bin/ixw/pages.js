@@ -38,6 +38,8 @@ function mapPageConfig(_name, cfg){
 	PageConfigurations[_name] = cfg;
 	if (keys.length>0)
 		PageParamKeys[_name] = keys;
+	if (cfg.isDefault)
+		DefaultPageName = _name;
 	return true;
 }
 
@@ -45,7 +47,7 @@ function getNameByPath(path){
 	var obj = Path2NameMapping;
 	IX.iterbreak(_splitPath(path), function(item){
 		if (item in obj) obj = obj[item];
-		else if (obj["*"]) obj = obj["*"];
+		else if ("*" in obj) obj = obj["*"];
 		else{
 			obj = null;
 			throw IX;
@@ -61,18 +63,18 @@ function getPageParams(_pathFormat, path){
 		_arr = _splitPath(path);
 	IX.iterate(arr, function(_p, idx){
 		var dp = _checkDyncPath(_p);
-		if(dp) params[dp] = _arr[idx];
+		if(dp) params[dp] = _arr[idx] == "-" ? "" : _arr[idx];
 	});
 	return params;
 }
 function getPathByName(name, params){
 	var cfg = PageConfigurations[name];
 	if (!cfg){		
-		console.err("Can't find route : " + name);
+		console.error("Can't find route : " + name);
 		return "";
 	}
 	return IX.loop(PageParamKeys[name] || [], cfg.path, function(acc, key){
-		return acc.replace('{' + key + '}', params[key]);
+		return acc.replace('{' + key + '}', $XP(params, key, "") || "-");
 	});
 }
 
@@ -169,8 +171,12 @@ function PageHelper(){
 	var context = null; //{name, path, page, serialNo}
 	var pageAuthCheckFn = function(){return true;};
 
+	function resetContext(_context){
+		$XF(context && PageConfigurations[context.name], "switchOut")(context, _context);
+		context = _context;
+	}
 	function _loadByPath(path, isNewRec, cbFn){
-		var name = getNameByPath(path || "home"),
+		var name = getNameByPath(path || DefaultPageName),
 			cfg = PageConfigurations[name];
 		if(!pageAuthCheckFn(name, cfg))
 			return;
@@ -180,24 +186,27 @@ function PageHelper(){
 			name :  name,
 			page : getPageParams(cfg.path, path)
 		}, function(_context){
-			context = _context;
+			resetContext(_context);
 			_updByContext(_context, isNewRec);
 		}, cbFn);
 	}
 	function _loadByState(state, cbFn){
-		var name = state.name;
+		var name = state.name || DefaultPageName;
 		var cfg = PageConfigurations[name];
 		if(!pageAuthCheckFn(name, cfg))
 			return window.alert("该页面已经失效，无法浏览。请登录之后重新尝试。")
-		_loadByContext(state, null, cbFn);
+		_loadByContext(state, resetContext, cbFn);
 	}
 	function _stateChange(e){
 		//console.log("popstate:",e, e.state);
-		if (!history.state || !e.state)
+		if (!history.state && !e.state) {
+			var path = document.location.hash.substring(1);
+			_loadByPath(path.length>0?path:"");
 			return;
+		}
 		var state = e.state;
-		if (!isInitialized)
-			context = state;
+		if (!isInitialized) 
+			resetContext(state);
 		else
 			_loadByState(state, IX.emptyFn);
 	}
@@ -239,6 +248,21 @@ function PageHelper(){
 }
 var pageHelper = new PageHelper();
 
+function jumpFor(el){
+	var _href = $XD.dataAttr(el, "href");
+	if (IX.isEmpty(_href))
+		return;	
+	var ch = _href.charAt(0), name = _href.substring(1);
+	if (ch ==="~"){ // pop up panel
+		var instance = IXW.Popups.getInstance(name);
+		instance && instance.show(el);
+	} else if (ch ==='+') // open new window
+		IXW.openUrl(document.location.href.split("#")[0] + "#" + name);
+	else if(ch === '$') // do named actions
+		IXW.Actions.doAction(name, {key : $XD.dataAttr(el, "key")}, el);
+	else if (!pageHelper.isCurrentPage(_href))
+		pageHelper.load(_href);
+}
 /**  
 pageConfigs : [{
 	name: "prjConfig", 
@@ -263,25 +287,18 @@ IXW.Pages.configPages = function(pageConfigs, pageAuthCheckFn){
 IXW.Pages.createPath = getPathByName;	
 IXW.Pages.start = pageHelper.start;
 IXW.Pages.load = pageHelper.load;
+IXW.Pages.reload = pageHelper.reload;
+
 IXW.Pages.getCurrentContext = pageHelper.getCurrentContext;
 IXW.Pages.getCurrentName = pageHelper.getCurrentName;
 IXW.Pages.getCurrentPath = pageHelper.getCurrentPath;
 IXW.Pages.isCurrentPage = pageHelper.isCurrentPage;
-IXW.Pages.reload = pageHelper.reload;
 
-IXW.Pages.jump = function(el){
-	var _href = $XD.dataAttr(el, "href");
-	if (IX.isEmpty(_href))
-		return;	
-	var ch = _href.charAt(0), name = _href.substring(1);
-	if (ch ==="~"){ // pop up panel
-		var instance = IXW.Popups.getInstance(name);
-		instance && instance.show(el);
-	} else if (ch ==='+')
-		IXW.openUrl(document.location.href.split("#")[0] + "#" + name);
-	else if(ch === '$')
-		IXW.Actions.doAction(name, {key : $XD.dataAttr(el, "key")}, el);
-	else if (!pageHelper.isCurrentPage(_href))
-		pageHelper.load(_href);
+IXW.Pages.jump = jumpFor;
+IXW.Pages.listenOnClick = function(el){
+	IX.bind(el, {click : function(e){
+		var _el = $XD.ancestor(e.target, "a");
+		_el && jumpFor(_el);
+	}});
 };
 })();

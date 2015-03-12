@@ -1,6 +1,6 @@
 module.exports = {
 	name: "{PRJ}", 
-	description : "sample web frontend project based on IXW",
+	description : "{NS} web frontend project based on IXW",
 	namespace: "{NS}",
 	version: "1.0",
 
@@ -62,7 +62,9 @@ module.exports = {
 					"$XD" : true,
 					"$XP" : true,
 					"$XE" : true,
-					"$XF" : true
+					"$XF" : true,
+					"$XH" : true,
+					"IXW" : true
 				}
 			},
 			files : {src : ['src/ixw/*.js']},

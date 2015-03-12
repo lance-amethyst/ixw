@@ -42,7 +42,8 @@ function dupETSFiles(){
 	fs.appendFileSync(destFile, fs.readFileSync("./_bin/tpl/lib/parser.js"));
 	fs.appendFileSync(destFile, "\n");
 	fs.appendFileSync(destFile, fs.readFileSync("./_bin/tpl/lib/translator.js"));
-	fs.appendFileSync(destFile, '\nvar ETS_NS = "' + ixwPrjNS + '.Tpl";\n');
+	//fs.appendFileSync(destFile, '\nvar ETS_NS = "' + ixwPrjNS + '.Tpl";\n');
+	fs.appendFileSync(destFile, '\n');
 	fs.appendFileSync(destFile, fs.readFileSync("./_bin/tpl/browser/ets.js"));
 	fs.appendFileSync(destFile, "\n})();");
 	

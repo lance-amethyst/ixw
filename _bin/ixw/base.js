@@ -50,14 +50,13 @@ IXW.Navs = new CmpManager();
 IXW.Navs.AbsNavRefresh = function(cfg, pageParams){};
 
 /**  
-actionConfigs : [{
-	name: "exit", 
-	handler : function()
-}]
+actionConfigs : [
+	["name", function()], ...
+]
 */
 var actionsHT = new IX.IListManager();
 function newAction(cfg){
-	var name = cfg.name, handler = cfg.handler;
+	var name = cfg[0], handler = cfg[1];
 	if (IX.isEmpty(name))
 		return;
 	if (IX.isString(handler))

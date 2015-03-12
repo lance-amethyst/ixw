@@ -43,7 +43,7 @@ fs.appendFileSync(destFile, "(function () {\n");
 fs.appendFileSync(destFile, fs.readFileSync("./lib/parser.js"));
 fs.appendFileSync(destFile, "\n");
 fs.appendFileSync(destFile, fs.readFileSync("./lib/translator.js"));
-fs.appendFileSync(destFile, '\nvar ETS_NS = "' + nsName + '";\n');
+//fs.appendFileSync(destFile, '\nvar ETS_NS = "' + nsName + '";\n');
 fs.appendFileSync(destFile, fs.readFileSync("./browser/ets.js"));
 fs.appendFileSync(destFile, "\n})();");
 
