@@ -13,20 +13,20 @@ function _parse_file(filepath, opt) {
 	if (opt.clean)
 		return;
 
-    var result = parser.parse(fs.readFileSync(filepath, "utf8"));
-    console.log("translating ... ");
-    result = translator.translate(result, opt);
-    if("error" in result)
-        return console.error("file: " + filepath + " has error:" + result.error);
-    console.log("write to JS file :" + srcPath);
-    fs.writeFileSync(srcPath, result.code);
-      
+	var result = parser.parse(fs.readFileSync(filepath, "utf8"));
+	console.log("translating ... ");
+	result = translator.translate(result, opt);
+	if("error" in result)
+		return console.error("file: " + filepath + " has error:" + result.error);
+	console.log("write to JS file :" + srcPath);
+	fs.writeFileSync(srcPath, result.code);
+
 	var refFilePath = srcPath + ".ref.js";
-    if(fs.existsSync(refFilePath)){ 
-    	var isSame = fs.readFileSync(refFilePath, "utf8") == result.code;
-        console.log("Check compiled:" + (isSame?"PASS":"FAIL") + " for " + filepath + "");
-    }
-    console.log("compile done");
+	if(fs.existsSync(refFilePath)){ 
+		var isSame = fs.readFileSync(refFilePath, "utf8") == result.code;
+		console.log("Check compiled:" + (isSame?"PASS":"FAIL") + " for " + filepath + "");
+	}
+	console.log("compile done");
 }
 function checkpath(filepath, opt){
 	var file = fs.statSync(filepath);

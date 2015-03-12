@@ -5,9 +5,9 @@ module.exports = {
 	version: "1.0",
 
 	preless :{
-  		src : "./_asserts",
-  		dest : "./src",	
-  		demoDest : "./_demo",	
+		src : "./_asserts",
+		dest : "./src",	
+		demoDest : "./_demo",	
 		background : [{
 //			classPrefix : "bg",  // css Class prefix, default is bg
 //			path : "background"		// the directory for the source files relative to srcRoot
@@ -93,8 +93,8 @@ module.exports = {
 		copy: {
 			deploy: {
 				files: [
-				    //{src: ['path/*'], dest: 'dest/', filter: 'isFile'},// 复制path目录下的所有文件  
-				    //{src: ['path/**'], dest: 'dest/'},// 复制path目录下的所有目录和文件  
+					//{src: ['path/*'], dest: 'dest/', filter: 'isFile'},// 复制path目录下的所有文件  
+					//{src: ['path/**'], dest: 'dest/'},// 复制path目录下的所有目录和文件  
 					{cwd: 'src/bootstrap/', src: ['fonts/**'], dest: '_dist/bootstrap/', expand: true, filter: 'isFile'},
 					{cwd: 'src/', src: ['images/**'], dest: '_dist/', expand: true, filter: 'isFile'},
 					{cwd: 'proto/dist/', src: ['*'], dest: '_dist/', expand: true, filter: 'isFile'}
@@ -121,7 +121,7 @@ module.exports = {
 				maxLineLen : 8192
 			},
 			release :{files :[
-			    {cwd: '_dist.copy/js', src: '**/*.js', dest: '_rel/js', expand  :true}
+				{cwd: '_dist.copy/js', src: '**/*.js', dest: '_rel/js', expand  :true}
 			]}
 		},
 		cssmin : {
