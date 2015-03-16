@@ -38,6 +38,23 @@ function resetPos(el, wh){
 	el.style.top = wh[1] + "px";
 }
 
+function setRelativePos(panel, rect, elem, isBottom){
+	var panelWH = [panel.offsetWidth, panel.offsetHeight];
+	var scrn = $Xw.getScreen();
+	var scrnArea = [scrn.scroll[0] + scrn.size[0] - panelWH[0], scrn.scroll[1] + scrn.size[1] - panelWH[1]];
+	var borderArea = [panelWH[0] - rect[0], panelWH[1] - rect[1]];
+	var pos = [rect[0], rect[1]];
+	function _calPos(_idx, delta, posDelta){
+		if (pos[_idx] >scrnArea[_idx] && delta > borderArea[_idx])
+			pos[_idx] = delta - borderArea[_idx] + posDelta;
+	}
+	var idx = isBottom ? 1 : 0;
+	pos[idx] = rect[idx] + rect[idx+2] - 2;
+	_calPos(1-idx, rect[3-idx], 0); 
+	_calPos(idx, 0, 2);
+
+	resetPos(panel, pos);
+}
 
 /** only DO position by the trigger.
  * cfg {
@@ -80,24 +97,8 @@ IXW.Lib.PopPanel = function (cfg){
 		panel.style.maxHeight = ((offset.height || 200)-6) + "px";
 		panel.style.width = (offset.width || 100) + "px";
 	}
-	function setRelativePosition(panel, wh, elem){
-		var isTriggerToBottom = position=="bottom";
-		if (isTriggerToBottom)
-			wh[1] = wh[1] + wh[3];
-		else 
-			wh[0] = wh[0] + wh[2];
-		var panelWidth =panel.offsetWidth;
-			
-		var scrnSize = $Xw.getScreen().size;			
-		if (wh[0] + panelWidth>scrnSize[0]){
-			wh[0] = wh[0] - panelWidth;
-			wh[0] = isTriggerToBottom? (wh[0]+elem.offsetWidth-5) : (wh[0]-wh[2]+5);
-		}
-		var h= panel.offsetHeight + elem.offsetHeight;
-		if (wh[1] + h >scrnSize[1]+ $Xw.getScrollY() && wh[1]-h>0)
-			wh[1] = wh[1]-h;
-		
-		resetPos(panel,wh);
+	function setRelativePosition(panel, rect, elem){
+		setRelativePos(panel, rect, elem, position=="bottom");
 	}
 	function _show(el){
 		var panel = baseView.getPanel();
@@ -107,15 +108,12 @@ IXW.Lib.PopPanel = function (cfg){
 		if (zIndex!=null)
 			panel.style.zIndex = zIndex+5;
 
-		var wh = $XH.getPosition(triggerEl, cfg.isFixed), top = wh[1], h = panel.offsetHeight;
-		if(window.screen.height - top < h)
-			wh[1] = top - h - triggerEl.offsetHeight;
-		
 		baseView.show();
+		var rect = $XH.getPosition(triggerEl, cfg.isFixed);
 		if (position=="offset")
-			setOffsetPosition(panel, wh);
+			setOffsetPosition(panel, rect);
 		else
-			setRelativePosition(panel, wh, triggerEl);
+			setRelativePosition(panel, rect);
 	}
 	
 	return {

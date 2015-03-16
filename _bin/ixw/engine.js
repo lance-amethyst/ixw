@@ -8,7 +8,7 @@
 (function(){
 IX.ns("IXW");
 var RouteAttrDefValue = {name :"", url : "", urlType : "base", type : "GET", "dataType" : "json"};
-// columns : ["name", "url", "urlType"] , // or  ["name", "url", "urlType", "type"]
+// columns : ["name", "url", "urlType"] , // or  ["name", "url", "urlType", "type", "dataType"]
 function parseRouteDef(columns, urlDef){
 	return IX.loop(columns, {}, function(acc, name, idx){
 		var _value = urlDef.length>idx?urlDef[idx]:null;
