@@ -1036,7 +1036,7 @@ IX.sequentialSteps = function(steps){
 	getKeys() : get all key in sequence in store
 	getByKeys(keys) :  get all values mapped by keys
 	getAll() : get all values in store
-	iterate(fn) :  for each value, iterate to execure fn(value)
+	iterate(fn) :  for each value, iterate to execure fn(value, key)
 	getFirst() : get the first meaningful value
 
 	append(key) :  only append key to store's key list, will not changed value
@@ -1204,7 +1204,7 @@ IX.IListManager = function() {
 		getKeys : function() {return _list.getList();},
 		getByKeys : function(keys){return listFn(keys);},
 		getAll : function() {return listFn(_list.getList());},
-		iterate: function(fn){IX.iterate(_list.getList(), function(item){fn(_super.get(item));}); },
+		iterate: function(fn){IX.iterate(_list.getList(), function(item){fn(_super.get(item), item);}); },
 		getFirst : function() {
 			var arr = _list.getList();
 			if (!arr || arr.length === 0)
@@ -1355,25 +1355,39 @@ IX.Date = {
 	getDS : function(){return ds;},
 	getTS : function(){return ts;},
 	isUTC :function(){return _isUTC;},
-	// return YYYY/MM/DD hh:mm:ss 
+	// return YYYY-MM-DD hh:mm:ss 
 	format : _format,
-	// return YYYY/MM/DD
+	// return YYYY-MM-DD
 	formatDate : function(date) {return _format(date, "Date");},
 	// return hh:mm:ss
 	formatTime : function(date) {return _format(date, "Time");},
 	
-	// return YYYY/MM/DD hh:mm:ss 
+	// return YYYY-MM-DD hh:mm:ss 
 	formatStr:function(str) {
 		str = (str + " ").split(" ");
 		return _formatStr(str[0], ds) + " " + _formatStr(str[1], ts);
 	},
-	// return YYYY/MM/DD
+	// return YYYY-MM-DD
 	formatDateStr:function(str){return _formatStr(str, ds);},
 	// return hh:mm:ss
 	formatTimeStr:function(str){return _formatStr(str, ts);},
 	getDateText : getText4Interval,
 		
-	// accept YYYY/MM/DD hh:mm:ss return true/false;
+	formatBySec : function(tickInSec, withTime){
+		return !tickInSec?"":_format(new Date(tickInSec*1000), withTime?"":"Date");
+	},
+	getTickInSec : function(str){
+		var tickInMS = null;
+		if (str && str instanceof Date)
+			tickInMS =  str.getTime();
+		else if (IX.isString(str) && !IX.isEmpty(str)) {
+			var sp = str.replace(/[0-9|:|\ ]/g, '')[0];
+			tickInMS = (new Date(str.replaceAll(sp, "/"))).getTime();
+		}
+		return isNaN(tickInMS) ? null : Math.ceil(tickInMS/1000);
+	},
+
+	// accept YYYY-MM-DD hh:mm:ss return true/false;
 	isValid : function(dateStr, type) {
 		var dt = dateStr.split(" ");
 		if (type=="Date" ||type=="Time")
@@ -1706,7 +1720,7 @@ $Xc = IX.Cookie;
  * }
  * 
  * IX.win is an utilities for action on window only: {
- 	getScreen() : get current screen status:
+	getScreen() : get current screen status:
 			scroll : [scrollX, scrollY, body.scrollWidth, body.scrollHeight],
 			size : [body.clientWidth, body.clientHeight]
 	//getWindowScrollTop():
@@ -2080,7 +2094,7 @@ IX.Dom = (function(){
 	return {
 		first:firstFn,
 		next:function(node, tagN){
-			return getFn(node, tagN,"next");
+			return getFn(node, tagN, "next");
 		},
 		cdata:function(node, tagN){
 			return cdataFn(firstFn(node, tagN));
@@ -2136,7 +2150,7 @@ window.$XD = IX.Dom;
 */
 IX.HtmlDocument = (function(){
 	var hasFn = function(el, clzName){
-		return el!==null && ("className" in el)&& IX.Array.isFound(clzName, (el.className+"").split(" "));
+		return el && ("className" in el)&& IX.Array.isFound(clzName, (el.className+"").split(" "));
 	};
 	var removeFn = function(el, clzName){
 		if (!el) return;
@@ -2159,42 +2173,23 @@ IX.HtmlDocument = (function(){
 		}
 		return el;
 	};
-
-	var getStyle = function(_elem,styles){
-		var _value=null, elem= IX.get(_elem);
-		styles = styles !== "float" ? styles : document.defaultView ? "float" : "styleFloat";
-		if(styles === "opacity"){
-			if(elem.filters){//IE, two ways to get opacity because two ways to set opacity and must be set opacity before get
-				if(elem.filters.length > 0){
-					try {
-						_value = elem.filters['DXImageTransform.Microsoft.Alpha'].opacity / 100;
-					}catch(e) {
-						try {
-							_value = elem.filters('alpha').opacity;
-						} catch(err){}
-					}
-				}else
-					_value = "1";
-			}else//w3c
-				_value = elem.style.opacity;
-		}else{
-			_value=elem.style[styles] || elem.style[styles.camelize()];
-			if(!_value){
-				if (document.defaultView && document.defaultView.getComputedStyle) {
-					var _css=document.defaultView.getComputedStyle(elem, null);
-					_value= _css ? _css.getPropertyValue(styles) : null;
-				}else if (elem.currentStyle){
-					_value = elem.currentStyle[styles.camelize()];
-				}
-			}
-			if(_value==="auto" && IX.Array.indexOf(["width","height"], function(_i){return styles == _i;}) > -1 && 
-					elem.style.display!="none")
-				_value=elem["offset"+styles.capitalize()]+"px";
-        }
-        return _value==="auto" ? null :_value;
-    };
+	var _getComputeStyle = function(node, styleName){
+		var oStyle = IX.getComputedStyle(node);
+		return oStyle && (styleName in oStyle) ?oStyle[styleName] : null;
+	};
+	var _checkIfFixed = function(node){
+		if (!node)
+			return null;
+		var el = node;
+		while(el && el.tagName.toLowerCase()!="body"){
+			if (_getComputeStyle(el, "position") == "fixed")
+				return true;
+			el = el.parentNode;
+		}
+		return false;
+	};
 	return {
-		getStyle : getStyle,
+		isPositionFixed : _checkIfFixed,
 		hasClass : hasFn,
 		removeClass : removeFn,
 		addClass : addFn,
@@ -2367,12 +2362,6 @@ IX.ns("IX.Util");
 IX.Util.Event = eventUtil;
 
 })();
-
-
-
-
-
-
 (function(){
 /**
  * Base NET related utilities for IX project based on DOM. All can be called as IX.xxxx(...) anywhere:
@@ -2556,6 +2545,7 @@ function ajaxProxyStateChange(proxy, callback, failCbFn){
 				clearTimeout(timer);
 			failCbFn({
 				retCode: 0,
+				err : "AJAX fail",
 				ajaxStatus: proxy.status
 				//isTimeout: false
 			}, proxy);
@@ -2581,7 +2571,7 @@ function ajaxCall(cfg){
 		IX.err("unsupport AJAX. Failed");
 		return failFn({
 			retCode : 0,
-			error: "unsupport AJAX. Failed"
+			err: "unsupport AJAX. Failed"
 		});
 	}
 
@@ -2589,6 +2579,7 @@ function ajaxCall(cfg){
 	proxy.timer = setTimeout(function(){
 		failFn({
 			retCode: 0,
+			err: "timeout AJAX. Failed",
 			isTimeout: true
 		});	    
 	}, 60000);
@@ -2611,7 +2602,7 @@ function ajaxCall(cfg){
 	}catch(ex){
 		failFn({
 			retCode : 0,
-			error:ex.message
+			err:ex.message
 		});
 		ajaxLoaded();
 	}
@@ -2815,6 +2806,11 @@ function unlockChannel(channel){
 	if (debugIsAllow("channel"))
 		IX.log ("unlock channel: " + channel);
 }
+function tryJSONParse(data){
+	if (IX.isString(data))
+		try{return JSON.parse(data);}catch(e){}
+	return data;
+}
 function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 	var channel = $XP(params, "_channel_", _caller.channel);
 	if (!tryLockChannel(channel))
@@ -2833,11 +2829,15 @@ function executeCaller(_caller, _ajaxFn, _name, params, cbFn, failFn){
 		data : isJson ? JSON.stringify(_data) : _data,
 		success : function(data) {
 			unlockChannel(channel);
-			_caller.onsuccess(data, _cbFn, params);
+			var _data = tryJSONParse(data);
+			if (_data.retCode!=1)
+				_caller.onfail(_data, failFn, params);
+			else
+				_caller.onsuccess(_data, _cbFn, params);
 		},
 		fail: function(data){
 			unlockChannel(channel);
-			_caller.onfail(data, failFn, params);
+			_caller.onfail(tryJSONParse(data), failFn, params);
 		},
 		error: function(data, errMsg, error){
 			unlockChannel(channel);

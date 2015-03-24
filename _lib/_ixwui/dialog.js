@@ -40,8 +40,7 @@ function resetPos(el, wh){
 
 function setRelativePos(panel, rect, elem, isBottom){
 	var panelWH = [panel.offsetWidth, panel.offsetHeight];
-	var scrn = $Xw.getScreen();
-	var scrnArea = [scrn.scroll[0] + scrn.size[0] - panelWH[0], scrn.scroll[1] + scrn.size[1] - panelWH[1]];
+	var scrnArea = [scrnSize[0] - panelWH[0], scrnSize[1] - panelWH[1]];
 	var borderArea = [panelWH[0] - rect[0], panelWH[1] - rect[1]];
 	var pos = [rect[0], rect[1]];
 	function _calPos(_idx, delta, posDelta){
@@ -97,9 +96,7 @@ IXW.Lib.PopPanel = function (cfg){
 		panel.style.maxHeight = ((offset.height || 200)-6) + "px";
 		panel.style.width = (offset.width || 100) + "px";
 	}
-	function setRelativePosition(panel, rect, elem){
-		setRelativePos(panel, rect, elem, position=="bottom");
-	}
+
 	function _show(el){
 		var panel = baseView.getPanel();
 		triggerEl = $X(el || triggerEl);
@@ -107,13 +104,17 @@ IXW.Lib.PopPanel = function (cfg){
 		var zIndex = getZIndex(triggerEl);
 		if (zIndex!=null)
 			panel.style.zIndex = zIndex+5;
-
 		baseView.show();
-		var rect = $XH.getPosition(triggerEl, cfg.isFixed);
+
+		var isFixed = $XH.isPositionFixed(triggerEl);
+		panel.style.position = isFixed?"fixed":"";
+		var rect = $XH.getPosition(triggerEl, isFixed);
 		if (position=="offset")
-			setOffsetPosition(panel, rect);
-		else
-			setRelativePosition(panel, rect);
+			return setOffsetPosition(panel, rect);
+
+		var scrn = $Xw.getScreen();
+		var scrnSize = isFixed? scrn.size : [scrn.scroll[0] + scrn.size[0], scrn.scroll[1] + scrn.size[1]];
+		setRelativePos(panel, rect, scrnSize, position=="bottom");
 	}
 	
 	return {
@@ -143,19 +144,20 @@ IXW.Lib.PopPanel = function (cfg){
  * 			height:	
  *			width:
  *		},
- *		ifKeepPanel : function(target),
- *		bodyRefresh : function(bodyEl)
+ *		ifKeepPanel : function(target, triggerEl),
+ *		bodyRefresh : function(bodyEl, triggerEl)
+ *		bodyListen : function(bodyEl, triggerEl)
  * 	}
  * 
  * functions  :{
- * 		trigger:
- * 		listen:
+ * 		trigger: function(triggerEl)
  * }
  */
 IXW.Lib.PopTrigger = function(cfg){	
 	var eventName = $XP(cfg, "triggerMode", "click");
 	var ifKeepPanel = $XF(cfg, "ifKeepPanel");
 	var bodyRefresh = $XF(cfg, "bodyRefresh");
+	var bodyListen = $XF(cfg, "bodyListen");
 
 	var _popPanel = null;
 	cfg.id = cfg.id||IX.id();
@@ -169,7 +171,7 @@ IXW.Lib.PopTrigger = function(cfg){
 	 		var panel = $XH.ancestor(target, "ixw_pop");
 	 		if (panel && panel.id==_popPanel.getId())
 				return;
-			if (!ifKeepPanel(target))
+			if (!ifKeepPanel(target, _popPanel.getTrigger()))
 				_popPanel.hide();
 		};
 
@@ -180,8 +182,10 @@ IXW.Lib.PopTrigger = function(cfg){
 		trigger : function(el) {
 	 		if (!_popPanel) 
 				_popPanel = new IXW.Lib.PopPanel(cfg);
+			var bodyEl = _popPanel.getBodyContainer();
+			bodyRefresh(bodyEl, el);
 			_popPanel.show(el);
-			bodyRefresh(_popPanel.getBodyContainer(), el);
+			bodyListen(bodyEl);
 		},
 		destroy : function(){_popPanel && _popPanel.destroy();},
 		reset : function(_cfg){ _popPanel && _popPanel.reset(_cfg);},

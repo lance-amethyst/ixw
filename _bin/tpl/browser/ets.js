@@ -249,7 +249,7 @@ function loadLinks(ci){
 		fileType: "js"
 	};
 	 
-	if (ciHref.match(TplFileReg)) 
+	if (ciHref.match(TplFileReg))
 		_file.fileType = "js.htm";
 	else if (!ciHref.match(/\.js$/)) 
 		return addErrorInfo(_file, "loadLinks", 

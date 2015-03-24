@@ -61,16 +61,16 @@ IXW.urlEngine = {
 var DefAjaxSetting= {
 	preAjax : function(name, params){return params;},
 	onsuccess : function(data, cbFn, params){
-		 switch(data.code){
+		 cbFn(data.data);
+	},
+	onfail: function(data){
+		switch(data.retCode){
 		 case -401: //无权查看的页面
-			 IXW.Pages.reload("401");
-			return;
+			return IXW.Pages.reload("401");
 		 case -404: //未找到的页面
 			return IXW.Pages.reload("404");
 		 }
-		 cbFn(data.data);
-	},
-	onfail: function(){}
+	}
 };
 /** routeDef : "routeName" or  {
  * 		name:  "name",

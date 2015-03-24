@@ -371,7 +371,7 @@ var propertyUtils = {
 
 // Loop/Iterate Utilities definitions :
 function loopFn(varr, sIdx, eIdx, acc0, fun, isAscLoop) {
-	if (varr===null ||varr.length===0)
+	if (!varr || varr.length===0)
 		return acc0;
 	var len=varr.length;
 	eIdx = (eIdx===-1)?len: eIdx;
@@ -1036,7 +1036,7 @@ IX.sequentialSteps = function(steps){
 	getKeys() : get all key in sequence in store
 	getByKeys(keys) :  get all values mapped by keys
 	getAll() : get all values in store
-	iterate(fn) :  for each value, iterate to execure fn(value)
+	iterate(fn) :  for each value, iterate to execure fn(value, key)
 	getFirst() : get the first meaningful value
 
 	append(key) :  only append key to store's key list, will not changed value
@@ -1204,7 +1204,7 @@ IX.IListManager = function() {
 		getKeys : function() {return _list.getList();},
 		getByKeys : function(keys){return listFn(keys);},
 		getAll : function() {return listFn(_list.getList());},
-		iterate: function(fn){IX.iterate(_list.getList(), function(item){fn(_super.get(item));}); },
+		iterate: function(fn){IX.iterate(_list.getList(), function(item){fn(_super.get(item), item);}); },
 		getFirst : function() {
 			var arr = _list.getList();
 			if (!arr || arr.length === 0)
@@ -1355,25 +1355,39 @@ IX.Date = {
 	getDS : function(){return ds;},
 	getTS : function(){return ts;},
 	isUTC :function(){return _isUTC;},
-	// return YYYY/MM/DD hh:mm:ss 
+	// return YYYY-MM-DD hh:mm:ss 
 	format : _format,
-	// return YYYY/MM/DD
+	// return YYYY-MM-DD
 	formatDate : function(date) {return _format(date, "Date");},
 	// return hh:mm:ss
 	formatTime : function(date) {return _format(date, "Time");},
 	
-	// return YYYY/MM/DD hh:mm:ss 
+	// return YYYY-MM-DD hh:mm:ss 
 	formatStr:function(str) {
 		str = (str + " ").split(" ");
 		return _formatStr(str[0], ds) + " " + _formatStr(str[1], ts);
 	},
-	// return YYYY/MM/DD
+	// return YYYY-MM-DD
 	formatDateStr:function(str){return _formatStr(str, ds);},
 	// return hh:mm:ss
 	formatTimeStr:function(str){return _formatStr(str, ts);},
 	getDateText : getText4Interval,
 		
-	// accept YYYY/MM/DD hh:mm:ss return true/false;
+	formatBySec : function(tickInSec, withTime){
+		return !tickInSec?"":_format(new Date(tickInSec*1000), withTime?"":"Date");
+	},
+	getTickInSec : function(str){
+		var tickInMS = null;
+		if (str && str instanceof Date)
+			tickInMS =  str.getTime();
+		else if (IX.isString(str) && !IX.isEmpty(str)) {
+			var sp = str.replace(/[0-9|:|\ ]/g, '')[0];
+			tickInMS = (new Date(str.replaceAll(sp, "/"))).getTime();
+		}
+		return isNaN(tickInMS) ? null : Math.ceil(tickInMS/1000);
+	},
+
+	// accept YYYY-MM-DD hh:mm:ss return true/false;
 	isValid : function(dateStr, type) {
 		var dt = dateStr.split(" ");
 		if (type=="Date" ||type=="Time")

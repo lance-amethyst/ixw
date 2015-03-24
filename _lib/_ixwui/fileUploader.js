@@ -2,14 +2,12 @@
 var uploadedCbHT = new IX.IListManager(); 
 var FileUploadURL = null;
 var AjaxUploaderHtml = [
-'<div id="{id}" class="ixw-fileUploader">',
-	'<form action="{url}" id="{id}_form" name="{id}_form" enctype="multipart/form-data" method="post" target="{id}_frame">',
-		'<input type="hidden" name="tkey" id="{id}_key"/>',
-		'<input type="hidden" id="{id}_rnd" name="rnd"/>', // random time stamp
-		'<input type="file" id="{id}_file" name="file" title="{title}"/>',
-		'<iframe name="{id}_frame" id="{id}_frame" style="display:none" src = "about:blank"></iframe>',
-    '</form>',
-'</div>'].join(""); 
+'<form action="{url}" id="{id}_form" name="{id}_form" enctype="multipart/form-data" method="post" target="{id}_frame">',
+	'<input type="hidden" name="tkey" id="{id}_key"/>',
+	'<input type="hidden" id="{id}_rnd" name="rnd"/>', // random time stamp
+	'<input type="file" id="{id}_file" name="file" title="{title}"/>',
+	'<iframe name="{id}_frame" id="{id}_frame" style="display:none" src = "about:blank"></iframe>',
+'</form>'].join("");
 
 function adjustForBrowsers(fileEl){
 	var ml = 0;
@@ -31,13 +29,11 @@ function adjustForBrowsers(fileEl){
 
 function refreshContainer(config, id, trigger){
 	var url = $XP(config, "fileUploadURL", FileUploadURL) +"?" + id;
-	var html = AjaxUploaderHtml.replaceAll("{id}", id).replace("{url}", url)
+	var container = IX.createDiv(id, "ixw-fileUploader");
+	trigger.parentNode.insertBefore(container, trigger && trigger.nextSibling);
+	container.innerHTML = AjaxUploaderHtml.replaceAll("{id}", id).replace("{url}", url)
 			.replace("{title}", $XP(config, "title", "文件"));
-	jQuery(html).insertAfter(trigger);
 
-	var container = $X(id);
-	if(!container)
-		return null;
 
 	var width = $XP(config, "width", trigger.offsetWidth);
 	var height = $XP(config, "height", trigger.offsetHeight); 
