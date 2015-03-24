@@ -34,7 +34,6 @@ function refreshContainer(config, id, trigger){
 	container.innerHTML = AjaxUploaderHtml.replaceAll("{id}", id).replace("{url}", url)
 			.replace("{title}", $XP(config, "title", "文件"));
 
-
 	var width = $XP(config, "width", trigger.offsetWidth);
 	var height = $XP(config, "height", trigger.offsetHeight); 
 

@@ -38,7 +38,7 @@ function resetPos(el, wh){
 	el.style.top = wh[1] + "px";
 }
 
-function setRelativePos(panel, rect, elem, isBottom){
+function setRelativePos(panel, rect, scrnSize, isBottom){
 	var panelWH = [panel.offsetWidth, panel.offsetHeight];
 	var scrnArea = [scrnSize[0] - panelWH[0], scrnSize[1] - panelWH[1]];
 	var borderArea = [panelWH[0] - rect[0], panelWH[1] - rect[1]];
