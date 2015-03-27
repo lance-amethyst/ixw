@@ -5,6 +5,16 @@ var util = require("util");
 var path = require("path");
 var childProcess = require('child_process');
 
+var etsc = require('./_bin/tpl/lib/etsc.js');
+var etsRoot = process.cwd() + "/_lib/_ixwui";
+
+function _etsc(ifClean){
+	return etsc(etsRoot, {
+		nsName : "IXW.Tpl",
+		clean : !!ifClean
+	});
+}
+
 var ixwPrjName = "sample", ixwPrjNS = "", ixwPrjDir = "";
 
 var prjRegex =new RegExp('{PRJ}', "gm");
@@ -36,10 +46,16 @@ function dupIXWLib(){
 	IX.safeMkdirSync(path.dirname(destFile));
 	if(fs.existsSync(destFile))
 		fs.unlinkSync(destFile);
+
+	_etsc(false);
+	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/base.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/dialog.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/fileUploader.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/datepicker.js"));
-
+	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/pagination.js"));
+	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/chosable.js"));
+	_etsc(true);
+	
 	childProcess.exec("cp -r _lib/ixw/ixwui.less " + ixwPrjDir + "/src/less/ixwui.less");
 }
 
