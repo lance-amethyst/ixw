@@ -38,7 +38,7 @@ var SingleChosableCmpCfg = {
 		return el;
 	}, 
 	tpldataFn : function(id, items, value){
-		var _value = (value===null || value === undefined)?%XP(items, "0.id") : value;
+		var _value = (value===null || value === undefined)?$XP(items, "0.id") : value;
 		return  {
 			id : id,
 			clz : items.length==0?"invisible":"",

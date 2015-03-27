@@ -318,7 +318,7 @@ function showDatePicker(trigger, options){
 <tpl id="triggerTpl">
 	<div class="ixw-dpt {clz}">
 		<label>{label}：</label>
-		<a data-href="$ixw.dpt.pick" {attrs}>
+		<a data-href="$ixw.dpt.pick" {attrs} data-format="{fmt}">
 			<input type="text" id="{id}" value="{value}" disabled/>
 			<span class="dt-"></span>
 		</a>
@@ -330,7 +330,7 @@ var dptCmp = IXW.Lib.createComponent([
 	if ($XH.hasClass(aEl.parentNode, "disabled"))
 		return;
 	showDatePicker(aEl, {
-		timeFmt : fmt, 
+		timeFmt : $XD.dataAttr(aEl, "format"), 
 		onchange : function(newValue){
 			var inputEl = $XD.first(aEl, "input");
 			var onchangeFn = dptCmp.get(inputEl.id);
@@ -355,6 +355,7 @@ function DatePickTrigger(cfg){
 		attrs : IX.map($XP(cfg, "dataAttrs", []), function(dataAttr){
 			return 'data-' + dataAttr[0] + '="' + dataAttr[1] + '"';
 		}).join(" "),
+		fmt : fmt,
 		value : formatDateBySec(value, fmt)
 	};
 
@@ -364,8 +365,10 @@ function DatePickTrigger(cfg){
 	}
 	function _apply(){
 		var inputEl = $X(id);
-		if (inputEl) 
-			inputEl.value = tpldata.value ;
+		if (!inputEl)
+			return;
+		inputEl.value = tpldata.value;
+		$XD.setDataAttr(inputEl.parentNode, "format", fmt);
 		_enable(inputEl);
 	}
 	return {
@@ -376,8 +379,9 @@ function DatePickTrigger(cfg){
 			inst.bind(onchange);
 			if (!IX.isEmpty(_fmt)){
 				fmt = _fmt;
+				tpldata.fmt = _fmt;
 				tpldata.value = formatDateBySec(value, fmt);
-			};
+			}
 			_apply();
 		},
 		apply : function(_value){

@@ -25,6 +25,26 @@ IXW.ready = function(_fname, fn){
 IXW.openUrl = function openUrl(url) {
 	window.open(url);
 };
+
+function CmpManager(){
+	var ht = {};
+	return {
+		register : function(name, cmpClz){ht[name] = cmpClz;},
+		getInstance : function(name){return ht[name];}
+	};
+}
+
+IXW.Popups = new CmpManager();
+IXW.Popups.defInstance = {
+	setOffset :function(el){},
+	show : function(el){},
+	hide : function(){},
+	toggle : function(){},
+	destory : function(){}
+};
+IXW.Navs = new CmpManager();
+IXW.Navs.AbsNavRefresh = function(cfg, pageParams){};
+
 /**  
 actionConfigs : [
 	["name", function()], ...
