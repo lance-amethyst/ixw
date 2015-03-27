@@ -28,8 +28,10 @@ function adjustForBrowsers(fileEl){
 }
 
 function refreshContainer(config, id, trigger){
-	var url = $XP(config, "fileUploadURL", FileUploadURL) +"?" + id;
+	var url = $XP(config, "fileUploadURL", FileUploadURL);
 	var container = IX.createDiv(id, "ixw-fileUploader");
+
+	url  += (url.indexOf("?")>0?"&":"?") + ("tkey=" + id);
 	trigger.parentNode.insertBefore(container, trigger && trigger.nextSibling);
 	container.innerHTML = t_uploader.renderData("", {
 		id : id,
