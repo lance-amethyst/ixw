@@ -1,6 +1,4 @@
 (function(){
-IX.ns("IXW.Lib");
-
 var CommonDialogHTML = '<div class="ixw-mask"></div><div class="ixw-body">';
 
 function BaseLayerView(id, clz){
@@ -55,6 +53,7 @@ function setRelativePos(panel, rect, scrnSize, isBottom){
 	resetPos(panel, pos);
 }
 
+IX.ns("IXW.Lib");
 /** only DO position by the trigger.
  * cfg {
  * 		id :

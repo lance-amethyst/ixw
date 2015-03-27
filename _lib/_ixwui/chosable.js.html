@@ -1,0 +1,127 @@
+<script>
+var MultiChosableCmpCfg = {
+	choseFn : function(params, aEl){ 
+		$XH.toggleClass(aEl, "selected");
+		return  aEl.parentNode;
+	}, 
+	tpldataFn : function(id, items, value){
+		var valuedHT = {};
+		IX.iterate(value, function(sid){valuedHT[ids] = ids;});
+		return  {
+			id : id,
+			clz : items.length==0?"invisible":"",
+			items : IX.map(items, function(item){return {
+				clz : valuedHT[item.id] == item.id ? "selected" : "",
+				id : item.id,
+				text : IX.encodeTXT(item.name || "")
+			};})
+		};
+	}, 
+	valueFn : function(el){
+		if (!el) return [];
+		var ids = [];
+		var aEl = $XH.first(el, "selected");
+		while(aEl){
+			ids.push($XD.dataAttr(aEl, "key"));
+			aEl = $XH.next(aEl, "selected");
+		}
+		return ids;
+	}
+};
+var SingleChosableCmpCfg = {
+	choseFn : function(params, aEl){
+		if ($XH.hasClass(aEl, "selected"))
+			return null;
+		var el =  aEl.parentNode;
+		$XH.removeClass($XH.first(el, "selected"), "selected");
+		$XH.addClass(aEl, "selected");
+		return el;
+	}, 
+	tpldataFn : function(id, items, value){
+		var _value = (value===null || value === undefined)?%XP(items, "0.id") : value;
+		return  {
+			id : id,
+			clz : items.length==0?"invisible":"",
+			items : IX.map(items, function(item){return {
+				clz : _value == item.id ? "selected" : "",
+				id : item.id,
+				text : IX.encodeTXT(item.name || "")
+			};})
+		};
+	}, 
+	valueFn : function(el, aEl){
+		if (!el && !aEl) return null;
+		aEl = aEl || $XH.first(el, "selected");
+		return $XD.dataAttr(aEl, "key");
+	}
+};
+</script>
+<tpl id="checkboxs">
+	<div id="{id}" class="ixw-chks {clz}"><tpl id="items">
+		<a class="{clz}" data-key="{id}" data-href="$ixw.chk.check">
+			<span class="ixpic-"></span><span>{text}</span>
+		</a>
+	</tpl></div>
+</tpl>
+<script>
+//IX.ns("IXW.Lib");
+/**	cfg {
+	id : used to mark the groups;
+	items : [{id, name}]
+	value : [selectedId]
+	onchange(selectedIds) :
+ * }
+ * return obj : {
+	getHTML (),
+	bind(onchange(selectedIds))
+	apply(items, [selectedId])
+	getValue ()
+ * }
+ */
+//IXW.Lib.Checkboxs = function(cfg){};
+//IXW.Lib.clearCheckboxs = function(){};
+IXW.Lib.createChosableComponent("Checkboxs", "chk", MultiChosableCmpCfg.choseFn, 
+	t_checkboxs, MultiChosableCmpCfg.tpldataFn, 
+	MultiChosableCmpCfg.valueFn
+);
+</script>
+<tpl id="radios">
+	<div id="{id}" class="ixw-radios {clz}"><tpl id="items">
+		<a class="{clz}" data-key="{id}" data-href="$ixw.radio.check">
+			<span class="ixpic-"></span><span>{text}</span>
+		</a>
+	</tpl></div>
+</tpl>
+<tpl id="opts">
+	<div id="{id}" class="ixw-opts {clz}"><tpl id="items">
+		<a class="{clz}" data-key="{key}" data-href="$ixw.opt.check">{text}</a>
+	</tpl></div>
+</tpl>
+<script>
+//IX.ns("IXW.Lib");
+/**	cfg {
+	id : used to mark the groups;
+	items : [{id, name}]
+	value : selectedId
+	onchange(selectedId) :
+ * }
+ * return obj : {
+	getHTML (),
+	bind(onchange(selectedId))
+	apply(selectedId)
+	getValue ()
+ * }
+ */
+//IXW.Lib.Radios = function(cfg){};
+//IXW.Lib.clearRadios = function(){};
+//IXW.Lib.Options = function(cfg){};
+//IXW.Lib.clearOptions = function(){};
+IXW.Lib.createChosableComponent("Radios", "radio", SingleChosableCmpCfg.choseFn, 
+	t_radios, SingleChosableCmpCfg.tpldataFn, 
+	SingleChosableCmpCfg.valueFn
+);
+IXW.Lib.createChosableComponent("Options", "opt", SingleChosableCmpCfg.choseFn, 
+	t_opts, SingleChosableCmpCfg.tpldataFn, 
+	SingleChosableCmpCfg.valueFn
+);
+</script>

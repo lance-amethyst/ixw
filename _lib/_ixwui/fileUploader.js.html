@@ -1,14 +1,14 @@
-(function(){
+<tpl id="uploader">
+	<form action="{url}" id="{id}_form" name="{id}_form" enctype="multipart/form-data" method="post" target="{id}_frame">
+		<input type="hidden" name="tkey" id="{id}_key"/>
+		<input type="hidden" id="{id}_rnd" name="rnd"/>
+		<input type="file" id="{id}_file" name="file" title="{title}"/>
+		<iframe name="{id}_frame" id="{id}_frame" style="display:none" src = "about:blank"></iframe>
+	</form>
+</tpl>
+<script>
 var uploadedCbHT = new IX.IListManager(); 
 var FileUploadURL = null;
-var AjaxUploaderHtml = [
-'<form action="{url}" id="{id}_form" name="{id}_form" enctype="multipart/form-data" method="post" target="{id}_frame">',
-	'<input type="hidden" name="tkey" id="{id}_key"/>',
-	'<input type="hidden" id="{id}_rnd" name="rnd"/>', // random time stamp
-	'<input type="file" id="{id}_file" name="file" title="{title}"/>',
-	'<iframe name="{id}_frame" id="{id}_frame" style="display:none" src = "about:blank"></iframe>',
-'</form>'].join("");
-
 function adjustForBrowsers(fileEl){
 	var ml = 0;
 	if (IX.isMSWin){ // as font-size: 30px
@@ -31,8 +31,11 @@ function refreshContainer(config, id, trigger){
 	var url = $XP(config, "fileUploadURL", FileUploadURL) +"?" + id;
 	var container = IX.createDiv(id, "ixw-fileUploader");
 	trigger.parentNode.insertBefore(container, trigger && trigger.nextSibling);
-	container.innerHTML = AjaxUploaderHtml.replaceAll("{id}", id).replace("{url}", url)
-			.replace("{title}", $XP(config, "title", "文件"));
+	container.innerHTML = t_uploader.renderData("", {
+		id : id,
+		url: url,
+		title: $XP(config, "title", "文件")
+	});
 
 	var width = $XP(config, "width", trigger.offsetWidth);
 	var height = $XP(config, "height", trigger.offsetHeight); 
@@ -61,7 +64,6 @@ function listenOnFile(config, id, trigger){
 }
 
 IX.ns("IXW.Lib");
-
 /**	
  *  config : {
  *  	fileUploadURL  //optional
@@ -146,4 +148,4 @@ IXW.Lib.FileUploadedCB = function(data, error){
 IXW.Lib.FileUploader.init = function(url){ 
 	FileUploadURL = url;
 };
-})();
+</script>

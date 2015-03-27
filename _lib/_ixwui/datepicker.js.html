@@ -1,6 +1,6 @@
-(function() {
+<script>
 var ixDate = IX.Date;
-var ixwActionsConfig =  IXW.Actions.configActions;
+var ixwActionsConfig = IXW.Actions.configActions;
 var DatePickerPopPanelID = "ixw-datePickerPanel";
 var DayInMS = 24*3600*1000;
 var Weeks = IX.map('日一二三四五六'.split(""), function(name, idx){
@@ -17,48 +17,44 @@ function getLength4DateArea(timeFmt){
 	return 3;
 }
 
-function formatDateBySec(secTick, timeFmt){
-	var len = getLength4DateArea(timeFmt);
-	return ixDate.formatBySec(secTick, "time").substring(0, 1+ len * 3);
-}
-
 function getTodayYMD(){return ixDate.formatDate(new Date).split(/-|\//g);}
-
-var t_dateTpl = new IX.ITemplate({tpl:[
-'<div class="ixw-dp">',
-	'<div class="dp-header">',
-		'<a data-href="$ixw.dp.prevy" class="dt-prevy"></a>',
-		'<a data-href="$ixw.dp.prevm" class="dt-prevm"></a>',
-		'<a data-href="$ixw.dp.year" class="dp-year"><input value="{year}" type="text"></a>',
-		'<a data-href="$ixw.dp.month" class="dp-month"><input value="{month}" type="text"></a>',
-		'<a data-href="$ixw.dp.nextm" class="dt-nextm"></a>',
-		'<a data-href="$ixw.dp.nexty" class="dt-nexty"></a>',
-	'</div>',
-	'<ul class="dp-weeks"><tpl id="weeks"><li class="{clz}">{text}</li></tpl></ul>',
-	'<ul class="dp-days"><tpl id="days">',
-		'<li class="{clz}"><a class="dp-day" data-href="$ixw.dp.day" data-value="{value}">{text}</a></li>',
-	'</tpl></ul>',
-	'<div class="time-area {timeClz}">',
-		'<span>时间</span>',
-		'<span class="areas">',
-			'<a class="dp-hour" data-href="$ixw.dp.hour"><input value="{hour}" data-name="hour" type="text"></a>',
-			'<b>:</b>',
-			'<a class="dp-minute" data-href="$ixw.dp.minute"><input value="{minute}" data-name="minute" type="text"></a>',
-			'<b class="4sec">:</b>',
-			'<a class="dp-second" data-href="$ixw.dp.second" class="4sec"><input value="{second}" data-name="second" type="text"></a>',
-		'</span>',
-		'<span class="icons">',
-			'<a data-href="$ixw.dp.next"><span class="dt-prev"></span></a>',
-			'<a data-href="$ixw.dp.prev"><span class="dt-next"></span></a>',
-		'</span>',
-	'</div>',
-	'<div class="dp-btns">',
-		'<a class="dp-btn" data-href="$ixw.dp.clear">清除</a>',
-		'<a class="dp-btn" data-href="$ixw.dp.today">今天</a>',	
-		'<a class="dp-btn" data-href="$ixw.dp.ok">确认</a>',
-	'</div>',
-'</div>'
-]});
+</script>
+<tpl id="dateTpl">
+	<div class="ixw-dp">
+		<div class="dp-header">
+			<a data-href="$ixw.dp.prevy" class="dt-prevy"></a>
+			<a data-href="$ixw.dp.prevm" class="dt-prevm"></a>
+			<a data-href="$ixw.dp.year" class="dp-year"><input value="{year}" type="text"></a>
+			<a data-href="$ixw.dp.month" class="dp-month"><input value="{month}" type="text"></a>
+			<a data-href="$ixw.dp.nextm" class="dt-nextm"></a>
+			<a data-href="$ixw.dp.nexty" class="dt-nexty"></a>
+		</div>
+		<ul class="dp-weeks"><tpl id="weeks"><li class="{clz}">{text}</li></tpl></ul>
+		<ul class="dp-days"><tpl id="days">
+			<li class="{clz}"><a class="dp-day" data-href="$ixw.dp.day" data-value="{value}">{text}</a></li>
+		</tpl></ul>
+		<div class="time-area {timeClz}">
+			<span>时间</span>
+			<span class="areas">
+				<a class="dp-hour" data-href="$ixw.dp.hour"><input value="{hour}" data-name="hour" type="text"></a>
+				<b>:</b>
+				<a class="dp-minute" data-href="$ixw.dp.minute"><input value="{minute}" data-name="minute" type="text"></a>
+				<b class="4sec">:</b>
+				<a class="dp-second" data-href="$ixw.dp.second" class="4sec"><input value="{second}" data-name="second" type="text"></a>
+			</span>
+			<span class="icons">
+				<a data-href="$ixw.dp.next"><span class="dt-prev"></span></a>
+				<a data-href="$ixw.dp.prev"><span class="dt-next"></span></a>
+			</span>
+		</div>
+		<div class="dp-btns">
+			<a class="dp-btn" data-href="$ixw.dp.clear">清除</a>
+			<a class="dp-btn" data-href="$ixw.dp.today">今天</a>
+			<a class="dp-btn" data-href="$ixw.dp.ok">确认</a>
+		</div>
+	</div>
+</tpl>
+<script>
 // [{clz: "",value : "", text: ""}],
 function getDays4Month(year, month, date){
 	var d = new Date(year, month, 1);
@@ -305,8 +301,8 @@ var ActionConfigurations =IX.map([
 ["hour", function(params, aEl){}],
 ["minute", function(params, aEl){}],
 ["second", function(params, aEl){}],
-["next", function(){hmsArea.changeHMS(-1);}],
-["prev", function(){hmsArea.changeHMS(1);}],
+["next", function(){hmsArea.changeHMS(1);}],
+["prev", function(){hmsArea.changeHMS(-1);}],
 
 ["clear", function(){popDPPanel.onclear();}],
 ["today", function(){popDPPanel.refresh2Today();}],
@@ -318,74 +314,77 @@ function showDatePicker(trigger, options){
 		ixwActionsConfig(ActionConfigurations);
 	popDPPanel.show(trigger, $XP(options, "timeFmt", ""), $XF(options, "onchange"), $XP(options, "value", ""));
 }
-
-var t_triggerTpl = new IX.ITemplate({tpl :[
-'<div class="ixw-dpt {clz}">',
-	'<label>{label}：</label>',
-	'<a data-href="$ixw.dpt.pick" {attrs}>',
-		'<input type="text" id="{id}" value="{value}" disabled/>',
-		'<span class="dt-"></span>',
-	'</a>',
-'</div>'
-]});
-
-var dptHT = new IX.IListManager();
-var TriggerActionConfigurations = [
+</script>
+<tpl id="triggerTpl"
+	<div class="ixw-dpt {clz}">
+		<label>{label}：</label>
+		<a data-href="$ixw.dpt.pick" {attrs}>
+			<input type="text" id="{id}" value="{value}" disabled/>
+			<span class="dt-"></span>
+		</a>
+	</div>
+</tpl>
+<script>
+var dptCmp = IXW.Lib.createComponent([
 ["ixw.dpt.pick", function(params, aEl){
 	if ($XH.hasClass(aEl.parentNode, "disabled"))
 		return;
-	var inputEl = $XD.first(aEl, "input");
-	var pickFn = dptHT.get(inputEl.id);
-	IX.isFn(pickFn) && pickFn(params, aEl, inputEl);
-}]];
+	showDatePicker(aEl, {
+		timeFmt : fmt, 
+		onchange : function(newValue){
+			var inputEl = $XD.first(aEl, "input");
+			var onchangeFn = dptCmp.get(inputEl.id);
+			IX.isFn(onchangeFn) && onchangeFn(ixDate.getTickInSec(newValue));
+		}
+	});
+}]], t_triggerTpl);
 
+function formatDateBySec(secTick, timeFmt){
+	var len = getLength4DateArea(timeFmt);
+	return isNaN(secTick)? "" : ixDate.formatBySec(secTick, "time").substring(0, 1+ len * 3);
+}
 function DatePickTrigger(cfg){
-	var id = $XP(cfg, "id", IX.id()), value = $XP(cfg, "value", "");
-	var onchangeFn = IX.emptyFn, fmt = $XP(cfg, "timeFmt", "hh:mm:ss"), isEnable = !$XP(cfg, "disabled");
-
-	var html = t_triggerTpl.renderData("", {
+	var tpldata = null;
+	var inst = new dptCmp.ClzBase(cfg, function(){return tpldata;});
+	var id = inst.getId(), value = $XP(cfg, "value", "");
+	var fmt = $XP(cfg, "timeFmt", "hh:mm:ss"), isEnable = !$XP(cfg, "disabled");
+	var tpldata = {
 		id : id,
 		clz : $XP(cfg, "extraClz", ""),
 		label : $XP(cfg, "label", ""),
 		attrs : IX.map($XP(cfg, "dataAttrs", []), function(dataAttr){
 			return 'data-' + dataAttr[0] + '="' + dataAttr[1] + '"';
 		}).join(" "),
-		value : isNaN(value)?"": formatDateBySec(value, fmt)
-	});
+		value : formatDateBySec(value, fmt)
+	};
 
-	var inputEl = null, containerEl = null;
-	function pick(params, el, inputEl){
-		showDatePicker(el, {
-			timeFmt : fmt, 
-			onchange : function(newValue){
-				onchangeFn(ixDate.getTickInSec(newValue), params);
-			}
-		});
-	}
-	function _enable(){
+	function _enable(inputEl){
+		var containerEl = $XH.ancestor(inputEl, "ixw-dpt");
 		$XH[isEnable?"removeClass":"addClass"](containerEl, "disabled");
 	}
-	function applyFn(_value){
-		value = isNaN(_value)?"":formatDateBySec(_value, fmt);
-		inputEl && (inputEl.value = value);
-	}
-	function bind(onchange, _fmt){
-		if(dptHT.isEmpty())
-			ixwActionsConfig(TriggerActionConfigurations);
-		dptHT.register(id, pick);
-		IX.isFn(onchange) && (onchangeFn = onchange);
-		!IX.isEmpty(_fmt) && (fmt = _fmt);
-
-		inputEl = $X(id);
-		containerEl = $XH.ancestor(inputEl, "ixw-dpt");
-		_enable();
+	function _apply(){
+		var inputEl = $X(id);
+		if (inputEl) 
+			inputEl.value = tpldata.value ;
+		_enable(inputEl);
 	}
 	return {
-		getHTML : function(){return html;},
-		enable : function(){isEnable = true;_enable();},
-		disable : function(){isEnable = false;_enable();},
-		bind : bind,
-		apply : applyFn
+		getHTML : inst.getHTML,
+		enable : function(){isEnable = true; _enable($X(id));},
+		disable : function(){isEnable = false; _enable($X(id));},
+		bind : function(onchange, _fmt){
+			inst.bind(onchange);
+			if (!IX.isEmpty(_fmt)){
+				fmt = _fmt;
+				tpldata.value = formatDateBySec(value, fmt);
+			};
+			_apply();
+		},
+		apply : function(_value){
+			value = _value;
+			tpldata.value = formatDateBySec(value, fmt);
+			_apply();
+		}
 	};
 }
 IX.ns("IXW.Lib");
@@ -405,20 +404,16 @@ IXW.Lib.showDatePicker = showDatePicker; //(trigger, options)
 	extraClz :""
 	label : "Text",
 	dataAttrs : [["name", "value"]]
+	onchange : function(tickInSec)
  * }
  * return obj : {
-		getHTML (),
-		enable (),
-		disable ()
-		bind (onchange(tickInSec, timeFmt)
-		apply(tickInSec)
+	getHTML (),
+	enable (),
+	disable (),
+	bind (onchange(tickInSec), timeFmt)
+	apply(tickInSec)
  * }	
  */
 IXW.Lib.DatePickTrigger = DatePickTrigger; // (cfg)
-IXW.Lib.clearDatePickTrigger = function(){
-	dptHT.iterate(function(dpt, dptId){
-		!$X(dptId) && dptHT.remove(dptId);
-	});
-};
-
-})();
+IXW.Lib.clearDatePickTrigger = dptCmp.clear;
+</script>
