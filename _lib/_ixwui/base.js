@@ -20,10 +20,9 @@ function createComponent(actionsCfg, tpl){
 	 * return obj : {
 		getHTML (),
 		bind(onchange(...))
-		apply()
-		
+
 		getId()
- 	 * }	
+ 	 * }
 	 */
 	function ClzBase(cfg, tpldataFn){
 		var id = cfg.id || IX.id();
