@@ -2,11 +2,11 @@
 var MultiChosableCmpCfg = {
 	choseFn : function(params, aEl){ 
 		$XH.toggleClass(aEl, "selected");
-		return  aEl.parentNode;
+		return aEl.parentNode;
 	}, 
 	tpldataFn : function(id, items, value){
 		var valuedHT = {};
-		IX.iterate(value, function(sid){valuedHT[ids] = ids;});
+		IX.iterate(value, function(sid){valuedHT[sid] = sid;});
 		return  {
 			id : id,
 			clz : items.length==0?"invisible":"",
@@ -94,7 +94,7 @@ IXW.Lib.createChosableComponent("Checkboxs", "chk", MultiChosableCmpCfg.choseFn,
 </tpl>
 <tpl id="opts">
 	<div id="{id}" class="ixw-opts {clz}"><tpl id="items">
-		<a class="{clz}" data-key="{key}" data-href="$ixw.opt.check">{text}</a>
+		<a class="{clz}" data-key="{id}" data-href="$ixw.opt.check">{text}</a>
 	</tpl></div>
 </tpl>
 <script>

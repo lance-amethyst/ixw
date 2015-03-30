@@ -48,7 +48,7 @@ function createChosableComponent(name, abbrName, choseFn, tpl, tpldataFn, valueF
 		var el = choseFn(params, aEl);
 		if (!el)
 			return;
-		var onchange = chksCmp.get(el.id);
+		var onchange = cmp.get(el.id);
 		IX.isFn(onchange) && onchange(valueFn(el, aEl));
 	}]], tpl);
 	IXW.Lib[name] = function(cfg){
@@ -73,7 +73,7 @@ function createChosableComponent(name, abbrName, choseFn, tpl, tpldataFn, valueF
 			bind : inst.bind,
 			apply : function(_items, _value){
 				if (_items || _value)
-					tpldata = getTplData(id, _items || items, _value || value);
+					tpldata = tpldataFn(id, _items || items, _value || value);
 				_apply();
 			},
 			getValue : function(){return valueFn($X(id));}

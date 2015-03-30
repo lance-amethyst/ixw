@@ -1023,7 +1023,7 @@ IX.sequentialSteps = function(steps){
 	remove(k, v) : unmap v by k
  * }
  * 
- * IX.IListManager will manage key/vlue store with ordered key list. It provide:
+ * IX.IListManager will manage key/value store with ordered key list. It provide:
  * @Methods : {
   	@Methods(IX.IManager)
   	
@@ -1045,6 +1045,25 @@ IX.sequentialSteps = function(steps){
 	clear() : clear the store
  * }
  * 
+ * IX.IPagedManager will manage key/value store with ordered key list in paged info.
+ * params :
+	newInstFn : function(item){return itemModel;} // to create model for item
+	instHT : null or instance of IX.IListManager  // if null, will create HT of IListManager
+	dataCaller : function({pageNo, pageSize}, cbFn({total, items: [item]})) // dynamic load data for paged data
+ * @Methods : {
+	get : function(id){return itemModel;},
+	getFirst : function(){return firstItemModel;},
+	// getSize : function(){return sizeInHT;},
+	getTotal : function(){return total;},
+
+	load : load(pageNo, pageSize, cbFn([itemModel]), lazyLoad)
+	putData : function({total, items}, startPos),
+	addItems : function(itemIds){} // only change total and clear page info;
+	removeItems : function(itemIds){}, // remove itemModels in HT, change total and clear page info;
+	// iterate : function(fn), // iterate all itemModels in HT,
+	clear : function(){ids = [];} // clear page info;
+ * }
+ *
  * IX.formatDataStore is an utilities handle with JSON data , for example
  * if convert JSON like :
  *  {
@@ -1227,6 +1246,73 @@ IX.IListManager = function() {
 			_list.clear();
 		}
 	});
+};
+
+IX.IPagedManager = function(newInstFn, instHT, dataCaller){
+	var total = null;
+	var ids = [];
+	var ht = instHT ? instHT :(new IX.IListManager());
+
+	function _add(pos, item){
+		var model = newInstFn(item);
+		var id = model.getId();
+		ids[pos] = id;
+		ht.register(id, model);
+		return model;
+	}
+	function putData(data , startPos){
+		if ("total" in data)
+			 total = data.total;
+		var pos = startPos || 0;
+		return IX.map(data.items, function(item, idx){
+			return _add(pos + idx, item);
+		});
+	}
+	function load(pageNo, pageSize, cbFn, lazyLoad){
+		var startPos = pageNo * pageSize;
+		if (lazyLoad){
+			var _ids = [];
+			var _num = total === null? 0 : Math.min(pageSize, total - startPos);
+			for(var i=0; i<_num; i++) {
+				var id = ids[startPos + i];
+				if (IX.isEmpty(id)) break;
+				_ids.push(id);
+			}
+			if (_num > 0 && _ids.length == _num)
+				return cbFn(ht.getByKeys(_ids));
+		}
+		dataCaller({
+			pageNo : pageNo,
+			pageSize : pageSize
+		}, function(result) {
+			cbFn(putData(result, startPos));
+		});
+	}
+	function resetTotal(_total){
+		total = _total;
+		ids = [];
+	}
+	return {
+		get : ht.get,
+		getFirst : ht.getFirst,
+		//getSize : ht.getSize,
+		getTotal : function(){return total;},
+
+		load : load,
+		putData : putData,
+		addItems : function(itemIds){
+			resetTotal(total + itemIds.length);
+		},
+		removeItems : function(itemIds){
+			IX.iterate(itemIds, function(itemId){
+				ht.unregister(itemId);
+			});
+			resetTotal(total - itemIds.length);
+		},
+		//iterate : ht.iterate,
+
+		clear : function(){ids = [];}
+	};
 };
 
 IX.formatDataStore = function(data){
