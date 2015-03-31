@@ -130,19 +130,19 @@
 
 	&>*{float:right;margin-left :10px;}
 	a { 
-		background:#f0f0f0;width:25px;height:25px;border-radius:3px;margin: 0 5px;
+		background:#f0f0f0;min-width:25px;height:25px;border-radius:3px;margin: 0 5px;
 		color: #757775;display: inline-block;vertical-align:top;text-align: center; 
 	}
 	a>span {
 		display:inline-block;
-		height:15px;width:25px;margin:4px 0;
+		height:15px;min-width:25px;margin:4px 0;
 	}
 	.hover{cursor :pointer;color:#ff9983;text-decoration:none;}
 	.disabled{cursor : default;}
 	.actived {background : #ff9833;color:white;}
-	.dotted {background : transparent; border-radius : 0; text-align:top;}
+	.dotted {background : transparent; width:25px; border-radius : 0; text-align:top;}
 
-	.pg-prev, .pg-next{width:6px; height:9px;margin:8px 9px; .x-ixpic; .x-ixpic-pg-prev;}
+	.pg-prev, .pg-next{min-width:6px; height:9px;margin:8px 9px; .x-ixpic; .x-ixpic-pg-prev;}
 	.hover .pg-prev{.x-ixpic-pg-prev-hover;}
 	.disabled .pg-prev{.x-ixpic-pg-prev-disable;}
 	.pg-next{.x-ixpic-pg-next;}

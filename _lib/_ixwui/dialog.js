@@ -2,34 +2,28 @@
 var CommonDialogHTML = '<div class="ixw-mask"></div><div class="ixw-body">';
 
 function BaseLayerView(id, clz){
-	var panelEl = null, bodyEl = null;
 	function _init(){
-		panelEl = IX.createDiv(id, clz);
+		var panelEl = IX.createDiv(id, clz);
 		panelEl.innerHTML = CommonDialogHTML;
-		bodyEl = $XH.first(panelEl, "ixw-body");
+	}
+	function _checkPanel(){
+		if (!$X(id))
+			_init();
+		return $X(id);
 	}
 
 	return {
-		getPanel  :function(){
-			if (!panelEl)
-				_init();
-			return panelEl;
-		},
-		getBodyContainer : function(){
-			if (!panelEl)
-				_init();
-			return bodyEl;
-		},
-		isVisible : function(){return panelEl && (panelEl.style.display != "none");},
-		show : function (){ panelEl && (panelEl.style.display = "block");},
-		hide: function (){ panelEl && (panelEl.style.display = "none");},
+		getPanel  :function(){return _checkPanel();},
+		getBodyContainer : function(){ return $XH.first(_checkPanel(), "ixw-body");},
+		isVisible : function(){return $X(id) && ($X(id).style.display != "none");},
+		show : function(){_checkPanel().style.display = "block";},
+		hide: function(){$X(id) && ($X(id).style.display = "none");},
 		destory : function(){
-			panelEl && panelEl.parentNode.removeChild(panel);
-			panelEl = null;
-			bodyEl = null;
+			var panelEl = $X(id); 
+			panelEl && panelEl.parentNode.removeChild(panelEl);
 		}
 	};
-};
+}
 
 function resetPos(el, wh){
 	el.style.left = wh[0] + "px";
