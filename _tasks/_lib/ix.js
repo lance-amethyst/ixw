@@ -1768,14 +1768,16 @@ IX.ITask = function(taskFn, interval, times){
  * File Utilities:
  	safeMkdirSync(path) : create folder for path
  	saveFileIfNotExist(path, name, data, cbFn) : save data only if path/name not existed.
-	safeChkPath(filePath, filename) : make sure filePath existed 
-			and return "~/+" before path "filePath/filename" to mark if file existed or not, 
-	safeChkFile(filePath, filename) : similar as safeChkFile but return null if file not existed. 
-	safeRenameAs(oldFilename, filePath, filename) : check if filePath/filename existed, 
+	safeChkFileSync(dir, subdir, filename) : make sure filePath existed and return null if filename existed. 
+	safeRenameAsSync(oldFilename, dir, subdir, filename) : check if filePath/filename existed, 
 			if yes, remove oldFilename only; else rename it to new path.
-	safeCopyTo(srcFile, filePath, filename) :check if filePath/filename existed, 
+	safeCopyToSync(srcFile, dir, subdir, filename) :check if filePath/filename existed, 
 			if yes, do noting; else copy it to new path.
- *
+	safeWriteFileSync(filePath, fileData) :
+	
+	iterDir : iterDir,
+	createDigest :createDigest,
+	digestOnce : digestOnce,
  * Error/Log Utilities:
 	setLogPath(path) : reset the log file output path, for example: 
 			if path is "/tmp/ix", the log/err file should be "/tmp/ix.log"/"tmp/ix.err"
@@ -1809,7 +1811,7 @@ function _safeMkdirSync(_path){
 function saveFileIfNotExist(filePath, filename, fileData, cbFn){
 	var fileName = filePath + "/" +filename;	
 	if (fs.existsSync(fileName))
-		return cbFn(new Error("File existed: " + fileName));
+		return cbFn(new Error("File existed: " + fileName), fileName);
 
 	if (!fs.existsSync(filePath)){
 		_safeMkdirSync(filePath);
@@ -1820,26 +1822,29 @@ function saveFileIfNotExist(filePath, filename, fileData, cbFn){
 	fs.writeFile(fileName, fileData, {
 		mode : 0755
 	},function(err) {
-		chownFileOwner(filePath + "/" + fileName);
+		chownFileOwner(fileName);
 		cbFn(err, fileName);
 	});
 }
-function safeChkPath(filePath, filename){
+function safeChkFileSync(dir, subdir, filename){
+	var filePath = dir + "/" + subdir; 
 	var fileName = filePath + "/" + filename;
+	if (debugIsAllow("file"))
+		IX.log("safeChkFileSync  " +  fileName);
 	if (fs.existsSync(fileName))
-		return "~" + fileName;
+		return null;
+	if (!fs.existsSync(dir)){
+		IX.safeMkdirSync(dir);
+		chownFileOwner(dir);
+	}
 	if (!fs.existsSync(filePath)){
 		fs.mkdirSync(filePath, 0755);
 		chownFileOwner(filePath);
 	}
-	return "+" + fileName;
+	return fileName;
 }
-function safeChkFile(filePath, filename){
-	var result = safeChkPath(filePath, filename);
-	return result.charAt(0) == '~' ? null : result.substring(1);
-}
-function safeRenameAs(oldFilename, filePath, filename){
-	var fileName = safeChkFile(filePath, filename);
+function safeRenameAsSync(oldFilename, dir, subdir, filename){
+	var fileName = safeChkFileSync(dir, subdir, filename);
 	if (debugIsAllow("file"))
 		IX.log("try RENAME  " +  fileName + " from " + oldFilename);
 	if (!fileName)
@@ -1847,8 +1852,8 @@ function safeRenameAs(oldFilename, filePath, filename){
 	fs.renameSync(oldFilename, fileName);
 	chownFileOwner(fileName);
 }
-function safeCopyTo(srcFile, filePath, filename){
-	var fileName = safeChkFile(filePath, filename);
+function safeCopyToSync(srcFile, dir, subdir, filename){
+	var fileName = safeChkFileSync(dir, subdir, filename);
 	if (debugIsAllow("file"))
 		IX.log("try COPY  " +  fileName + " from " + srcFile);
 	if (!fileName)
@@ -1860,14 +1865,15 @@ function safeWriteFileSync(filePath, fileData){
 	var dir = path.dirname(filePath);
 	_safeMkdirSync(dir);
 	fs.writeFileSync(filePath, fileData);
+	chownFileOwner(filePath);
 }
 
-function iterDir(rootPath, filePath, iterFn){
+function iterDirSync(rootPath, filePath, iterFn){
 	var _path = rootPath + filePath;
 	var file = fs.statSync(_path);
 	if (file.isDirectory())
 		(fs.readdirSync(_path) || []).forEach(function(fname){
-			iterDir(rootPath, filePath + "/" + fname, iterFn);
+			iterDirSync(rootPath, filePath + "/" + fname, iterFn);
 		}); 
 	else if(file.isFile())
 		iterFn(filePath, _path);
@@ -1886,21 +1892,18 @@ function digestOnce(data){
 	return checksum.end();
 }
 
-var logDir = "/tmp/ix";
-function setLogPath(logPath) {
-	if (IX.isEmpty(logPath))
+var logFile = "/tmp/ix";
+function setLogPath(logPath, filename) {
+	if (IX.isEmpty(logPath) && IX.isEmpty(filename))
 		return;
-	var arr = logPath.split("/");
-	arr.pop();
-	var _path = arr.join("/");
-	if (!fs.existsSync(_path))
-		IX.safeMkdirSync(_path);
+	if (!fs.existsSync(logPath))
+		_safeMkdirSync(logPath);
+	logFile = logPath + "/" + filename;
 	try{
-		fs.appendFileSync(logPath + '.log', "\n");	
-		logDir = logPath;
-		console.log("success set log path : " + _path);
+		fs.appendFileSync(logFile + '.log', "\n");	
+		console.log("success set log path : " + logFile);
 	}catch(ex){
-		console.error("Exception as set log dir: " + _path  + "\n" + ex);
+		console.error("Exception as set log dir: " + logFile  + "\n" + ex);
 	}
 }
 
@@ -1910,7 +1913,7 @@ function _log(type, msg) {
 	if ("Test" in global && global.Test.debug != "file")
 		return console.log(_msg);
 	
-	var fname = logDir + "." + type.toLowerCase();
+	var fname = logFile + "." + type.toLowerCase();
 	try{
 		var fstat = fs.statSync(fname);
 		if (fstat && fstat.size > 10000000) // log file size is over 10M, rename file; 
@@ -1924,13 +1927,12 @@ function _log(type, msg) {
 IX.extend(IX, {
 	safeMkdirSync : _safeMkdirSync,
 	saveFileIfNotExist : saveFileIfNotExist,
-	safeChkPath : safeChkPath,
-	safeChkFile : safeChkFile,
-	safeRenameAs : safeRenameAs,
-	safeCopyTo : safeCopyTo,
+	safeChkFileSync : safeChkFileSync,
+	safeRenameAsSync : safeRenameAsSync,
+	safeCopyToSync : safeCopyToSync,
 	safeWriteFileSync : safeWriteFileSync,
 	
-	iterDir : iterDir,
+	iterDirSync : iterDirSync,
 	createDigest :createDigest,
 	digestOnce : digestOnce,
 	
