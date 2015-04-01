@@ -25,7 +25,7 @@ function createComponent(actionsCfg, tpl){
  	 * }
 	 */
 	function ClzBase(cfg, tpldataFn){
-		var id = cfg.id || IX.id();
+		var id = $XP(cfg, "id") || IX.id();
 		bindCmpTrigger(id, $XF(cfg, "onchange"));
 		return {
 			getHTML : function(){return tpl.renderData("", tpldataFn());},
