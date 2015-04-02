@@ -86,8 +86,15 @@ function copyFiles(){
 	dupFile('_ixw_config.js', "ixw_config.js");
 	dupFile('_package.json', "package.json");
 	dupFile('_proto.index.htm', "proto/index.htm");
+	dupFile('_proto.global.js', "proto/global.js");
 	dupFile('_proto.dist.index.htm', "proto/dist/index.htm");
+	dupFile('_sim.failLogin.json', "sim/failLogin.json");
+	dupFile('_sim.sessionData.json', "sim/sessionData.json");
+	dupFile('_sim.uploadImg.html', "sim/uploadImg.html");
 	dupFile('_src.ixw.index.js.html', "src/ixw/index.js.html");
+	dupFile('_src.ixw.entry.index.js.html', "src/ixw/entry/index.js.html");
+	dupFile('_src.ixw.m1.index.js.html', "src/ixw/m1/index.js.html");
+	dupFile('_src.ixw.err.index.js.html', "src/ixw/err/index.js.html");
 	
 	dupETSFiles();
 	dupIXWLib();

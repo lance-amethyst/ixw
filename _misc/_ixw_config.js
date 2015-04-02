@@ -89,7 +89,7 @@ module.exports = {
 				dest : "_dist/js/ixw.js"
 			},
 			project :{
-				src : ["src/ixw/index.js"],
+				src : ["src/ixw/entry/index.js","src/ixw/err/index.js","src/ixw/m1/index.js","src/ixw/index.js"],
 				dest : "_dist/js/<%= pkg.name %>.js"
 			}
 		},

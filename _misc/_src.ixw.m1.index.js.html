@@ -1,0 +1,13 @@
+<tpl id="info">
+	<h1>Hello world</h1>
+	<pre>{info}</pre>
+</tpl>
+<script>
+IX.ns("{NS}.ModuleA");
+{NS}.ModuleA.init = function(pageCfg, pageParams, cbFn){
+	$X('body').innerHTML = t_info.renderData("", {
+		info : ["pageCfg", JSON.stringify(pageCfg), "", "pageParams:",JSON.stringify(pageParams)].join("\n")
+	});
+	cbFn();
+};
+</script>

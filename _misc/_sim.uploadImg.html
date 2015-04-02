@@ -1,0 +1,12 @@
+<html>
+<script>
+var qstr = location.search;
+qstr = qstr.indexOf("?")==0?qstr.substring(1) : "";
+qstr = qstr.indexOf("tkey=")>=0?qstr.split("tkey=")[1].split("&")[0]:"";
+
+parent.IXW.Lib.FileUploadedCB({
+	tkey : qstr,
+	"id" : "14"
+});
+</script>
+</html>
