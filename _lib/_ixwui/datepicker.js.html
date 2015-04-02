@@ -283,7 +283,8 @@ var popDPPanel = (function(){
 			popTrigger.trigger(trigger);
 		},
 
-		refresh2Today : _setAreas,
+		hide : function(){popTrigger.hide();},
+		apply : _setAreas,
 		onclear : function(){_change();},
 		onOK : function(){_change(ymdArea.getValue(), hmsArea.getValue());}
 	};
@@ -305,7 +306,7 @@ var ActionConfigurations =IX.map([
 ["prev", function(){hmsArea.changeHMS(-1);}],
 
 ["clear", function(){popDPPanel.onclear();}],
-["today", function(){popDPPanel.refresh2Today();}],
+["today", function(){popDPPanel.apply();}],
 ["ok", function(){popDPPanel.onOK();}]
 ], function(action){return ["ixw.dp." + action[0], action[1]];});
 
@@ -319,7 +320,7 @@ function showDatePicker(trigger, options){
 	<div class="ixw-dpt {clz}">
 		<label>{label}：</label>
 		<a data-href="$ixw.dpt.pick" {attrs} data-format="{fmt}">
-			<input type="text" id="{id}" value="{value}" disabled/>
+			<input type="text" id="{id}" value="{value}"/>
 			<span class="dt-"></span>
 		</a>
 	</div>
@@ -331,14 +332,32 @@ var dptCmp = IXW.Lib.createComponent([
 		return;
 	showDatePicker(aEl, {
 		timeFmt : $XD.dataAttr(aEl, "format"), 
-		onchange : function(newValue){
-			var inputEl = $XD.first(aEl, "input");
-			var onchangeFn = dptCmp.get(inputEl.id);
-			IX.isFn(onchangeFn) && onchangeFn(ixDate.getTickInSec(newValue));
-		}
+		onchange : function(newValue){onDateChange($XD.first(aEl, "input"),newValue);}
 	});
 }]], t_triggerTpl);
 
+function onDateChange(inputEl, newValue) {
+	var onchangeFn = dptCmp.get(inputEl.id);
+	console.log("DPT: " + newValue);
+	IX.isFn(onchangeFn) && onchangeFn(ixDate.getTickInSec(newValue));
+}
+function inputOnFocus(inputEl){
+	$XD.setDataAttr(inputEl, "value", inputEl.value);
+}
+function inputOnKeyup(inputEl, e){
+	var ch = e.which;
+	if (ch == 13 || ch==27 || ch==9){
+		if (ch != 13) {
+			inputEl.value = $XD.dataAttr(inputEl, "value");
+			popDPPanel.hide();
+		} else 
+			popDPPanel.onOK();
+		return inputEl.blur();
+	}
+	var d = new Date(inputEl.value);
+	if (!isNaN(d.getTime()))
+		popDPPanel.apply(ixDate.format(d));
+}
 function formatDateBySec(secTick, timeFmt){
 	var len = getLength4DateArea(timeFmt);
 	return isNaN(secTick)? "" : ixDate.formatBySec(secTick, "time").substring(0, 1+ len * 3);
@@ -362,12 +381,21 @@ function DatePickTrigger(cfg){
 	function _enable(inputEl){
 		var containerEl = $XH.ancestor(inputEl, "ixw-dpt");
 		$XH[isEnable?"removeClass":"addClass"](containerEl, "disabled");
+		$XD.setAttr(inputEl, "disabled", isEnable? "" : "false");
 	}
 	function _apply(){
 		var inputEl = $X(id);
 		if (!inputEl)
 			return;
 		inputEl.value = tpldata.value;
+		if (!$XD.dataAttr(inputEl, "binded")){
+			$XD.setDataAttr(inputEl, "binded", "true");
+			IX.bind(inputEl, {
+				focus : function(){inputOnFocus(inputEl);},
+				keyup :function(e){inputOnKeyup(inputEl, e);}
+			});
+		}
+
 		$XD.setDataAttr(inputEl.parentNode, "format", fmt);
 		_enable(inputEl);
 	}
