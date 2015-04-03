@@ -102,7 +102,7 @@ function pgJump(params, aEl){
 function inputOnKeyDown(inputEl, e){
 	if (e.which != 13) return;
 	e.preventDefault();
-	pgGo(null, inputEl.parentNode);
+	pgGo(null, inputEl);
 }
 function Pagination(cfg){
 	var tpldata = null;
@@ -117,12 +117,12 @@ function Pagination(cfg){
 		if (!IX.isEmpty(tpldata.clz))
 			return $XH.addClass(containerEl, "invisible");
 
-		var el =$XD.first($XH.first(containerEl, "go"), "input");
-		$XD.setDataAttr(el, "max", tpldata.total);
-		IXW.Pages.bindOnInput(el, { 
-			keydown : function(e){inputOnKeyDown(el, e);}
+		var inputEl =$XD.first($XH.first(containerEl, "go"), "input");
+		$XD.setDataAttr(inputEl, "max", tpldata.total);
+		IXW.Pages.bindOnInput(inputEl, { 
+			keydown : function(e){inputOnKeyDown(inputEl, e);}
 		});
-		el = $XH.first(containerEl, "pg");
+		var el = $XH.first(containerEl, "pg");
 		el.innerHTML = IX.map(tpldata.pages, function(page){
 			return t_pagination.renderData("pages", page);
 		}).join("");
