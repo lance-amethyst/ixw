@@ -387,14 +387,10 @@ function DatePickTrigger(cfg){
 		if (!inputEl)
 			return;
 		inputEl.value = tpldata.value;
-		if (!$XD.dataAttr(inputEl, "binded")){
-			$XD.setDataAttr(inputEl, "binded", "true");
-			IX.bind(inputEl, {
-				focus : function(){inputOnFocus(inputEl);},
-				keyup :function(e){inputOnKeyup(inputEl, e);}
-			});
-		}
-
+		IXW.Pages.bindOnInput(inputEl, {
+			focus : function(){inputOnFocus(inputEl);},
+			keyup :function(e){inputOnKeyup(inputEl, e);}
+		});
 		$XD.setDataAttr(inputEl.parentNode, "format", fmt);
 		_enable(inputEl);
 	}

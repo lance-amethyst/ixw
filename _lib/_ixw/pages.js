@@ -301,4 +301,10 @@ IXW.Pages.listenOnClick = function(el){
 		_el && jumpFor(_el);
 	}});
 };
+IXW.Pages.bindOnInput = function(inputEl, handlers){
+	if ($XD.dataAttr(inputEl, "binded"))
+		return;
+	$XD.setDataAttr(inputEl, "binded", "true");
+	IX.bind(inputEl, handlers);
+};
 })();

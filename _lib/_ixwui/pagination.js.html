@@ -99,12 +99,10 @@ function pgJump(params, aEl){
 }
 
 //////////////////////////////
-function bindOnPageGo(inputEl){
-	IX.bind(inputEl, { keydown : function(e){
-		if (e.which != 13) return;
-		e.preventDefault();
-		pgGo(null, inputEl);
-	}});
+function inputOnKeyDown(inputEl, e){
+	if (e.which != 13) return;
+	e.preventDefault();
+	pgGo(null, inputEl);
 }
 function Pagination(cfg){
 	var tpldata = null;
@@ -121,6 +119,9 @@ function Pagination(cfg){
 
 		var el =$XD.first($XH.first(containerEl, "go"), "input");
 		$XD.setDataAttr(el, "max", tpldata.total);
+		IXW.Pages.bindOnInput(el, { 
+			keydown : function(e){inputOnKeyDown(el, e);}
+		});
 		el = $XH.first(containerEl, "pg");
 		el.innerHTML = IX.map(tpldata.pages, function(page){
 			return t_pagination.renderData("pages", page);
@@ -130,13 +131,7 @@ function Pagination(cfg){
 
 	return {
 		getHTML : inst.getHTML,
-		bind : function(onchange){
-			inst.bind(onchange);
-			var containerEl = $X(id);
-			if (!containerEl)
-				return;
-			bindOnPageGo($XD.first($XH.first(containerEl, "go"), "input"));
-		},
+		bind : inst.bind,
 		apply : function(_current, _total){
 			var isChanged = false;
 			if (!isNaN(_total) && _total >= 0 && _total != total){
