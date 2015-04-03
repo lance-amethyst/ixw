@@ -102,7 +102,7 @@ function pgJump(params, aEl){
 function inputOnKeyDown(inputEl, e){
 	if (e.which != 13) return;
 	e.preventDefault();
-	pgGo(null, inputEl);
+	pgGo(null, inputEl.parentNode);
 }
 function Pagination(cfg){
 	var tpldata = null;
