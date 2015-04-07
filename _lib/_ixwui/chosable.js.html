@@ -1,4 +1,15 @@
 <script>
+function _tpldataFn(id, items, ifSelectFn){return  {
+	id : id,
+	clz : items.length==0?"invisible":"",
+	items : IX.map(items, function(item){return {
+		clz : ifSelectFn(item.id) ? "selected" : "",
+		id : item.id,
+		title : item.name.replace(/\'|\"/g, '“'),
+		text : IX.encodeTXT(item.name || "")
+	};})
+};}
+
 var MultiChosableCmpCfg = {
 	choseFn : function(params, aEl){ 
 		$XH.toggleClass(aEl, "selected");
@@ -7,15 +18,9 @@ var MultiChosableCmpCfg = {
 	tpldataFn : function(id, items, value){
 		var valuedHT = {};
 		IX.iterate(value, function(sid){valuedHT[sid] = sid;});
-		return  {
-			id : id,
-			clz : items.length==0?"invisible":"",
-			items : IX.map(items, function(item){return {
-				clz : valuedHT[item.id] == item.id ? "selected" : "",
-				id : item.id,
-				text : IX.encodeTXT(item.name || "")
-			};})
-		};
+		return _tpldataFn(id, items, function(itemId){
+			return valuedHT[itemId] == itemId;
+		});
 	}, 
 	valueFn : function(el){
 		if (!el) return [];
@@ -39,15 +44,9 @@ var SingleChosableCmpCfg = {
 	}, 
 	tpldataFn : function(id, items, value){
 		var _value = (value===null || value === undefined)?$XP(items, "0.id") : value;
-		return  {
-			id : id,
-			clz : items.length==0?"invisible":"",
-			items : IX.map(items, function(item){return {
-				clz : _value == item.id ? "selected" : "",
-				id : item.id,
-				text : IX.encodeTXT(item.name || "")
-			};})
-		};
+		return _tpldataFn(id, items, function(itemId){
+			return _value == itemId;
+		});
 	}, 
 	valueFn : function(el, aEl){
 		if (!el && !aEl) return null;
@@ -58,7 +57,7 @@ var SingleChosableCmpCfg = {
 </script>
 <tpl id="checkboxs">
 	<div id="{id}" class="ixw-chks {clz}"><tpl id="items">
-		<a class="{clz}" data-key="{id}" data-href="$ixw.chk.check">
+		<a class="{clz}" data-key="{id}" title="{title}" data-href="$ixw.chk.check">
 			<span class="ixpic-"></span><span>{text}</span>
 		</a>
 	</tpl></div>
@@ -87,14 +86,14 @@ IXW.Lib.createChosableComponent("Checkboxs", "chk", MultiChosableCmpCfg.choseFn,
 </script>
 <tpl id="radios">
 	<div id="{id}" class="ixw-radios {clz}"><tpl id="items">
-		<a class="{clz}" data-key="{id}" data-href="$ixw.radio.check">
+		<a class="{clz}" data-key="{id}" title="{title}" data-href="$ixw.radio.check">
 			<span class="ixpic-"></span><span>{text}</span>
 		</a>
 	</tpl></div>
 </tpl>
 <tpl id="opts">
 	<div id="{id}" class="ixw-opts {clz}"><tpl id="items">
-		<a class="{clz}" data-key="{id}" data-href="$ixw.opt.check">{text}</a>
+		<a class="{clz}" data-key="{id}" title="{title}" data-href="$ixw.opt.check">{text}</a>
 	</tpl></div>
 </tpl>
 <script>

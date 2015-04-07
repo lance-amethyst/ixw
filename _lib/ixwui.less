@@ -1,3 +1,7 @@
+.x-ellipsis() {
+	display:inline-block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+
 .ixw-fileUploader {
 	top:0px; position:relative; z-index:2; background:red;
 	overflow:hidden; vertical-align:top; display:inline-block;
@@ -157,7 +161,7 @@
 
 .ixw-chks {
 	padding:0; margin:0;
-	a {display: inline-block; margin:5px 10px 0 0; height:16px;color:#666;}
+	a {margin:5px 10px 0 0; height:16px;color:#666;max-width:350px;.x-ellipsis;}
 	a:hover {color: blue;}
 	span {vertical-align : top;}
 	.ixpic- {
