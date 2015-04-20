@@ -61,4 +61,4 @@ exports.mark = function(relCfg, relNo){
 	IX.iterDirSync(rootPath, "css", replaceCssFile);
 	var jsonString = JSON.stringify(filesData).replace(/\}/g, '}\n');
 	fs.writeFileSync(_cwd + '/_tasks/release/maps.json', jsonString);
-}
+};
