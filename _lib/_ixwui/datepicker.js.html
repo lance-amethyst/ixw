@@ -181,7 +181,7 @@ var hmsArea = (function HMSArea(){
 		inputs[idx] && (inputs[idx].value = value);
 	}
 	function _bindOn(inputEl, idx){
-		var max = HMS_MAX[idx]+1;
+		var max = HMS_MAX[idx];
 		inputs[idx] = inputEl;
 		IX.bind(inputEl, {
 			focus : function(){focusedIdx = idx;},
