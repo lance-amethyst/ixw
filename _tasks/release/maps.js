@@ -54,11 +54,11 @@ exports.mark = function(relCfg, relNo){
 	
 	curRelNo = relNo;
 
-	IX.iterDir(rootPath, "images", renameFile);
-	IX.iterDir(rootPath, "js", renameFile);
+	IX.iterDirSync(rootPath, "images", renameFile);
+	IX.iterDirSync(rootPath, "js", renameFile);
 
 	console.log("Files : " + util.inspect(files2Replace));
-	IX.iterDir(rootPath, "css", replaceCssFile);
+	IX.iterDirSync(rootPath, "css", replaceCssFile);
 	var jsonString = JSON.stringify(filesData).replace(/\}/g, '}\n');
 	fs.writeFileSync(_cwd + '/_tasks/release/maps.json', jsonString);
 }
