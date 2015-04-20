@@ -1,6 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
+ * Distrib No : 20150420T133306Z518
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -628,7 +629,11 @@ IX.extend(String.prototype, {
 	dehtml:function(){return this.loopReplace([["&", "&amp;"], ["<", "&lt;"],['"', "&quot;"]]);},
 	enhtml:function(){return this.loopReplace([["&lt;", "<"],["&quot;",'"'], ["&amp;", "&"]]);},
 
-	multi:function(len){ return IX.Array.init(len, this).join("");},
+	multi:function(len){
+		var s = "";
+		for (var i =0; i<len; i++) s += this;
+		return s;
+	},
 	
 	pickUrls:function(){return this.match(UrlRegEx);},
 	replaceUrls : function(_r, _f){return this.replace(_r || UrlRegEx, _f || function(a){return '<a href="'+ a + '" target="_blank">' + a + '</a>';});},
@@ -636,9 +641,8 @@ IX.extend(String.prototype, {
 	
 	pick4Replace : function(){return this.match(ReplaceKeyPattern);},
 	replaceByParams : function(data) {
-		var items = IX.Array.compact(this.match(ReplaceKeyPattern));
-		return IX.loop(items, this, function(acc, item){
-			var _key = item.slice(1,-1);
+		return IX.loop(this.match(ReplaceKeyPattern), this, function(acc, item){
+			var _key = item && item.length>2? item.slice(1,-1) : "";
 			return IX.isEmpty(_key)?acc:acc.replaceAll(item, $XP(data, _key, ""));
 		});
 	},
