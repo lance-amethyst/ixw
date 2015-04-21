@@ -181,6 +181,7 @@ function PageHelper(){
 		if(!pageAuthCheckFn(name, cfg))
 			return;
 		//console.log('load:' + path + ":::" +name);
+		isInitialized = true;
 		_loadByContext({
 			path : path,
 			name :  name,
@@ -195,6 +196,7 @@ function PageHelper(){
 		var cfg = PageConfigurations[name];
 		if(!pageAuthCheckFn(name, cfg))
 			return window.alert("该页面已经失效，无法浏览。请登录之后重新尝试。")
+		isInitialized = true;
 		_loadByContext(state, resetContext, cbFn);
 	}
 	function _stateChange(e){
@@ -228,7 +230,6 @@ function PageHelper(){
 	return {
 		init : function(authCheckFn){pageAuthCheckFn = authCheckFn;},
 		start : function(cbFn){
-			isInitialized = true;
 			if (context)
 				return _loadByState(context, cbFn);
 			_loadByPath(document.location.hash.replace(/^#/, ''), false, cbFn);
