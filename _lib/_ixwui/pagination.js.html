@@ -132,7 +132,7 @@ function Pagination(cfg){
 	return {
 		getHTML : inst.getHTML,
 		bind : inst.bind,
-		apply : function(_current, _total){
+		apply : function(_current, _total, onlyData){
 			var isChanged = false;
 			if (!isNaN(_total) && _total >= 0 && _total != total){
 				total = _total - 0;
@@ -144,7 +144,7 @@ function Pagination(cfg){
 			}
 			if (isChanged)
 				tpldata = getTplData(id, total, current);
-			_apply();
+			if (!onlyData) _apply();
 		},
 		jump : function(pageNo){
 			onPageChanged(id, Math.max(0, pageNo===undefined?current:pageNo) + 1);

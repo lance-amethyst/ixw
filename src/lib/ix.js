@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20150722T132233Z653
+ * Distrib No : 20150722T141637Z041
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -1885,13 +1885,13 @@ var _isIPad = checkUA('ipad'), _isIPhone = checkUA('iphone');
 
 var CSSVendorName = (function(){
 	var style = document.body.style;
-	if ("transform" in style)
+	if ("transition" in style)
 		return "";
-	if ("-webkit-transform" in style)
+	if ("-webkit-transition" in style)
 		return "-webkit-";
-	if ("-ms-transform" in style)
+	if ("-ms-transition" in style)
 		return "-ms-";
-	if ("-0-transform" in style)
+	if ("-0-transition" in style)
 		return "-o-";
 	return "";
 })();
@@ -1985,7 +1985,7 @@ function EventBindManager(){
 }
 var DOM_EventList = [
 	"click", "dblclick", "focus", "blur", 
-	"keyup", "keydown", 
+	"keyup", "keydown", "keypress",
 	"mouseover", "mouseout", "mousedown", "mousemove", "mouseup",
 	"resize", "scroll",
 	"touchstart", "touchend", "touchmove"
@@ -2194,7 +2194,7 @@ IX.Dom = (function(){
 		if (val)
 			node.setAttribute(attN, val);
 		else
-			node.removeAttribute(attN);			
+			node.removeAttribute(attN);
 	};
 	return {
 		first:firstFn,

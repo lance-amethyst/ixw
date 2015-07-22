@@ -7,7 +7,11 @@
 		<title>Home Page</title>
 
 		<link href="../src/less/core.less" rel="stylesheet/less" type="text/css"/>
-
+<script type="text/javascript">
+var {NS}_BaseUrl = "http://localhost/{PRJ}";
+if ("{NS}BaseUrl" in parent)
+	{NS}_BaseUrl = parent.{NS}BaseUrl;
+</script>
 		<!--  Less Compiler -->
 		<script>
 window.ETS_NS = "{NS}.Tpl";

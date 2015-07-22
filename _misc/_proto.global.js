@@ -1,11 +1,13 @@
 (function(){
 IX.ns("{NS}.Global");
 
-var baseUrl = "http://localhost/{PRJ}/sim";
++var baseUrl = {NS}_BaseUrl + "/sim";
++var imgUrl = {NS}_BaseUrl + "/src/images";
 
 IXW.ajaxEngine.init({
 	ajaxFn : jQuery.ajax,
-	baseUrl : baseUrl
+	baseUrl : baseUrl,
+	imgUrl : imgUrl
 });
 
 IXW.urlEngine.mappingUrls([
