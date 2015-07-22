@@ -56,7 +56,7 @@ function dupIXWLib(){
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/chosable.js"));
 	_etsc(true);
 	
-	childProcess.exec("cp -r _bin/ixwui.less " + ixwPrjDir + "/src/less/ixwui.less");
+	childProcess.exec("cp -r _lib/ixwui.less " + ixwPrjDir + "/src/less/ixwui.less");
 }
 
 function dupETSFiles(){

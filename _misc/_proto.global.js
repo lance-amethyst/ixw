@@ -1,8 +1,8 @@
 (function(){
 IX.ns("{NS}.Global");
 
-+var baseUrl = {NS}_BaseUrl + "/sim";
-+var imgUrl = {NS}_BaseUrl + "/src/images";
+var baseUrl = {NS}_BaseUrl + "/sim";
+var imgUrl = {NS}_BaseUrl + "/src/images";
 
 IXW.ajaxEngine.init({
 	ajaxFn : jQuery.ajax,
