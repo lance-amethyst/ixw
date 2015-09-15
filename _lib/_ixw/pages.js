@@ -176,7 +176,7 @@ function PageHelper(){
 		context = _context;
 	}
 	function _loadByPath(path, isNewRec, cbFn){
-		var name = getNameByPath(path || DefaultPageName),
+		var name = getNameByPath(path) || DefaultPageName,
 			cfg = PageConfigurations[name];
 		if(!pageAuthCheckFn(name, cfg))
 			return;
@@ -249,7 +249,7 @@ function PageHelper(){
 }
 var pageHelper = new PageHelper();
 
-function jumpFor(el){
+function jumpFor(el, evt){
 	var _href = $XD.dataAttr(el, "href");
 	if (IX.isEmpty(_href))
 		return;	
@@ -260,7 +260,7 @@ function jumpFor(el){
 	} else if (ch ==='+') // open new window
 		IXW.openUrl(document.location.href.split("#")[0] + "#" + name);
 	else if(ch === '$') // do named actions
-		IXW.Actions.doAction(name, {key : $XD.dataAttr(el, "key")}, el);
+		IXW.Actions.doAction(name, {key : $XD.dataAttr(el, "key")}, el, evt);
 	else if (!pageHelper.isCurrentPage(_href))
 		pageHelper.load(_href);
 }
@@ -299,7 +299,7 @@ IXW.Pages.jump = jumpFor;
 IXW.Pages.listenOnClick = function(el){
 	IX.bind(el, {click : function(e){
 		var _el = $XD.ancestor(e.target, "a");
-		_el && jumpFor(_el);
+		_el && jumpFor(_el, e);
 	}});
 };
 IXW.Pages.bindOnInput = function(inputEl, handlers){

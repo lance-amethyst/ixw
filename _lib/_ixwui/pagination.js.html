@@ -107,7 +107,8 @@ function inputOnKeyDown(inputEl, e){
 function Pagination(cfg){
 	var tpldata = null;
 	var inst = new paginCmp.ClzBase(cfg, function(){return tpldata;});
-	var id = inst.getId(), total = $XP(cfg, "total", 0), current = Math.min($XP(cfg, "current", 0), total-1);
+	var id = inst.getId(), total = $XP(cfg, "total", 0), 
+		current = Math.min($XP(cfg, "current", 0), total-1);
 	tpldata = getTplData(id, total, current);
 
 	function _apply(){
@@ -131,6 +132,7 @@ function Pagination(cfg){
 
 	return {
 		getHTML : inst.getHTML,
+		getCurrentPageNo : function(){return current;},
 		bind : inst.bind,
 		apply : function(_current, _total, onlyData){
 			var isChanged = false;
