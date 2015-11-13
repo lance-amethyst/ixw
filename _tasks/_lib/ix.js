@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20150722T132233Z653
+ * Distrib No : 20151113T145951Z540
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -1495,7 +1495,9 @@ IX.IDate = function(timeInSecond) {
 	function toDateStr(includeYear){
 		var curTime = getFieldValues(new Date(), Fields4Day);
 		includeYear = includeYear || (curTime[0]>timeValues[0]);
-		return [includeYear?timeValues[0]:"", includeYear?DT_KeyWords.Year:"",timeValues[1], DT_KeyWords.Month, timeValues[2], DT_KeyWords.Day].join("");
+		return [includeYear?timeValues[0]:"", includeYear?DT_KeyWords.Year:"",
+			timeValues[1]-0, DT_KeyWords.Month, 
+			timeValues[2]-0, DT_KeyWords.Day].join("");
 	}
 	function _toIntvText(_date, showToday){
 		var curTime = getFieldValues(_date, [].concat(Fields4Day, Fields4Week));
@@ -1531,6 +1533,7 @@ IX.IDate = function(timeInSecond) {
 	};
 };
 })();
+
 (function(){
 /**
  * IX.UUID is simple utility to generate UUID:{

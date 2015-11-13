@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20150722T141637Z041
+ * Distrib No : 20151113T150409Z074
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -1495,7 +1495,9 @@ IX.IDate = function(timeInSecond) {
 	function toDateStr(includeYear){
 		var curTime = getFieldValues(new Date(), Fields4Day);
 		includeYear = includeYear || (curTime[0]>timeValues[0]);
-		return [includeYear?timeValues[0]:"", includeYear?DT_KeyWords.Year:"",timeValues[1], DT_KeyWords.Month, timeValues[2], DT_KeyWords.Day].join("");
+		return [includeYear?timeValues[0]:"", includeYear?DT_KeyWords.Year:"",
+			timeValues[1]-0, DT_KeyWords.Month, 
+			timeValues[2]-0, DT_KeyWords.Day].join("");
 	}
 	function _toIntvText(_date, showToday){
 		var curTime = getFieldValues(_date, [].concat(Fields4Day, Fields4Week));
@@ -1531,6 +1533,7 @@ IX.IDate = function(timeInSecond) {
 	};
 };
 })();
+
 (function(){
 /**
  * IX.UUID is simple utility to generate UUID:{
@@ -1787,6 +1790,7 @@ $Xc = IX.Cookie;
 	
 	isMSIE
 	isMSIE7
+	isBelowMSIE9
 
 	isMSWin
 	
@@ -1904,6 +1908,7 @@ IX.extend(IX, {
 	
 	isMSIE : checkUA("msie") && !checkUA("opera"), 
 	isMSIE7 : document.all && checkUA("msie 7.0"),
+	isBelowMSIE9 : document.all && (checkUA("msie 6.0") || checkUA("msie 7.0") || checkUA("msie 8.0") || checkUA("msie 9.0")),
 
 	isMSWin : checkUA("windows"),
 	
@@ -2004,7 +2009,7 @@ IX.extend(IX, {
 	bind : function(el, handlers) {_bindHandlers(el, handlers);},		
 	unbind : function(el, handlers) {_bindHandlers(el, handlers, true);},
 	
-	getComputedStyle : "getComputedStyle" in document.defaultView? function(el){
+	getComputedStyle : $XP(document, "defaultView.getComputedStyle")? function(el){
 		return document.defaultView.getComputedStyle(el);
 	}:function(el){		
 		return el.currentStyle || el.style; 

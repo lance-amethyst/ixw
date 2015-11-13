@@ -161,7 +161,7 @@ IXW.Lib.PopTrigger = function(cfg){
 	 		if (!(_popPanel && _popPanel.isVisible()))
 	 			return;
 			var target = e.target;
-	 		var panel = $XH.ancestor(target, "ixw_pop");
+	 		var panel = $XH.ancestor(target, "ixw-pop");
 	 		if (panel && panel.id==_popPanel.getId())
 				return;
 			if (!ifKeepPanel(target, _popPanel.getTrigger()))
@@ -183,7 +183,9 @@ IXW.Lib.PopTrigger = function(cfg){
 		destroy : function(){_popPanel && _popPanel.destroy();},
 		reset : function(_cfg){ _popPanel && _popPanel.reset(_cfg);},
 		isVisible : function(){ return _popPanel && _popPanel.isVisible();},
-		hide : function(){ _popPanel && _popPanel.hide();}
+		hide : function(){
+			_popPanel && _popPanel.hide();
+		}
 	};
 };
 
@@ -203,7 +205,7 @@ IXW.Lib.ModalDialog = function(cfg){
 		var bodyEl = baseView.getBodyContainer();
 		var posY = ($Xw.getScreen().size[1]- bodyEl.offsetHeight)/2;
 		posY = posY > 300? (posY-100): Math.max(posY, 0);
-		bodyEl.style.marginTop = (0- bodyEl.offsetHeight- posY) + "px";
+		bodyEl.style.marginTop = Math.floor(0- bodyEl.offsetHeight- posY) + "px";
 	}
 	$Xw.bind({resize : _resize});
 
