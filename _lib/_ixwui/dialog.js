@@ -207,7 +207,7 @@ IXW.Lib.ModalDialog = function(cfg){
 		if (!baseView.isVisible())
 			return;
 		var bodyEl = baseView.getBodyContainer();
-		var scrnH = ($Xw.getScreen().size[1], bodyH = bodyEl.offsetHeight;
+		var scrnH = $Xw.getScreen().size[1], bodyH = bodyEl.offsetHeight;
 		var posY = (scrnH - bodyH)/2;
 		var marginTop = (posY < 120) ? (120 - scrnH) : Math.floor(0 - bodyH - Math.max(posY + 50, 0))
 		bodyEl.style.marginTop = marginTop + "px";
