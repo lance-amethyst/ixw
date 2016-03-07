@@ -15,7 +15,7 @@ function adjustForBrowsers(fileEl){
 		if (IX.isFirefox) // 330-440
 			ml = 330;
 		else if (IX.isChrome)//140-578
-			ml=140;
+			ml = (window.ActiveXObject) ? 330 : 140;
 		else if (IX.isMSIE)//330-530
 			ml = 330;
 	}else{
@@ -104,13 +104,13 @@ IXW.Lib.FileUploader = function(config){
 		$X(id + "_rnd").value = IX.getTimeInMS();
 		$X(id + "_key").value = id;
 		uploadedCbHT.register(id, function(retData){
-		retData.fileEl = window.ActiveXObject ? fileEl : {
-			value : fileEl.value,
-			files : [fileEl.files[0]]
-		};
-		IX.isFn(cbFn) && cbFn(retData);
-		formEl.reset();
-	});
+			retData.fileEl = window.ActiveXObject ? fileEl : {
+				value : fileEl.value,
+				files : [fileEl.files[0]]
+			};
+			IX.isFn(cbFn) && cbFn(retData);
+			formEl.reset();
+		});
 		formEl.submit();
 	};
 

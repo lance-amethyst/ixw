@@ -163,6 +163,7 @@ function _loadByContext(_context, _saveFn, cbFn){
 		(_saveFn || IX.emptyFn)(_context);
 
 		initFn(cfg, pageParams, cbFn || IX.emptyFn);
+		window.scrollTo(0, 0); //after jump page ,scroll reset to (0,0)
 	});
 }
 

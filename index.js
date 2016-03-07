@@ -50,13 +50,14 @@ function dupIXWLib(){
 	_etsc(false);
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/base.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/dialog.js"));
+	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/sysDialog.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/fileUploader.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/datepicker.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/pagination.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/chosable.js"));
 	_etsc(true);
 	
-	childProcess.exec("cp -r _lib/ixwui.less " + ixwPrjDir + "/src/less/ixwui.less");
+	childProcess.exec("cp _lib/ixwui.less " + ixwPrjDir + "/src/less/ixwui.less");
 }
 
 function dupETSFiles(){

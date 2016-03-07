@@ -76,6 +76,7 @@ IXW.Lib.PopPanel = function (cfg){
 	if (IX.isEmpty(id))
 		id = IX.id();
 	var baseView = new BaseLayerView(id, "ixw-pop");
+	var panel = null;
 
 	var _zIndex = $XP(cfg, "zIndex");
 	var position = $XP(cfg, "position", "bottom");	
@@ -91,7 +92,7 @@ IXW.Lib.PopPanel = function (cfg){
 	}
 
 	function _show(el){
-		var panel = baseView.getPanel();
+		panel = baseView.getPanel();
 		triggerEl = $X(el || triggerEl);
 
 		var zIndex = getZIndex(triggerEl);
@@ -99,6 +100,9 @@ IXW.Lib.PopPanel = function (cfg){
 			panel.style.zIndex = zIndex+5;
 		baseView.show();
 
+		setPos();
+	}
+	function setPos(){
 		var isFixed = $XH.isPositionFixed(triggerEl);
 		panel.style.position = isFixed?"fixed":"";
 		var rect = $XH.getPosition(triggerEl, isFixed);
@@ -123,6 +127,7 @@ IXW.Lib.PopPanel = function (cfg){
 			_show($XP(newCfg, "trigger"));
 		},
 		
+		setPos : setPos,
 		isVisible : baseView.isVisible,
 		hide : baseView.hide,
 		show : _show
@@ -183,9 +188,8 @@ IXW.Lib.PopTrigger = function(cfg){
 		destroy : function(){_popPanel && _popPanel.destroy();},
 		reset : function(_cfg){ _popPanel && _popPanel.reset(_cfg);},
 		isVisible : function(){ return _popPanel && _popPanel.isVisible();},
-		hide : function(){
-			_popPanel && _popPanel.hide();
-		}
+		hide : function(){ _popPanel && _popPanel.hide();},
+		setPos : function(){ _popPanel && _popPanel.setPos();}
 	};
 };
 
@@ -203,9 +207,10 @@ IXW.Lib.ModalDialog = function(cfg){
 		if (!baseView.isVisible())
 			return;
 		var bodyEl = baseView.getBodyContainer();
-		var posY = ($Xw.getScreen().size[1]- bodyEl.offsetHeight)/2;
-		posY = posY > 300? (posY-100): Math.max(posY, 0);
-		bodyEl.style.marginTop = Math.floor(0- bodyEl.offsetHeight- posY) + "px";
+		var scrnH = ($Xw.getScreen().size[1], bodyH = bodyEl.offsetHeight;
+		var posY = (scrnH - bodyH)/2;
+		var marginTop = (posY < 120) ? (120 - scrnH) : Math.floor(0 - bodyH - Math.max(posY + 50, 0))
+		bodyEl.style.marginTop = marginTop + "px";
 	}
 	$Xw.bind({resize : _resize});
 

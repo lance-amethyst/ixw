@@ -1,9 +1,9 @@
 <tpl id="pagination">
 	<div id="{id}" class="ixw-pg {clz}">
-		<div class="go" ><input data-max="{total}" id="pgInput" /><a data-href="$ixw.pg.go">GO</a></div>
 		<div class="pg"><tpl id="pages">
 			<a class="{clz}" data-href="$ixw.pg.jump" data-key="{key}"><span class="{extra}">{text}</span></a>
 		</tpl></div>
+		<div class="go" ><input data-max="{total}" id="pgInput" /><a data-href="$ixw.pg.go">GO</a></div>		
 	</div>
 </tpl>
 <script>
@@ -46,11 +46,11 @@ function getTplData(id, totalPages, curPageNo){
 
 	arr.push(getArrowData("prev", isFirst));
 	arr.push(getNumData(1, isFirst));
-	if (curIdx >= 5)
+	if (curIdx >= 4)
 		arr.push(getDotted());
-	for (var i=Math.max(2, curIdx-2); i<=Math.min(curIdx + 2, totalPages-1); i++)
+	for (var i=Math.max(2, curIdx-1); i<=Math.min(curIdx + 1, totalPages-1); i++)
 		arr.push(getNumData(i, i==curIdx));
-	if (curIdx <= totalPages - 4)
+	if (curIdx <= totalPages - 3)
 		arr.push(getDotted());
 	arr.push(getNumData(totalPages, isLast));
 	arr.push(getArrowData("next", isLast));
@@ -86,6 +86,7 @@ function pgGo(params, aEl){
 	if (idx>max)
 		return showErrMsg();
 	onPageChanged(pgEl, idx);
+	inputEl.value = "";
 }
 function pgJump(params, aEl){
 	if ($XH.hasClass(aEl, "disabled"))

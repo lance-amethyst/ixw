@@ -22,7 +22,10 @@ function UrlStore(columns){
 		var name = urlDef[0];
 		if (IX.isEmpty(name))
 			return;
-		_routes.register(category + "-" + name, parseRouteDef(columns, urlDef));
+		var channelName = category + "-" + name;
+		var routeDef = parseRouteDef(columns, urlDef);
+		routeDef.channel =channelName;
+		_routes.register(channelName, routeDef);
 	});}
 	return {
 		map : _map,

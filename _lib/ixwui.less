@@ -15,7 +15,7 @@
 
 .ixw-mask {
 	position:relative;left:0; top:0;width :100%; height:100%;
-	background-color: #555; opacity: 0.8;filter:alpha(opacity=80);
+	background-color: #555; opacity: 0.8;filter:alpha(opacity=50);
 }
 .ixw-body {
 	position:relative;
@@ -130,9 +130,9 @@
 }
 
 .ixw-pg {
-	margin:0 40px 30px 0;height:25px;
+	margin:0 27px 30px 0;height:25px;
 
-	&>*{float:right;margin-left :10px;}
+	&>*{float:left;margin-left :10px;}
 	a { 
 		background:#f0f0f0;min-width:25px;height:25px;border-radius:3px;margin: 0 5px;
 		color: #757775;display: inline-block;vertical-align:top;text-align: center; 
@@ -143,7 +143,7 @@
 	}
 	.hover{cursor :pointer;color:#ff9983;text-decoration:none;}
 	.disabled{cursor : default;}
-	.actived {background : #ff9833;color:white;}
+	.actived {background : #209bd5;color:white;}
 	.dotted {background : transparent; width:25px; border-radius : 0; text-align:top;}
 
 	.pg-prev, .pg-next{min-width:6px; height:9px;margin:8px 9px; .x-ixpic; .x-ixpic-pg-prev;}
@@ -177,4 +177,22 @@
 		margin-left:16px;padding:2px 5px;
 	}
 	.selected{background:#ff9833;color:white; }
+}
+
+.ixw-alert{
+	position: fixed; left: 0; top: 0; width: 100%; height: 100%; z-index: 99999;
+	.ixw-bg {margin-bottom: 0; height: 60px; border-radius: 3px; background: #191919;}
+	.ixw-close {position: absolute; right: 15px; top: 22px; font-size: 18px; line-height: 1;}
+	.content {
+		font-size: 14px; font-family: "微软雅黑";  
+		position: absolute; top: 22px; left: 20px; right: 20px;
+	}
+	&>div{
+		position: absolute; right: 0; left: 0; margin: 0 auto; width: 500px; top: 55px; 
+		border-radius: 3px; border: 1px solid #fff;
+	}
+}
+.ixw-info{position: fixed; left: 0; right: 0; width: 500px; height: 60px; z-index: 88888; top: 57px;
+	border-radius: 3px; margin: 0 auto; border: 1px solid #fff; opacity: 0; text-align: center;
+	.content{font-size: 14px; font-family: "微软雅黑"; line-height: 60px;}
 }
