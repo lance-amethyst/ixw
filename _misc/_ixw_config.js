@@ -4,6 +4,8 @@ module.exports = {
 	namespace: "{NS}",
 	version: "1.0",
 
+	oem : ["oem"], // used to deploy works to OEM products, maybe many. If none, let it empty. 
+
 	preless :{
 		src : "./_asserts",
 		dest : "./src",
@@ -74,12 +76,11 @@ module.exports = {
 		},
 		less :{
 			deploy:{
-				options: {
-					paths: ["src/less"]
-				},
-				files: {
-					"_dist/css/<%= pkg.name %>.css": "src/less/core.less"
-				}
+				expand : true,
+				cwd : "src/less",
+				src : ["<%= pkg.name %>*.less"],
+				dest : "_dist/css",
+				ext: ".css"
 			}
 		},
 		concat: {
@@ -100,7 +101,8 @@ module.exports = {
 					//{src: ['path/**'], dest: 'dest/'},// 复制path目录下的所有目录和文件
 					{cwd: 'src/bootstrap/', src: ['fonts/**'], dest: '_dist/bootstrap/', expand: true, filter: 'isFile'},
 					{cwd: 'src/', src: ['images/**'], dest: '_dist/', expand: true, filter: 'isFile'},
-					{cwd: 'proto/dist/', src: ['*'], dest: '_dist/', expand: true, filter: 'isFile'}
+					{cwd: 'proto/dist/', src: ['*'], dest: '_dist/', expand: true, filter: 'isFile'},
+					{cwd: 'proto/', src: ['*.js'], dest: '_dist/', expand: true, filter: 'isFile'}
 				]
 			},
 			beforeRel : {
@@ -113,7 +115,8 @@ module.exports = {
 			},
 			release : {
 				files: [
-					{cwd : '_dist.copy', src: ['images/**'], dest: '_rel/', expand: true, filter: 'isFile'}
+					{cwd : '_dist.copy', src: ['images/**'], dest: '_rel/', expand: true, filter: 'isFile'},
+					{cwd : '_dist.copy', src: ['js/**'], dest: '_rel/', expand: true, filter: 'isFile'}
 				]
 			}
 		},
