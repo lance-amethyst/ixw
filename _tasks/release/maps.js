@@ -8,57 +8,79 @@ var curRelNo = null;
 var files2Replace = [];
 
 function _renameFile(filePath, absFilePath, digest){
-	var _oldData = filePath in filesData ? filesData[filePath] : null;
-	var _oldDigest = _oldData ? _oldData.digest : "";
-	var isSame = !!_oldData && (_oldData.digest == digest);
-
-	if (!isSame)
+	var fileData = filePath in filesData ? filesData[filePath] : null;
+	if (!fileData || fileData.digest !== digest) {
+		console.log("file:" +  filePath + "::: is not same!");
 		filesData[filePath] = {
 			digest : digest,
 			relNo : curRelNo
-		}
-	
+		};
+		fileData = filesData[filePath];
+	}
+
 	var fnames = absFilePath.split("/");
 	var fnameArr = fnames.pop().split(".");
 	var last = fnameArr.pop();
-	fnameArr.push(isSame ? _oldData.relNo: curRelNo);
+	fnameArr.push(fileData.relNo);
 	fnameArr.push(last);
-	var newFname = fnameArr.join(".")
+	var newFname = fnameArr.join(".");
 	fnames.push(newFname);
 	fs.renameSync(absFilePath, fnames.join("/"));
 	
 	fnames = filePath.split("/");
-	if (fnames[0] !== "images")
-		return;
 	fnames.pop();
 	fnames.push(newFname);
 	files2Replace.push({src: filePath, dest: fnames.join("/")});
+
+	console.log("file:" +  filePath + " should be renamed as " + fnames.join("/"));
 }
-function renameFile(filePath, absFilePath){
-	absFilePath = path.normalize(absFilePath);
-	_renameFile(filePath, absFilePath, IX.digestOnce(fs.readFileSync(absFilePath)));
+
+function renameImageFiles(prjCfg, rootPath){
+	var files2Rename = {};
+	var oemList = prjCfg.oem;
+	oemList.unshift("");
+	var pngs = IX.map($XP(prjCfg, "preless.picmap", []), function(task){
+		return $XP(task, "path", "pic");
+	});
+	IX.iterate(oemList, function(oemName){
+		IX.iterate(pngs, function(pngName){
+			var name = pngName + (oemName ? ("-"+oemName) : "") + ".png";
+			files2Rename[name] = true;
+		});
+	});
+
+	IX.iterDirSync(rootPath, "images", function(filePath, absFilePath){
+		var fnames = filePath.split("/");
+		if (fnames[0] != "images" || !(fnames[1] in files2Rename))
+			return;
+
+		absFilePath = path.normalize(absFilePath);
+		_renameFile(filePath, absFilePath, IX.digestOnce(fs.readFileSync(absFilePath)));
+	});
 }
-function replaceCssFile(filePath, absFilePath){
+
+function replaceFileContent(filePath, absFilePath){
 	absFilePath = path.normalize(absFilePath);
 	var data = fs.readFileSync(absFilePath, {encoding : "utf8"}).toString();
 	files2Replace.forEach(function(f2r){
-		data.replaceAll(f2r.src, f2r.dest);
+		data = data.replaceAll(f2r.src, f2r.dest);
 	});
 	fs.writeFileSync(absFilePath, data, {encoding : "utf8"});
-	_renameFile(filePath, absFilePath, IX.digestOnce(data));
+	//_renameFile(filePath, absFilePath, IX.digestOnce(data));
 }
 
-exports.mark = function(relCfg, relNo){
+exports.mark = function(prjCfg, relCfg, relNo){
 	var _cwd = process.cwd();
 	var rootPath = _cwd + "/_dist.copy/";
-	
+
 	curRelNo = relNo;
+	console.log("Current Release NO: " +  relNo);
+	renameImageFiles(prjCfg, rootPath);
+	console.log("Image Files : " + util.inspect(files2Replace));
 
-	IX.iterDirSync(rootPath, "images", renameFile);
-	IX.iterDirSync(rootPath, "js", renameFile);
+	IX.iterDirSync(rootPath, "js", replaceFileContent);
+	IX.iterDirSync(rootPath, "css", replaceFileContent);
 
-	console.log("Files : " + util.inspect(files2Replace));
-	IX.iterDirSync(rootPath, "css", replaceCssFile);
 	var jsonString = JSON.stringify(filesData).replace(/\}/g, '}\n');
 	fs.writeFileSync(_cwd + '/_tasks/release/maps.json', jsonString);
 };
