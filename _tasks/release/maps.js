@@ -7,6 +7,10 @@ var filesData = require('./maps.json');
 var curRelNo = null;
 var files2Replace = [];
 
+var PathSepRegex = /\\|\//;
+var LocalPathSep = path.sep;
+var StdPathSep = "/";
+
 function _renameFile(filePath, absFilePath, digest){
 	var fileData = filePath in filesData ? filesData[filePath] : null;
 	if (!fileData || fileData.digest !== digest) {
@@ -18,21 +22,22 @@ function _renameFile(filePath, absFilePath, digest){
 		fileData = filesData[filePath];
 	}
 
-	var fnames = absFilePath.split("/");
+	var fnames = absFilePath.split(PathSepRegex);
 	var fnameArr = fnames.pop().split(".");
 	var last = fnameArr.pop();
 	fnameArr.push(fileData.relNo);
 	fnameArr.push(last);
 	var newFname = fnameArr.join(".");
 	fnames.push(newFname);
-	fs.renameSync(absFilePath, fnames.join("/"));
+	fs.renameSync(absFilePath, fnames.join(LocalPathSep));
 	
-	fnames = filePath.split("/");
+	fnames = filePath.split(PathSepRegex);
 	fnames.pop();
 	fnames.push(newFname);
-	files2Replace.push({src: filePath, dest: fnames.join("/")});
+	fnames = fnames.join(StdPathSep);
+	files2Replace.push({src: filePath, dest: fnames});
 
-	console.log("file:" +  filePath + " should be renamed as " + fnames.join("/"));
+	console.log("file:" +  filePath + " should be renamed as " + fnames);
 }
 
 function renameImageFiles(prjCfg, rootPath){
@@ -50,7 +55,7 @@ function renameImageFiles(prjCfg, rootPath){
 	});
 
 	IX.iterDirSync(rootPath, "images", function(filePath, absFilePath){
-		var fnames = filePath.split("/");
+		var fnames = filePath.split(PathSepRegex);
 		if (fnames[0] != "images" || !(fnames[1] in files2Rename))
 			return;
 
