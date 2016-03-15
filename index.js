@@ -56,8 +56,6 @@ function dupIXWLib(){
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/pagination.js"));
 	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/chosable.js"));
 	_etsc(true);
-	
-	childProcess.exec("cp _lib/ixwui.less " + ixwPrjDir + "/src/less/ixwui.less");
 }
 
 function dupETSFiles(){
@@ -81,7 +79,7 @@ function copyFiles(){
 	IX.safeMkdirSync(ixwPrjDir + "/proto/dist");
 	childProcess.exec("cp -r _asserts " + ixwPrjDir);
 	childProcess.exec("cp -r _tasks " + ixwPrjDir);
-	childProcess.exec("cp -r src " + ixwPrjDir);
+	childProcess.exec("cp -r src " + ixwPrjDir + "; cp _lib/ixwui.less " + ixwPrjDir + "/src/less/ixwui.less");
 	
 	dupFile("Gruntfile.js", "Gruntfile.js");
 	dupFile('_ixw_config.js', "ixw_config.js");
@@ -139,11 +137,12 @@ function inputHandler(cmdData){
 		return;
 	default :
 		copyFiles();
-		console.log("\n\nAbove settings will be writen into " + ixwPrjDir + "/ixw_config.js; you can change it manually." );
-		console.log("\tIn ixw_config.js, the prject name can be changed simply, but namespace should be carefule except you know what will happen." );
-		console.log("The new project has three grunt tasks, please check Gruntfile.js to get more information.");
-		console.log("Before you start up project, please run 'npm install' to load node modules under directory " + ixwPrjDir );
-		
+		print("\n\nAbove settings will be writen into " + ixwPrjDir + "/ixw_config.js; you can change it manually." );
+		print("\nIn ixw_config.js, the project name can be changed simply, but namespace should be carefule except you know what will happen." );
+		print("\nThe new project has three grunt tasks, please check Gruntfile.js to get more information.");
+		print("\nBefore you start up project, please run 'npm install' to load node modules under directory " + ixwPrjDir );
+		print("\n");
+
 		process.exit(0);
 	}
 }
@@ -156,7 +155,7 @@ process.stdin.on('readable', function() {
 });
 
 process.stdin.on('end', function() {
-	process.stdout.write('Configuration done');
+	print('Configuration done');
 });
 inputHandler();
 
