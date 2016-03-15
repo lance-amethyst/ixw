@@ -142,6 +142,9 @@ function inputHandler(cmdData){
 		print("\nThe new project has three grunt tasks, please check Gruntfile.js to get more information.");
 		print("\nBefore you start up project, please run 'npm install' to load node modules under directory " + ixwPrjDir );
 		print("\n");
+		print("\nAfter you config valid HTTP service for this project, please update line 11 in file " +  ixwPrjDir + "/proto/index.htm:");
+		print("\n\tvar "+ ixwPrjNS + '_BaseUrl = "http://localhost/' + ixwPrjName + '";'); 
+		print("\nas your configuration before you open it in browser.\n\n");
 
 		process.exit(0);
 	}
