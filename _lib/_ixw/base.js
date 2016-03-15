@@ -8,6 +8,8 @@
 (function(){
 IX.ns("IXW");
 
+IXW.alert = function(s){alert(s);};
+
 IXW.ready = function(_fname, fn){
 	var fname = _fname;
 	IX.checkReady(function(){

@@ -87,7 +87,7 @@ function checkPageConfigs(pageConfigs, done){
 		if (IX.isFn(fname))
 			_fn = fname;
 		else if (!IX.isString(fname))
-			return alert("Configuration failed : invalid Page initialized for " + name);
+			return IXW.alert("Configuration failed : invalid Page initialized for " + name);
 		else if (IX.nsExisted(fname))
 			_fn = IX.getNS(fname);
 		
@@ -120,7 +120,7 @@ function checkPageConfigs(pageConfigs, done){
 		if (IX.isString(_pageInit))
 			_detect(_name, _pageInit);
 		else if (!IX.isFn(_pageInit))
-			alert("Configuration : error page initiator for " + _name);
+			IXW.alert("Configuration : error page initiator for " + _name);
 	});
 	fnames = IX.Array.toSet(fnames);		
 	IX.checkReady(function(){
@@ -128,7 +128,9 @@ function checkPageConfigs(pageConfigs, done){
 		return fnames.length==0;
 	}, done, 40, {
 		maxAge : 15000, //15 seconds
-		expire : function(){ alert("Can't find page initalizor: \n" + fnames.join("\n"));}
+		expire : function(){ 
+			IXW.alert("Can't find page initalizor: \n" + fnames.join("\n"));
+		}
 	});
 }
 
@@ -144,7 +146,7 @@ function _updByContext(_context, isNew){
 function _loadByContext(_context, _saveFn, cbFn){
 	//console.log("_load: " + _context.path + "::" + !!_saveFn);
 	var cfg = PageConfigurations[_context.name];
-	var pageParams = _context.page;
+	var pageParams = $XP(_context, "page", {});
 
 	var _bodyClz = $XP(cfg, "bodyClz", "");
 	if (document.body.className != _bodyClz)
@@ -158,7 +160,7 @@ function _loadByContext(_context, _saveFn, cbFn){
 
 	IXW.ready(cfg.init, function(initFn){
 		if (!IX.isFn(initFn))
-			return console.error("in Framework: " + initFn  + " is not function");
+			return IXW.alert("in Framework: " + initFn  + " is not function");
 		_context.serialNo = IX.UUID.generate();
 		(_saveFn || IX.emptyFn)(_context);
 
@@ -193,12 +195,12 @@ function PageHelper(){
 		}, cbFn);
 	}
 	function _loadByState(state, cbFn){
-		var name = state.name || DefaultPageName;
+		var name = (state && state.name) || DefaultPageName;
 		var cfg = PageConfigurations[name];
 		if(!pageAuthCheckFn(name, cfg))
-			return window.alert("该页面已经失效，无法浏览。请登录之后重新尝试。")
+			return IXW.alert("该页面已经失效，无法浏览。请登录之后重新尝试。")
 		isInitialized = true;
-		_loadByContext(state, resetContext, cbFn);
+		_loadByContext(state || cfg, resetContext, cbFn);
 	}
 	function _stateChange(e){
 		//console.log("popstate:",e, e.state);

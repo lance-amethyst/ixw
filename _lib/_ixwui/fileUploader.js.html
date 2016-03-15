@@ -100,7 +100,7 @@ IXW.Lib.FileUploader = function(config){
 	var formEl = $X(id + "_form");
 	function submitForm(cbFn) {
 		if (IX.isEmpty(fileEl.value))
-			return alert("没有选择文件,请选择文件再提交!");
+			return IXW.alert("没有选择文件,请选择文件再提交!");
 		$X(id + "_rnd").value = IX.getTimeInMS();
 		$X(id + "_key").value = id;
 		uploadedCbHT.register(id, function(retData){
@@ -143,7 +143,7 @@ IXW.Lib.FileUploader = function(config){
 IXW.Lib.FileUploadedCB = function(data, error){
 	var fn = uploadedCbHT.get(data.tkey); 
 	if(error && error.code == 0)
-		return alert(error.msg);
+		return IXW.alert(error.msg);
 	fn(data);
 };
 

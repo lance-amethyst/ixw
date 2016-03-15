@@ -63,7 +63,7 @@ function getTplData(id, totalPages, curPageNo){
 	};
 }
 function showErrMsg(err){
-	alert(err || "请输入正确的页码数字。");
+	IXW.alert(err || "请输入正确的页码数字。");
 }
 function getCurPageIdx(pgEl){
 	var el = $XH.first($XH.first(pgEl, "pg"), "actived");
