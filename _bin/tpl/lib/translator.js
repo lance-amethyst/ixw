@@ -92,7 +92,7 @@ function _ix_tpl__translate(parsedData, transConfig) {
 	}
 	function compileTplTag(op, _prevTpls) {
 		var idValue = op.attrs.id.value;
-		var ifTopTpl = compleTplExport(op.attrs.export, idValue, _prevTpls);
+		var ifTopTpl = compleTplExport(op.attrs["export"], idValue, _prevTpls);
 		var codepair = ["", ""];
 
 		if (!ifTopTpl) {

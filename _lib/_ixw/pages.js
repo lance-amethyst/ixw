@@ -57,8 +57,8 @@ function getNameByPath(path){
 }
 function getPageParams(_pathFormat, path){
 	var params = {
-		_name : Path2NameMapping["#" + _pathFormat.replace(/\./g, "#")] ,
-	}
+		_name : Path2NameMapping["#" + _pathFormat.replace(/\./g, "#")]
+	};
 	var arr = _splitPath(_pathFormat), 
 		_arr = _splitPath(path);
 	IX.iterate(arr, function(_p, idx){
