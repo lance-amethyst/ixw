@@ -243,7 +243,7 @@ function PageHelper(){
 			else
 				_loadByPath(context.path);
 		},
-		load : function(path, cbFn){_loadByPath(path, true, cbFn);},
+		load : function(path, cbFn){_loadByPath(path || "", true, cbFn);},
 		getCurrentContext : function(){return context;},
 		getCurrentName : function(){return $XP(context, "name");},
 		getCurrentPath : function(){return $XP(context, "path");},

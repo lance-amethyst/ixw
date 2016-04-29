@@ -64,15 +64,15 @@ IXW.urlEngine = {
 var DefAjaxSetting= {
 	preAjax : function(name, params){return params;},
 	onsuccess : function(data, cbFn, params){
-		 cbFn(data.data);
+		cbFn(data.data);
 	},
 	onfail: function(data){
 		switch(data.retCode){
-		 case -401: //无权查看的页面
+		case -401: //无权查看的页面
 			return IXW.Pages.reload("401");
-		 case -404: //未找到的页面
+		case -404: //未找到的页面
 			return IXW.Pages.reload("404");
-		 }
+		}
 	}
 };
 /** routeDef : "routeName" or  {
