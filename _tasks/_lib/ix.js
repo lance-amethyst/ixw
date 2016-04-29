@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20160307T180933Z608
+ * Distrib No : 20160429T110342Z047
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -195,7 +195,8 @@ $XF(obj, fname) = IX.getPropertyAsFunction.
 	replaceUrls(_r, _f)
 	regSplit(reg)	
 	pick4Replace()
-	replaceByParams(data)
+	replaceByParams([[name, param],...])
+	filterParams({name: value}): return {name:value} which name in string
 	toSafe()
  * }
  *  
@@ -649,6 +650,19 @@ IX.extend(String.prototype, {
 			return IX.isEmpty(_key)?acc:acc.replaceAll(item, $XP(data, _key, ""));
 		});
 	},
+	filterParams : function(params){
+		var ht =  IX.loop(this.match(ReplaceKeyPattern), {}, function(acc, item){
+			var _key = item && item.length>2? item.slice(1,-1) : "";
+			if (!IX.isEmpty(_key)) 
+				acc[_key] = true;
+			return acc;
+		});
+		return IX.each(params, {}, function(acc, value, key){
+			if (!(key in ht))
+				acc[key] = value;
+			return acc;
+		});
+	},
 	toSafe : function(){return this.replace(/\$/g, "&#36;");}
 });
 
@@ -1025,9 +1039,11 @@ IX.sequentialSteps = function(steps){
  * @Methods : {
   	@Methods(IX.IManager)
   	
+  	getKeys() : get all key in sequence in store
 	hasValue(key) : check if any value is mapped by key
 	put(k, v) : map k to v
 	remove(k, v) : unmap v by k
+	clear() : clear store
  * }
  * 
  * IX.IListManager will manage key/value store with ordered key list. It provide:
@@ -1175,6 +1191,7 @@ IX.IList = function(){
 IX.I1ToNManager = function(eqFn) {
 	var _eqFn = IX.isFn(eqFn)?eqFn : function(item, value){return item==value;};
 	var _mgr = new IX.IManager();
+	var _list = [];
 
 	var hasEntryFn = function(key) {
 		var list = _mgr.get(key);
@@ -1189,6 +1206,7 @@ IX.I1ToNManager = function(eqFn) {
 		put : function(k, v) {
 			if (!hasEntryFn(k)) {
 				_mgr.register(k, [v]);
+				_list.push(k);
 				return;
 			}
 			var list = _mgr.get(k);
@@ -1198,8 +1216,16 @@ IX.I1ToNManager = function(eqFn) {
 		remove : function(k, v){
 			var list = _mgr.get(k);
 			var idx = indexOfFn(list, v);
-			if (idx >= 0)
-				_mgr.register(k, IX.Array.splice(list, idx));
+			if (idx < 0)
+				return;
+			_mgr.register(k, IX.Array.splice(list, idx));
+			if (list.length === 1)
+				_list = IX.Array.remove(_list, k);
+		},
+		getKeys : function(){return _list;},
+		clear : function(){
+			_mgr.clear();
+			_list = [];
 		}
 	});
 };
@@ -1356,7 +1382,10 @@ IX.formatDataStore = function(data){
  	format(date) : return a string like "YYYY-MM-DD hh:mm:ss" for date;
 	formatDate(date) : return a string  in "YYYY-MM-DD" for date
 	formatTime(date) : return a string  in "hh:mm:ss" for date
- 
+
+ 	format4Tag(date) : return a String like "YYYYMMDDhhmmss"
+ 	formatDate4Tag(date) : return a String like "YYYYMMDD"
+
  	formatStr(str) :  parse str first, next do similar as format 
  	formatDateStr(str) : similar as formatDate
  	formatTimeStr(str) : similar as formatTime
@@ -1454,7 +1483,15 @@ IX.Date = {
 	formatDate : function(date) {return _format(date, "Date");},
 	// return hh:mm:ss
 	formatTime : function(date) {return _format(date, "Time");},
-	
+
+	// return YYYYMMDDhhmmss
+	format4Tag : function(date){
+		return getFieldValues(date, Fields4Day.concat(Fields4Time)).join("");
+	},
+	// return YYYYMMDD
+	formatDate4Tag : function(date){
+		return getFieldValues(date, Fields4Day).join("");
+	},
 	// return YYYY-MM-DD hh:mm:ss 
 	formatStr:function(str) {
 		str = (str + " ").split(" ");
