@@ -15,89 +15,163 @@ function _etsc(ifClean){
 	});
 }
 
-var ixwPrjName = "sample", ixwPrjNS = "", ixwPrjDir = "";
-
-var prjRegex =new RegExp('{PRJ}', "gm");
-var nsRegex =new RegExp('{NS}', "gm");
+var ixwPrjName = "sample", ixwPrjNS = "", ixwPrjDir = "", ixwPrjType = 0;
 
 function dupFile(srcFile, destFile){
-	var fileData = fs.readFileSync("_misc/"  + srcFile, {encoding : "utf8"});
-	fileData = fileData.replace(prjRegex, ixwPrjName).replace(nsRegex, ixwPrjNS);
-	var dstFName =ixwPrjDir + "/" + destFile;
+	var fileData = fs.readFileSync("_tpl/"  + srcFile, {encoding : "utf8"});
+	fileData = fileData.replaceAll('{PRJ}', ixwPrjName).replaceAll('{NS}', ixwPrjNS);
+	var dstFName =ixwPrjDir + destFile;
 	var dir = path.dirname(dstFName);
 	IX.safeMkdirSync(dir);
-	
-//	IX.saveFileIfNotExist(path.dirname(dstFName), path.basename(dstFName), fileData, IX.emptyFn);
-//	if (!fs.existsSync(dstFName))
-		fs.writeFileSync(dstFName, fileData, {encoding : "utf8"});
-//	else
-//		console.log(dstFName + "existed!");
+	fs.writeFileSync(dstFName, fileData, {encoding : "utf8"});
 }
-function dupIXWLib(){
-	var destFile = ixwPrjDir + "/src/lib/ixw.js";
+function appendToFile(destFile, files){
 	IX.safeMkdirSync(path.dirname(destFile));
 	if(fs.existsSync(destFile))
 		fs.unlinkSync(destFile);
-	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixw/base.js"));
-	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixw/engine.js"));
-	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixw/pages.js"));
-
-	destFile = ixwPrjDir + "/src/lib/ixwui.js";
-	IX.safeMkdirSync(path.dirname(destFile));
-	if(fs.existsSync(destFile))
-		fs.unlinkSync(destFile);
-
-	_etsc(false);
-	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/base.js"));
-	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/dialog.js"));
-	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/sysDialog.js"));
-	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/fileUploader.js"));
-	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/datepicker.js"));
-	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/pagination.js"));
-	fs.appendFileSync(destFile, fs.readFileSync("./_lib/_ixwui/chosable.js"));
-	_etsc(true);
+	IX.iterate(files, function(filename){
+		fs.appendFileSync(destFile, fs.readFileSync(filename));
+	})
 }
 
-function dupETSFiles(){
-	var destFile = ixwPrjDir + "/src/lib/ets.js";
+function dupETSFiles(destDir){
+	var destFile = destDir + "/src/lib/ets.js";
 	IX.safeMkdirSync(path.dirname(destFile));
 	if(fs.existsSync(destFile))
 		fs.unlinkSync(destFile);
 	fs.appendFileSync(destFile, "(function () {\n");
-	fs.appendFileSync(destFile, fs.readFileSync("./_bin/tpl/lib/parser.js"));
+	fs.appendFileSync(destFile, fs.readFileSync("_bin/tpl/lib/parser.js"));
 	fs.appendFileSync(destFile, "\n");
-	fs.appendFileSync(destFile, fs.readFileSync("./_bin/tpl/lib/translator.js"));
-	//fs.appendFileSync(destFile, '\nvar ETS_NS = "' + ixwPrjNS + '.Tpl";\n');
+	fs.appendFileSync(destFile, fs.readFileSync("_bin/tpl/lib/translator.js"));
 	fs.appendFileSync(destFile, '\n');
-	fs.appendFileSync(destFile, fs.readFileSync("./_bin/tpl/browser/ets.js"));
+	fs.appendFileSync(destFile, fs.readFileSync("_bin/tpl/browser/ets.js"));
 	fs.appendFileSync(destFile, "\n})();");
 	
-	childProcess.exec("cp -r _bin/tpl/lib " + ixwPrjDir + "/_tasks/deploy/_lib");
+	childProcess.exec("cp -r _bin/tpl/lib " + destDir + "/_tasks/deploy/_lib");
 }
+
 function copyFiles(){
-	IX.safeMkdirSync(ixwPrjDir + "/dist");
-	IX.safeMkdirSync(ixwPrjDir + "/proto/dist");
-	childProcess.exec("cp -r _asserts " + ixwPrjDir);
-	childProcess.exec("cp -r _tasks " + ixwPrjDir);
-	childProcess.exec("cp -r src " + ixwPrjDir + "; cp _lib/ixwui.less " + ixwPrjDir + "/src/less/ixwui.less");
+	IX.safeMkdirSync(ixwPrjDir);
+	if (ixwPrjType  == 1 ) {
+		childProcess.exec("cp -r _tpl/www " + ixwPrjDir);
+		childProcess.exec("cp -r _tpl/server " + ixwPrjDir);
+	} else {
+		childProcess.exec("cp -r _tpl/www/* " + ixwPrjDir);
+	}
+	var destDir =  ixwPrjType==1?"/www":"";
+	var wwwDir = ixwPrjDir + destDir;
+
+	childProcess.exec("cp -r _asserts " + wwwDir);
+	childProcess.exec("cp -r _tasks " + wwwDir);
+	//childProcess.exec("cp _lib/ixwui.less " + wwwDir + "/src/less/ixwui.less");
+
+	dupFile('../_lib/ixwui.less', destDir + "/src/less/ixwui.less");
+	dupFile('_www.ixw_config.js', destDir + "/ixw_config.js");
+	dupFile('_www.package.json',  destDir + "/package.json");
+	dupFile('_www.proto.dist.index.htm', destDir + "/proto/dist/index.htm");
+	dupFile('_www.src.ixw.index.js.html', destDir + "/src/ixw/index.js.html");
+	if (ixwPrjType  == 1 ) {
+		dupFile("_server.package.json", "/server/package.json");
+		dupFile("_server.public.index.htm", "/server/public/index.htm");
+		dupFile("_server.service.db.db.sql", "/server/service/db/db.sql");
+		dupFile('_www.proto.sim.htm',  "/www/proto/sim.htm");
+		dupFile('_www.proto.index.htm', "/www/proto/index.htm");
+	}else 
+		dupFile('_www.proto.sim.htm',  "/proto/index.htm");
+
+	appendToFile(wwwDir + "/src/lib/ixw.js", [
+		"_lib/_ixw/base.js",
+		"_lib/_ixw/session.js",
+		"_lib/_ixw/engine.js",
+		"_lib/_ixw/pages.js"
+	]);
 	
-	dupFile("Gruntfile.js", "Gruntfile.js");
-	dupFile('_ixw_config.js', "ixw_config.js");
-	dupFile('_package.json', "package.json");
-	dupFile('_proto.index.htm', "proto/index.htm");
-	dupFile('_proto.global.js', "proto/global.js");
-	dupFile('_proto.dist.index.htm', "proto/dist/index.htm");
-	dupFile('_sim.failLogin.json', "sim/failLogin.json");
-	dupFile('_sim.sessionData.json', "sim/sessionData.json");
-	dupFile('_sim.uploadImg.html', "sim/uploadImg.html");
-	dupFile('_src.ixw.index.js.html', "src/ixw/index.js.html");
-	dupFile('_src.ixw.entry.index.js.html', "src/ixw/entry/index.js.html");
-	dupFile('_src.ixw.m1.index.js.html', "src/ixw/m1/index.js.html");
-	dupFile('_src.ixw.err.index.js.html', "src/ixw/err/index.js.html");
-	
-	dupETSFiles();
-	dupIXWLib();
+	_etsc(false);
+	appendToFile(wwwDir + "/src/lib/ixwui.js", [
+		"_lib/_ixwui/base.js",
+		"_lib/_ixwui/dialog.js",
+		"_lib/_ixwui/sysDialog.js",
+		"_lib/_ixwui/fileUploader.js",
+		"_lib/_ixwui/datepicker.js",
+		"_lib/_ixwui/pagination.js",
+		"_lib/_ixwui/chosable.js"
+	]);
+	_etsc(true);
+
+	dupETSFiles(wwwDir);
 }
+
+var ProjectTypes = [
+	"[0] Web Frontend project only;",
+	"[1] Whole Web project including Frontend and Backend (only unix/linux/mac-os platform supported)."
+];
+var ProjectTypeStr = [
+	[
+		"The new project has three grunt tasks, please check Gruntfile.js to get more information.",
+		"Before you start up project, please run 'npm install' to load node modules under directory {DIR}",
+		"",
+		"After you config valid HTTP service for this project, please update line 11 in file proto/index.htm:",
+		'\tvar IXW_BaseUrl = "http://localhost/{NAME}";',
+		"as your configuration before you open it in browser.\n\n"
+	].join("\n"),
+	[
+		"The new project has 2 directories under {DIR}: ",
+		"\t'www' is for frontend project and",
+		"\t'server' is for backend project",
+		"Do following steps to visit project '{NAME}': ",
+		"1) Before you start up project, please run:",
+		"\t'>npm install' to load node modules under 'www' directory.",
+		"\t'>sh ./install' to setup server environment under 'server/bin' directory.",
+		"",
+		"2) After 1), you can run 'npm start' under 'server' to start the project and browse it with URL:",
+		"\t http://localhost:4000",
+		"",
+		"If you want to change HTTP to HTTPS or the port, please update line 15-16 in config file 'config.js' under 'server':",
+		'\t"port" : 4000,',
+		'\t"useHTTPS" : false,',
+		"More detail you can find in the file.",
+		"",
+		"3) Also you can visit Frontend project with backend supported:",
+		"\t http://localhost:4000/demo/proto/index.htm",
+		"",
+		"4) Also you can visit Frontend project with simulation data:",
+		"\t http://localhost:4000/demo/proto/sim.htm",
+		"",
+		"Enjoy it!",
+		""
+	].join("\n")
+];
+var OutputStr = {
+	"PRJ_NAME" : {
+		before : "Please input project name(default is sample):",
+		after : "\tproject name will be: {NAME}.\n"
+	},
+	"PRJ_NS" : {
+		before : "Please input project namespace(default is {NS}):",
+		after : "\tproject namespace will be: {NS}.\n"
+	},
+	"PRJ_DIR" : {
+		before : "Please input project root directory (default is {DIR}):",
+		after : "\tproject root director will be: {DIR}.\n"
+	},
+	"PRJ_TYPE" : {
+		before : [
+			"Please choose project type(default is " + ProjectTypes[0] + "):",
+			"\t" + ProjectTypes[0],
+			"\t" + ProjectTypes[1]
+		].join("\n"),
+		after : "\tproject type will be : {TYPE}.\n"
+	},
+	"PRJ_FILES" : {
+		before : "Please confirm above settings. If yes, please press [ENTER] to continue, otherwise press [CTRL-C] to quit.",
+		after : [
+			"\n\nAbove settings will be writen into {DIR}/ixw_config.js; you can change it manually.",
+			"In ixw_config.js, the project name can be changed simply, but namespace should be carefule only if you know what will happen.",
+			"",
+			""
+		].join("\n")
+	}
+};
 
 function print(s){
 	process.stdout.write(s);
@@ -106,47 +180,62 @@ var currentStep = "initial";
 function inputHandler(cmdData){
 	switch(currentStep){
 	case "initial" :
-		print("Please input project name(default is sample):");
+		
+		currentStep = "PRJ_TYPE";
+		print(OutputStr[currentStep].before);
+		return;
+	case "PRJ_TYPE" :
+		cmdData = cmdData.replace(/\s|\"|\'/g, "").toUpperCase();
+		if (!IX.isEmpty(cmdData))
+			ixwPrjType = cmdData - 0 ;
+		ixwPrjType = ixwPrjType != 1 ? 0 : 1;
+		var typeStr = ProjectTypes[ixwPrjType];
+		print(OutputStr[currentStep].after.replace('{TYPE}', typeStr));
+
 		currentStep = "PRJ_NAME";
+		print(OutputStr[currentStep].before);
 		return;
 	case "PRJ_NAME":
 		cmdData = cmdData.replace(/\s|\"|\'/g, "");
 		if (!IX.isEmpty(cmdData) || cmdData === "\n")
-			ixwPrjName = cmdData;
-		ixwPrjNS = ixwPrjName.replace(/\s|\"|\'/g, "").substring(0,4).toUpperCase() || "Sample";
-		print("\tproject name will be " + ixwPrjName + ".\n");
-		print("Project namespace(default is " + ixwPrjNS + "):");
+			ixwPrjName = cmdData;	
+		print(OutputStr[currentStep].after.replace('{NAME}', ixwPrjName));
+		
 		currentStep = "PRJ_NS";
+		ixwPrjNS = ixwPrjName.replace(/\s|\"|\'/g, "").substring(0,4).toUpperCase() || "SMPL";
+		print(OutputStr[currentStep].before.replace('{NS}', ixwPrjNS));
 		return;
 	case "PRJ_NS":
 		cmdData = cmdData.replace(/\s|\"|\'/g, "").toUpperCase();
 		if (!IX.isEmpty(cmdData))
 			ixwPrjNS = cmdData;
-		ixwPrjDir = path.normalize(process.cwd() + "/../" + ixwPrjName.toLowerCase());
-		print("\tproject namespace will be " + ixwPrjNS + ".\n");
-		print("Project root directory (default is " + ixwPrjDir + "):");
+		print(OutputStr[currentStep].after.replace('{NS}', ixwPrjNS));
+		
 		currentStep = "PRJ_DIR";
+		ixwPrjDir = path.normalize(process.cwd() + "/../" + ixwPrjName.toLowerCase());
+		print(OutputStr[currentStep].before.replace('{DIR}', ixwPrjDir));
 		return;
 	case "PRJ_DIR":
 		cmdData = cmdData.replace(/\s|\"|\'/g, "").toUpperCase();
 		if (!IX.isEmpty(cmdData))
 			ixwPrjDir = path.normalize(cmdData);
-		print("\tproject root directory will be " + ixwPrjDir + ".\n");
-		print("Please confirm above settings. If yes, please press [ENTER] to continue, otherwise press [CTRL-C] to quit.");
+		print(OutputStr[currentStep].after.replace('{DIR}', ixwPrjDir));
+
 		currentStep = "PRJ_FILES";
+		print(OutputStr[currentStep].before);
 		return;
+			
 	default :
 		copyFiles();
-		print("\n\nAbove settings will be writen into " + ixwPrjDir + "/ixw_config.js; you can change it manually." );
-		print("\nIn ixw_config.js, the project name can be changed simply, but namespace should be carefule except you know what will happen." );
-		print("\nThe new project has three grunt tasks, please check Gruntfile.js to get more information.");
-		print("\nBefore you start up project, please run 'npm install' to load node modules under directory " + ixwPrjDir );
-		print("\n");
-		print("\nAfter you config valid HTTP service for this project, please update line 11 in file " +  ixwPrjDir + "/proto/index.htm:");
-		print("\n\tvar "+ ixwPrjNS + '_BaseUrl = "http://localhost/' + ixwPrjName + '";'); 
-		print("\nas your configuration before you open it in browser.\n\n");
-
-		process.exit(0);
+		var str = OutputStr[currentStep].after + ProjectTypeStr[ixwPrjType];
+		print(str.loopReplace([
+			["{NAME}", ixwPrjName],
+			["{DIR}", ixwPrjDir],
+			["{NS}", ixwPrjNS]
+		]));
+		setTimeout(function(){
+			process.exit(0);
+		}, 1000);
 	}
 }
 

@@ -8,6 +8,10 @@
 (function(){
 IX.ns("IXW");
 
+IXW.ns = function(subNS){
+	return IX.ns([IXW_NS].concat(subNS).join("."));
+};
+
 IXW.alert = function(s){alert(s);};
 
 IXW.ready = function(_fname, fn){

@@ -1,9 +1,0 @@
-{
-	"retCode" : 1,
-	"data" :{
-		"id" : 1,
-		"name" : "张无忌",
-		
-		"modules" : ["moduleA", "moduleB"]
-	}
-}
