@@ -101,7 +101,7 @@ function copyFiles(cbFn){
 	_etsc(true);
 
 	dupETSFiles(wwwDir);
-	setTimeout(cbFn, 1000;
+	setTimeout(cbFn, 1000);
 }
 
 var ProjectTypes = [
@@ -232,7 +232,10 @@ function inputHandler(cmdData){
 			
 	default :
 		print(OutputStr[currentStep].after);
+
+		print("\n Start copy files .....\n ");
 		copyFiles(function(){
+			print("\n Copy files done!\n ");
 			print(ProjectTypeStr[ixwPrjType].loopReplace([
 				["{NAME}", ixwPrjName],
 				["{DIR}", ixwPrjDir],

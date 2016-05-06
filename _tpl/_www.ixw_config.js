@@ -121,6 +121,14 @@ module.exports = {
 					{cwd : '_dist.copy', src: ['images/**'], dest: '_rel/', expand: true, filter: 'isFile'},
 					{cwd : '_dist.copy', src: ['js/**'], dest: '_rel/', expand: true, filter: 'isFile'}
 				]
+			},
+			dup : {
+				files: [
+					{cwd : '_dist', src: ['bootstrap/**'], dest: '../server/public/', expand: true, filter: 'isFile'},
+					{cwd : '_dist', src: ['css/**'], dest: '../server/public/', expand: true, filter: 'isFile'},
+					{cwd : '_dist', src: ['js/**'], dest: '../server/public/', expand: true, filter: 'isFile'},
+					{cwd : '_dist', src: ['images/**'], dest: '../server/public/', expand: true, filter: 'isFile'}
+				]
 			}
 		},
 		uglify :{

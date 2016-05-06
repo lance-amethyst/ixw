@@ -24,5 +24,7 @@ module.exports = function (grunt) {
 	});
 	grunt.registerTask("publish", ["deploy", "release"]);
 
+	grunt.registerTask("deployToServer", ["deploy", "copy:dup"]);
+
 	grunt.registerTask('default', prjCfg.defaultTasks || ["deploy"]);
 };
