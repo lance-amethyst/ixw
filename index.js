@@ -68,9 +68,10 @@ function copyFiles(cbFn){
 	dupFile('../_lib/ixwui.less', destDir + "/src/less/ixwui.less");
 	dupFile((ixwPrjType  == 1?"bp":"fp") + "_post.sh", "/init_project.sh");
 	dupFile('_www.ixw_config.js', destDir + "/ixw_config.js");
-	dupFile('_www.package.json',  destDir + "/package.json");	
+	dupFile('_www.package.json',  destDir + "/package.json");
 	dupFile('_www.src.ixw.index.js.html', destDir + "/src/ixw/index.js.html");
 	if (ixwPrjType  == 1 ) {
+		dupFile('../_tasks/_lib/ix.js', "server/service/util/ix.js");
 		dupFile("_server.package.json", "/server/package.json");
 		dupFile("_server.public.index.htm", "/server/public/index.htm");
 		dupFile("_server.service.db.db.sql", "/server/service/db/db.sql");
