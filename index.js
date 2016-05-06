@@ -4,6 +4,7 @@ var fs = require("fs");
 var util = require("util");
 var path = require("path");
 var childProcess = require('child_process');
+var exec = childProcess.exec;
 
 var etsc = require('./_bin/tpl/lib/etsc.js');
 var etsRoot = process.cwd() + "/_lib/_ixwui";
@@ -47,28 +48,27 @@ function dupETSFiles(destDir){
 	fs.appendFileSync(destFile, fs.readFileSync("_bin/tpl/browser/ets.js"));
 	fs.appendFileSync(destFile, "\n})();");
 	
-	childProcess.exec("cp -r _bin/tpl/lib " + destDir + "/_tasks/deploy/_lib");
+	exec("cp -r _bin/tpl/lib " + destDir + "/_tasks/deploy/_lib");
 }
 
-function copyFiles(){
+function copyFiles(cbFn){
 	IX.safeMkdirSync(ixwPrjDir);
 	if (ixwPrjType  == 1 ) {
-		childProcess.exec("cp -r _tpl/www " + ixwPrjDir);
-		childProcess.exec("cp -r _tpl/server " + ixwPrjDir);
+		exec("cp -r _tpl/www " + ixwPrjDir);
+		exec("cp -r _tpl/server " + ixwPrjDir);
 	} else {
-		childProcess.exec("cp -r _tpl/www/* " + ixwPrjDir);
+		exec("cp -r _tpl/www/* " + ixwPrjDir);
 	}
 	var destDir =  ixwPrjType==1?"/www":"";
 	var wwwDir = ixwPrjDir + destDir;
 
-	childProcess.exec("cp -r _asserts " + wwwDir);
-	childProcess.exec("cp -r _tasks " + wwwDir);
-	//childProcess.exec("cp _lib/ixwui.less " + wwwDir + "/src/less/ixwui.less");
+	exec("cp -r _asserts " + wwwDir);
+	exec("cp -r _tasks " + wwwDir);
 
 	dupFile('../_lib/ixwui.less', destDir + "/src/less/ixwui.less");
+	dupFile((ixwPrjType  == 1?"bp":"fp") + "_post.sh", "/init_project.sh");
 	dupFile('_www.ixw_config.js', destDir + "/ixw_config.js");
-	dupFile('_www.package.json',  destDir + "/package.json");
-	dupFile('_www.proto.dist.index.htm', destDir + "/proto/dist/index.htm");
+	dupFile('_www.package.json',  destDir + "/package.json");	
 	dupFile('_www.src.ixw.index.js.html', destDir + "/src/ixw/index.js.html");
 	if (ixwPrjType  == 1 ) {
 		dupFile("_server.package.json", "/server/package.json");
@@ -76,8 +76,10 @@ function copyFiles(){
 		dupFile("_server.service.db.db.sql", "/server/service/db/db.sql");
 		dupFile('_www.proto.sim.htm',  "/www/proto/sim.htm");
 		dupFile('_www.proto.index.htm', "/www/proto/index.htm");
-	}else 
-		dupFile('_www.proto.sim.htm',  "/proto/index.htm");
+	}else {
+		dupFile('_front.proto.index.htm',  "/proto/index.htm");
+		dupFile('_front.proto.dist.index.htm', "/proto/dist/index.htm");
+	}
 
 	appendToFile(wwwDir + "/src/lib/ixw.js", [
 		"_lib/_ixw/base.js",
@@ -99,6 +101,7 @@ function copyFiles(){
 	_etsc(true);
 
 	dupETSFiles(wwwDir);
+	setTimeout(cbFn, 1000;
 }
 
 var ProjectTypes = [
@@ -108,9 +111,9 @@ var ProjectTypes = [
 var ProjectTypeStr = [
 	[
 		"The new project has three grunt tasks, please check Gruntfile.js to get more information.",
-		"Before you start up project, please run 'npm install' to load node modules under directory {DIR}",
+		"Before you start up project, please run 'sh init_project.sh' under directory {DIR}",
 		"",
-		"After you config valid HTTP service for this project, please update line 11 in file proto/index.htm:",
+		"After you config valid HTTP service for the project, please update line 11 in file proto/index.htm:",
 		'\tvar IXW_BaseUrl = "http://localhost/{NAME}";',
 		"as your configuration before you open it in browser.\n\n"
 	].join("\n"),
@@ -118,23 +121,25 @@ var ProjectTypeStr = [
 		"The new project has 2 directories under {DIR}: ",
 		"\t'www' is for frontend project and",
 		"\t'server' is for backend project",
-		"Do following steps to visit project '{NAME}': ",
-		"1) Before you start up project, please run:",
-		"\t'>npm install' to load node modules under 'www' directory.",
-		"\t'>sh ./install' to setup server environment under 'server/bin' directory.",
 		"",
-		"2) After 1), you can run 'npm start' under 'server' to start the project and browse it with URL:",
-		"\t http://localhost:4000",
+		"Before you start up project, please run 'sh init_project.sh' under directory {DIR}",
 		"",
+
+		"After initialize the project '{NAME}': ",
+		"1) You can run 'npm start' under 'server' to start the project and browse it with URL:",
+		"\thttp://localhost:4000",
 		"If you want to change HTTP to HTTPS or the port, please update line 15-16 in config file 'config.js' under 'server':",
 		'\t"port" : 4000,',
 		'\t"useHTTPS" : false,',
-		"More detail you can find in the file.",
+		"And change the value of IXW_BaseUrl in following files:",
+		'\twww/proto/index.htm',
+		'\tserver/public/index.htm',
+		"More detail you can find in those files.",
 		"",
-		"3) Also you can visit Frontend project with backend supported:",
+		"2) Also you can visit Frontend project with backend supported:",
 		"\t http://localhost:4000/demo/proto/index.htm",
 		"",
-		"4) Also you can visit Frontend project with simulation data:",
+		"3) Also you can visit Frontend project with simulation data:",
 		"\t http://localhost:4000/demo/proto/sim.htm",
 		"",
 		"Enjoy it!",
@@ -226,16 +231,15 @@ function inputHandler(cmdData){
 		return;
 			
 	default :
-		copyFiles();
-		var str = OutputStr[currentStep].after + ProjectTypeStr[ixwPrjType];
-		print(str.loopReplace([
-			["{NAME}", ixwPrjName],
-			["{DIR}", ixwPrjDir],
-			["{NS}", ixwPrjNS]
-		]));
-		setTimeout(function(){
+		print(OutputStr[currentStep].after);
+		copyFiles(function(){
+			print(ProjectTypeStr[ixwPrjType].loopReplace([
+				["{NAME}", ixwPrjName],
+				["{DIR}", ixwPrjDir],
+				["{NS}", ixwPrjNS]
+			]));
 			process.exit(0);
-		}, 1000);
+		});
 	}
 }
 

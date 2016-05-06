@@ -69,7 +69,8 @@ module.exports = {
 					"$XE" : true,
 					"$XF" : true,
 					"$XH" : true,
-					"IXW" : true
+					"IXW" : true,
+					"IXW_NS" : true,
 				}
 			},
 			files : {src : ['src/ixw/*.js']},
