@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+var path = require('path');
+
+var service = require('../service.js');
+var quickZip = require('../service/util/quickZip.js');
+
+var zipFile =path.join(process.cwd(), "distrib.zip");
+quickZip.zip(zipFile, {
+	root : path.join(__dirname, "../"), 
+	files : [
+		["bin/www", "bin"],
+		["bin/install", "bin"],
+		"*.js",
+		"*.json",
+		"middleware",
+		"public",
+		"routes",
+		"service",
+		"~service/test"
+	]
+}, function(){
+	console.log("pkg distribution done.", zipFile)
+	process.exit(0);
+});

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>{NS} SIM Project</title>
+
+		<link href="../src/less/core.less" rel="stylesheet/less" type="text/css"/>
+<script type="text/javascript">
+var IXW_BaseUrl = "http://localhost:4000/demo";
+if ("IXWBaseUrl" in parent)
+	IXW_BaseUrl = parent.IXWBaseUrl;
+</script>
+		<!--  Less Compiler -->
+		<script>
+window.IXW_NS = "{NS}";
+window.ETS_NS = "{NS}.Tpl";
+less = {
+	env: "development",
+	async: false,
+	fileAsync: false,
+	poll: 1000,
+	functions: {},
+//	dumpLineNumbers: "comments",
+	relativeUrls: false
+};
+		</script>
+		<script src="../src/lib/less.min.js"></script>
+	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 9]>
+		<script src="http://cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+		<script src="http://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+	<![endif]-->
+	</head>
+	<body>
+	</body>
+	<!-- Basic JS lib required for ets and common facilities -->
+	<script src="../src/lib/ix.js"></script>
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+	<script src="../src/lib/jquery-2.1.1.js"></script>
+	<!-- Include all compiled plugins (below), or include individual files as needed -->
+	<script src="../src/bootstrap/js/bootstrap.js"></script>
+
+	<script src="../src/lib/ixw.js"></script>
+	<script src="../src/lib/ixwui.js"></script>
+	<script src="../src/lib/ext.js"></script>
+	<script src="../src/lib/echarts.js"></script>
+
+	<!-- gloabl data here! -->
+	<script src="./global.js"></script>
+	<!-- global data above! -->
+
+	<!-- user-defined JS lib here! -->
+	<link type="ets" href="../src/ixw/entry/index.js.html"></link>
+	<link type="ets" href="../src/ixw/err/index.js.html"></link>
+	<link type="ets" href="../src/ixw/m1/index.js.html"></link>
+
+	<link type="ets" href="../src/ixw/index.js.html"></link>
+	<!-- user-defined JS lib above! -->
+	<!-- JS Tpl mix parser -->
+	<script src="../src/lib/ets.js"></script>
+<script type="text/javascript">
+IXW.ready("{NS}.init", function(fn){
+	if (!IX.isFn(fn))
+		alert("Can't initialize page for not found init function : " + fn);
+	else 
+		fn();
+});
+</script>
+</html>

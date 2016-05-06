@@ -1,0 +1,143 @@
+<script>
+var ixwPages = IXW.Pages;
+var ixwNavs = IXW.Navs;
+var ixwActions = IXW.Actions;
+var ixwSession = IXW.Session;
+var nsGlobal = IXW.ns("Global");
+
+</script>
+<tpl id="page">
+	<nav class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="#"><span class="pic-badges"></span><span class="navbar-brand">Project Name</span></a>
+			</div>
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav"><tpl id="nav">
+					<li id="nav-{name}" class="{clz}"><a href="#{href}">{text}</a></li>
+				</tpl></ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li id="nav-profile" ><a data="#profile">
+						<span class="pic-avatar"></span><span>{username}</span>
+					</a></li>
+					<li><a data-href="$logout" ><span>退出</span></a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="container">
+		<div id="topbar"></div>
+		<div id="body"></div>
+	</div>
+</tpl>
+<script>
+var NavItems = [
+//["home", "首页"],
+["moduleA", "模块A"],
+["moduleB", "模块B"]
+];
+var DefaultNav = null; //"home";
+function NavManager(focusedNavName){
+	var focused = focusedNavName || DefaultNav;
+
+	function _getNavItemTplData(name, item){
+		return {
+			name : name,
+			text : item[1],
+			clz : focused == name ? "active": "",
+			href: ixwPages.createPath(name)
+		};
+	}
+	function _focus(itemName){
+		var el = $X('nav-' + itemName);
+		if (itemName != focused && el){
+			$XH.removeClass($X("nav-" + focused), "active");
+			focused = itemName;
+		}
+		$XH.addClass(el, "active");
+	}
+	function getTpldata(){
+		var sessionMgr = ixwSession.get();
+		return IX.loop(NavItems, [], function(acc, item){
+			var name = item[0];
+			//if (/*name == "home" ||*/ sessionMgr.checkIfModuleEnabled(name))
+				acc.push(_getNavItemTplData(name, item));
+			return acc;
+		});
+	}
+	return {
+		getRenderData : getTpldata,
+		focus : _focus
+	};
+}
+var navMgr = new NavManager();
+
+ixwSession.config({
+	load: function(cbFn) {
+		nsGlobal.commonCaller("session", {}, cbFn);
+	},
+	//managerClass : //optional: function(data)
+	onstart: function(data) {// optional : 
+		document.body.innerHTML = t_page.renderData("",{
+			nav : navMgr.getRenderData(),
+			username : data.name
+		});
+	},
+	onclear: function(){ // optional : 
+		ixwPages.load("entry");
+	}
+});
+
+ixwActions.configActions([["logout", function(){
+	if (!window.confirm("确认是否退出?"))
+		return;
+	nsGlobal.entryCaller("logout", {}, function(){
+		ixwSession.clear();
+	});
+}]]);
+
+var PagesConfiurations = IX.map([
+//{type?, name+, path?, bodyClz?, needAuth?},
+{type: "ErrPage", name: "401", needAuth : false},
+{type: "ErrPage", name: "404", needAuth : false},
+//{name: "home", path: "home"},
+
+{type : "ModuleA", name: "moduleA", isDefault : true},
+
+{type : "ModuleA", name: "moduleB"},
+{type : "ModuleA", name: "moduleB-sub", path : "moduleB/{subId}"},
+
+{name: "entry", bodyClz: "entry", needAuth : false}
+], function(item){
+	var name = item.name;
+	var moduleName = name.split("-")[0];
+	return IX.inherit({
+		initiator : [IXW_NS, item.type || moduleName.capitalize(), "init"].join("."),
+		path : name,
+
+		nav : "service",
+		navItem : moduleName,
+
+		needAuth : true
+	}, item);
+});
+
+IX.ns("{NS}");
+var appInitialized = false;
+{NS}.init = function(){
+	if (appInitialized)
+		return;
+	appInitialized = true;
+		ixwPages.listenOnClick(document.body);
+	ixwPages.configPages(PagesConfiurations, function(pageName, pageCfg){
+		return !$XP(pageCfg, "needAuth", true) || ixwSession.isValid();
+	});
+
+	ixwNavs.register("service", function(cfg){
+		navMgr.focus(cfg.navItem || "");
+	});
+	ixwSession.load(function(){
+		ixwPages.start();
+	});
+};
+</script>

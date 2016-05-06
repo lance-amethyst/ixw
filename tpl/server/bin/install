@@ -1,0 +1,7 @@
+#!/usr/sh
+
+cd ..
+mysql -uroot --password=root < service/db/db.sql;
+mkdir files upload_files views
+
+npm install

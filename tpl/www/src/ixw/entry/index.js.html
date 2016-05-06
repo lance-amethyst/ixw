@@ -1,0 +1,42 @@
+<tpl id="login">
+	<div class="container">
+		<ul>
+			<li><span class="pic-user"></span><input type="text" id="account" tabindex="1" placeholder="输入账号"></li>
+			<li><span class="pic-pwd"></span><input type="password" id="password" tabindex="2" placeholder="输入密码"></li>
+		</ul>
+		<a id="submit" tabindex="3" class="btn longbtn" data-href="$login"><span>登</span><span>录</span></a>
+	</div>
+	<div class="footer"><div class="pic-"></div></div>
+</tpl>
+<script>
+var ixwPages = IXW.Pages;
+var ixwSession = IXW.Session;
+var ixwActions = IXW.Actions;
+var nsGlobal = IXW.ns("Global");
+
+ixwActions.configActions([["login", function(){
+	nsGlobal.entryCaller("login", {
+		username : $X('account').value,
+		password : $X('password').value
+	}, function(data){
+		ixwSession.reset(data);
+		ixwPages.load("");
+	});
+}]]);
+
+var nsEntry = IXW.ns("Entry");
+nsEntry.init = function(pageCfg, pageParams, cbFn){
+	if (ixwSession.isValid())
+		return ixwPages.load();
+	document.body.innerHTML = t_login.renderData();
+	var aEl = $X("submit");
+	jQuery('#account').bind("keydown", function(e){
+		if ( e.which == 13)
+			$X('$password').focus();
+	});	
+	jQuery('#password').bind("keydown", function(e){
+		if ( e.which == 13)
+			ixwPages.jump(aEl);
+	});	
+};
+</script>
