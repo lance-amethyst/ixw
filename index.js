@@ -124,25 +124,22 @@ var ProjectTypeStr = [
 		"",
 		"Before you start up project, please run 'sh init_project.sh' under directory {DIR}",
 		"",
-
 		"After initialize the project '{NAME}': ",
 		"1) You can run 'npm start' under 'server' to start the project and browse it with URL:",
 		"\thttp://localhost:4000",
-		"If you want to change HTTP to HTTPS or the port, please update line 15-16 in config file 'config.js' under 'server':",
+		"",
+		"2) Also you can visit Frontend project : ",
+		"\tWith backend supported: [http://localhost:4000/demo/proto/index.htm]",
+		"\tWith simulation data supported: [http://localhost:4000/demo/proto/sim.htm]",
+		"",
+		"If you want to change HTTP to HTTPS or the port, please update line 15-16 in config file 'server/config.js':",
 		'\t"port" : 4000,',
 		'\t"useHTTPS" : false,',
 		"And change the value of IXW_BaseUrl in following files:",
 		'\twww/proto/index.htm',
+		'\twww/proto/sim.htm',		
 		'\tserver/public/index.htm',
-		"More detail you can find in those files.",
-		"",
-		"2) Also you can visit Frontend project with backend supported:",
-		"\t http://localhost:4000/demo/proto/index.htm",
-		"",
-		"3) Also you can visit Frontend project with simulation data:",
-		"\t http://localhost:4000/demo/proto/sim.htm",
-		"",
-		"Enjoy it!",
+		"More detail you can find in those files. Enjoy it!",
 		""
 	].join("\n")
 ];
@@ -231,11 +228,11 @@ function inputHandler(cmdData){
 		return;
 			
 	default :
-		print(OutputStr[currentStep].after);
+		print(OutputStr[currentStep].after.replace("{DIR}", ixwPrjDir));
 
-		print("\n Start copy files .....\n ");
+		print("\n Start copy files .....\n");
 		copyFiles(function(){
-			print("\n Copy files done!\n ");
+			print("\n Copy files done!\n\n");
 			print(ProjectTypeStr[ixwPrjType].loopReplace([
 				["{NAME}", ixwPrjName],
 				["{DIR}", ixwPrjDir],
