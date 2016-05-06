@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20160429T110342Z047
+ * Distrib No : 20160506T164517Z438
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -95,7 +95,7 @@ $XF(obj, fname) = IX.getPropertyAsFunction.
  *
  * Namespace utilities:
   	ns(nsname): return the object identified by nsname; if not exist, create {} for it and return
-  	nsExisted(nsname) : return if nsname is existed in current window/global.
+ 	nsExisted(nsname) : return if nsname is existed in current window/global.
  	getNS(nsname): return the object identified by nsname if existed in current window/global. 
  		Otherwise, return undefined.
  	setNS(nsname, obj) : set nsname in window/global as obj. If not existed, create it as obj.
@@ -1372,6 +1372,49 @@ IX.formatDataStore = function(data){
 };
 })();
 
+(function() {
+/** mark (number) 1000000 as (string) 1,000,000 */
+function markUnsignedInt(num){
+	var arr = (num + "").split("");
+	var l = arr.length, i=l-1;
+	if (l<=3)
+		return arr.join("");
+	var _newArr = [];
+	while(i>=0){
+		_newArr.unshift(arr[i]);
+		if ((l-i)%3 === 0 && i!==0)
+			_newArr.unshift(",");
+		i--;
+	}
+	return _newArr.join("");
+}
+
+function markNumber(num){
+	var arr = (num + "").split(".");
+	var sign = arr[0][0]=='-'?"－" : "";
+	return sign + markUnsignedInt(arr[0].substring(sign.length)) +
+		(arr.length>=2?("." + arr[1]) : "");
+}
+
+/* 
+	formatNumber(12345.2345, 2) ==> 12,345.23
+	formatNumber(-1234567.1, 3) ==> -1,234,567.100
+ */ 
+function formatNumber(v, len){
+	var f = 1 + "0".multi(len) - 0;
+	return markNumber(Math.floor(v * f) / f);
+}
+
+IX.ns("IX.Math");
+IX.Math.markNumber = markNumber;
+IX.Math.formatNumber = formatNumber;
+
+/** v: 1.031145 ==> 103.11 */
+IX.Math.getPercentage = function (v){
+	return formatNumber(v*100, 2);
+};
+
+})();
 (function(){
 /**
  * IX.Date is a set of utilities for Date to convert to or deconvert to data string. It includes: {
