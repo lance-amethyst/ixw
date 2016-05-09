@@ -1,5 +1,5 @@
 #!/usr/sh
 
-npm install
+npm install > /dev/null
 grunt preless
 grunt deploy

@@ -288,7 +288,8 @@ function useDB(conn, dbname, fn){
 	conn.query("use " + dbname, function(err){
 		if (err){
 			IX.err("open database " +dbname + " fail : " + err);
-			conn.end();
+			console.error("Failt to open database : " +dbname + "\n" + err);
+			conn.release();
 			return fn(null);
 		}
 		debugIsAllow("db_conn") && IX.log("opened:" + dbname);
