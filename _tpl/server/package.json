@@ -13,7 +13,6 @@
     "encoding": "^0.1.12",
     "express": "~4.13.1",
     "express-session": "^1.13.0",
-    "jade": "~1.11.0",
     "morgan": "~1.6.1",
     "multer": "^1.1.0",
     "mysql": "^2.10.2"
