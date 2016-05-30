@@ -14,10 +14,10 @@ var nsGlobal = IXW.ns("Global");
 			</div>
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav"><tpl id="nav">
-					<li id="nav-{name}" class="{clz}"><a href="#{href}">{text}</a></li>
+					<li id="nav-{name}" class="{clz}"><a data-href="{href}">{text}</a></li>
 				</tpl></ul>
 				<ul class="nav navbar-nav navbar-right">
-					<li id="nav-profile" ><a data="#profile">
+					<li id="nav-profile" ><a data-href="profile">
 						<span class="pic-avatar"></span><span>{username}</span>
 					</a></li>
 					<li><a data-href="$logout" ><span>退出</span></a></li>
