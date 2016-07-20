@@ -20,6 +20,10 @@ module.exports = {
 			path : "ixpic" // default is "pic"
 		}]
 	},
+	premap : {
+		src : "./_mapdata",
+		dest : "./src/topojson"
+	},
 	deploy: {
 	},
 	release :{
