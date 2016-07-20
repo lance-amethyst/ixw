@@ -86,7 +86,12 @@ IXW.Lib.PopPanel = function (cfg){
  
 	function getZIndex(el) {return  _zIndex && !isNaN(_zIndex) ? (_zIndex - 0) : $XH.getZIndex(el);}	
 	function setOffsetPosition(panel, wh){
-		resetPos(panel, [wh[0]+ (offset.left||0), wh[1]+wh[3]+ (offset.top||0)]);
+		//console.log("popEl:",wh);
+		if(wh[2] == undefined){
+			resetPos(panel, [wh[0] - 30, wh[1] - 100]);
+		}else{
+			resetPos(panel, [wh[0]+ (offset.left||0), wh[1]+wh[3]+ (offset.top||0)]);
+		}
 		panel.style.maxHeight = ((offset.height || 200)-6) + "px";
 		panel.style.width = (offset.width || 100) + "px";
 	}
@@ -102,6 +107,7 @@ IXW.Lib.PopPanel = function (cfg){
 
 		setPos();
 	}
+
 	function setPos(){
 		var isFixed = $XH.isPositionFixed(triggerEl);
 		panel.style.position = isFixed?"fixed":"";
@@ -126,7 +132,6 @@ IXW.Lib.PopPanel = function (cfg){
 				offset = $XP(newCfg, "offset", {});
 			_show($XP(newCfg, "trigger"));
 		},
-		
 		setPos : setPos,
 		isVisible : baseView.isVisible,
 		hide : baseView.hide,

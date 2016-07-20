@@ -63,6 +63,7 @@ function copyFiles(cbFn){
 	var wwwDir = ixwPrjDir + destDir;
 
 	exec("cp -r _asserts " + wwwDir);
+	exec("cp -r _mapdata " + wwwDir);
 	exec("cp -r _tasks " + wwwDir);
 
 	dupFile('../_lib/ixwui.less', destDir + "/src/less/ixwui.less");
@@ -100,6 +101,10 @@ function copyFiles(cbFn){
 		"_lib/_ixwui/chosable.js"
 	]);
 	_etsc(true);
+
+	appendToFile(wwwDir + "/src/lib/ixwext.js", [
+		"_lib/_ixwext/mouse.js"
+	]);
 
 	dupETSFiles(wwwDir);
 	setTimeout(cbFn, 1000);

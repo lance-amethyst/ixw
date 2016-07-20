@@ -60,6 +60,8 @@ module.exports = {
 					"{NS}" : true,
 					"jQuery" : true,
 					"echarts" : true,
+					"d3" : true,
+					"topojson" : true,
 					"IX" : true,
 					"$X" : true,
 					"$Xw" : true,
@@ -71,6 +73,7 @@ module.exports = {
 					"$XH" : true,
 					"IXW" : true,
 					"IXW_NS" : true,
+					"IXW_BaseUrl" : true
 				}
 			},
 			files : {src : ['src/ixw/*.js']},

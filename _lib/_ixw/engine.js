@@ -38,7 +38,7 @@ var urlEngine = IX.urlEngine, urlStore = new UrlStore(["name", "url", "urlType"]
 var ajaxEngine = IX.ajaxEngine, ajaxStore = new UrlStore(["name", "url", "urlType", "type", "dataType"]);
 
 function initEngine (cfg){
-	urlEngine.init(cfg);
+	//urlEngine.init(cfg);
 	ajaxEngine.init(cfg);
 }
 

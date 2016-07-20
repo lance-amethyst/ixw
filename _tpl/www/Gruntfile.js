@@ -16,7 +16,7 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks("grunt-contrib-copy");
 	grunt.loadNpmTasks("grunt-contrib-cssmin");
 	
-	["preless", "deploy", "release"].forEach(function(taskName){
+	["preless", "premap", "deploy", "release"].forEach(function(taskName){
 		grunt.registerTask(taskName, 'Initialize project base on ixw_config.json.', function() {
 			var taskEntry = require("./_tasks/" + taskName + "/index.js");
 			taskEntry(grunt, prjCfg, this.async());

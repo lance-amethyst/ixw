@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20160506T164517Z438
+ * Distrib No : 20160720T151333Z416
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -1436,7 +1436,15 @@ IX.Math.getPercentage = function (v){
  	formatDateStr(str) : similar as formatDate
  	formatTimeStr(str) : similar as formatTime
 	
+	getDateOfDays(date, numOfDays),
+	getDateOfWeeks(date, numOfWeeks),
+	getDateOfMonths(date, numOfMonths),
+	getDateOfYears(date, numOfYears),
+
 	getDateText(oldTSinMS, curTSinMS) : show interval in simple mode,
+	formatBySec(tickInSec, withTime)
+	getTickInSec(str)
+
  	isValid(dateStr, type) :  check if valid type format for dateStr which separated with TS/DS  
  * }
  * 
@@ -1471,10 +1479,16 @@ var DT_KeyWords = {
 var _isUTC = false;
 var ds = "-", ts = ":";
 
+function _getFieldValues(dt, fields){
+	var getPrefix = "get" + (_isUTC?"UTC":"");
+	return IX.map(fields, function(f){
+		return dt[getPrefix + f]();
+	});
+}
 function getFieldValues(dt, fields){
 	var getPrefix = "get" + (_isUTC?"UTC":"");
 	return IX.map(fields, function(f){
-		var v  = dt[getPrefix + f]() - (f=="Month"?-1:0);
+		var v  = dt[getPrefix + f]() + (f=="Month"?1:0);
 		var s = "00"+ v;
 		return f=="FullYear" ? v : s.substring(s.length-2);
 	});
@@ -1513,6 +1527,28 @@ function _format(date, type) {
 	else if (type == "Time") return timeStr;
 	else return dateStr + " " + timeStr;
 }
+
+function getDateOfDays(date, numOfDays){
+	var tick = date.getTime();
+	return new Date(tick + numOfDays * 86400000);
+}
+function getDateOfMonths(date, numOfMonths){
+	var tick = date.getTime();
+	var _p1 = tick % 86400000, _p2 = (tick - _p1) / 86400000;
+
+	var ymd = _getFieldValues(date, Fields4Day);
+	var m = ymd[1] + numOfMonths;
+	var _y = Math.floor(m /12);
+	var _m = m - _y * 12;
+	var d = new Date(ymd[0] + _y, _m, ymd[2]);
+	tick = d.getTime();
+	ymd = _getFieldValues(d, Fields4Day);
+	if (ymd[1] != _m)
+		tick -= ymd[2] * 86400000;
+
+	return new Date(tick + _p1);
+}
+
 function isValid(str, isDate){
 	return isValidDate(str.split(isDate?ds :ts, 3), isDate);
 }
@@ -1547,6 +1583,20 @@ IX.Date = {
 	formatDateStr:function(str){return _formatStr(str, ds);},
 	// return hh:mm:ss
 	formatTimeStr:function(str){return _formatStr(str, ts);},
+
+	getDateOfDays : function(date, numOfDays){
+		return getDateOfDays(date, numOfDays);
+	},
+	getDateOfWeeks : function(date, numOfWeeks){
+		return getDateOfDays(date, numOfWeeks * 7);
+	},
+	getDateOfMonths : function(date, numOfMonths){
+		return getDateOfMonths(date, numOfMonths);
+	},
+	getDateOfYears :function(date, numOfYears){
+		return getDateOfMonths(date, 12 * numOfYears);
+	},
+
 	getDateText : getText4Interval,
 		
 	formatBySec : function(tickInSec, withTime){
@@ -1576,7 +1626,7 @@ IX.IDate = function(timeInSecond) {
 	var timeInMS = timeInSecond*1000;
 	var date = new Date(timeInMS);
 	var dateStr = _format(date);
-	var timeValues = getFieldValues(date, [].concat(Fields4Day, Fields4Week));
+	var timeValues = getFieldValues(date, [].concat(Fields4Day, Fields4Week, Fields4Time[2]));
 	
 	function toDateStr(includeYear){
 		var curTime = getFieldValues(new Date(), Fields4Day);
@@ -1606,7 +1656,7 @@ IX.IDate = function(timeInSecond) {
 		toText: function(){return dateStr;},
 		toWeek : function() {return DT_Weeks[timeValues[5]-0];},
 		toDate: toDateStr,
-		toTime : function(ds){return [timeValues[3], timeValues[4]].join(ds || ":");},
+		toTime : function(ds){return [timeValues[3], timeValues[4], timeValues[6]].join(ds || ":");},
 		toShort : function(){ return _toIntvText(new Date(), false);},
 		toInterval : function(tsInSec){
 			var _date = tsInSec?(new Date(tsInSec*1000)) :(new Date());  
