@@ -72,12 +72,12 @@ function evalCode(_script, _i) {
 		window.funcs = {};
 		funcs[jsFilePrev + _i] = new Function("return " + _script.codeStr + ";" + "//# sourceURL=" + _script.path);
 		return funcs[jsFilePrev + _i]();
-		var n = new Function("return " + _script.codeStr + ";" + "//# sourceURL=" + _script.path);
+		var n = new Function("return " + _script.codeStr + ";" + "//@ sourceURL=" + _script.path);
 		return n();*/
-		eval(_script.codeStr + "//# sourceURL=" + _script.path);
+		eval(_script.codeStr + "//@ sourceURL=" + _script.path);
 		/*var script= document.createElement('script');
 		script.type= 'text/javascript';
-		script.text = _script.codeStr + "\r\n//# sourceURL=" + jsFilePrev + _i + ".js";
+		script.text = _script.codeStr + "\r\n//@ sourceURL=" + jsFilePrev + _i + ".js";
 		document.body.appendChild(script);*/
 	} catch (ex) {
 		etsParseErros.push({

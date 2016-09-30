@@ -60,12 +60,18 @@ module.exports = {
 
 					"alert" : true,
 					"localStorage" : true,
+					"escape" : true,
+					"unescape" : true,
+					"localStorage" : true,
+					"requestAnimationFrame" : true,
 
 					"{NS}" : true,
 					"jQuery" : true,
 					"echarts" : true,
 					"d3" : true,
+					"THREE" : true,
 					"topojson" : true,
+
 					"IX" : true,
 					"$X" : true,
 					"$Xw" : true,

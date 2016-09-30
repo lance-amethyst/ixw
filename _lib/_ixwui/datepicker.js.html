@@ -337,7 +337,7 @@ var dptCmp = IXW.Lib.createComponent([
 
 function onDateChange(inputEl, newValue) {
 	var onchangeFn = dptCmp.get(inputEl.id);
-//	console.log("DPT: " + newValue);
+	//console.log("DPT: " + newValue);
 	IX.isFn(onchangeFn) && onchangeFn(ixDate.getTickInSec(newValue));
 }
 function inputOnFocus(inputEl){

@@ -47,19 +47,40 @@ function setRelativePos(panel, rect, scrnSize, isBottom){
 	resetPos(panel, pos);
 }
 
+// offset : {dx, dy}
+function setAroundPos(el, rect, scrnSize, offset){
+	var delta = [offset.dx, dy = offset.dy];
+	var deltaWH = [el.offsetWidth +offset.dx , el.offsetHeight + offset.dy];
+	var center = [rect[0]+ rect[2]/2, rect[1]+rect[2]/2];
+
+	var xy = [];
+	function _calc(idx, primeClz, altClz){
+		var ifPrime = scrnSize[idx] > center[idx] + deltaWH[idx];
+
+		$XH.removeClass(el, ifPrime ? altClz : primeClz);
+		$XH.addClass(el, ifPrime ? primeClz : altClz);
+		xy[idx] = center[idx] + (ifPrime ? delta[idx] : (0-deltaWH[idx]));
+	}
+	_calc(0, "atRight", "atLeft");
+	_calc(1, "atDown", "atUp");
+
+	resetPos(el, xy);
+}
+
 IX.ns("IXW.Lib");
 /** only DO position by the trigger.
  * cfg {
  * 		id :
  *		zIndex : 
  * 		trigger : el,
- * 		position : right/bottom/offset; default "bottom"
+ * 		position : around/right/bottom/offset; default "bottom"
  *		offset : { // vertical offset;
  *			left:
  *			top:
- * 			height:	
+ *			height:
  *			width:
  *		}
+ *		onhide : function(){}
  * 	}
  * 
  * functions  :{
@@ -81,6 +102,7 @@ IXW.Lib.PopPanel = function (cfg){
 	var _zIndex = $XP(cfg, "zIndex");
 	var position = $XP(cfg, "position", "bottom");	
 	var triggerEl = $XP(cfg, "trigger"); 
+	var onhide = $XF(cfg, "onhide");
 
 	var offset = $XP(cfg, "offset", {}); // only for position == "offset"
  
@@ -117,6 +139,8 @@ IXW.Lib.PopPanel = function (cfg){
 
 		var scrn = $Xw.getScreen();
 		var scrnSize = isFixed? scrn.size : [scrn.scroll[0] + scrn.size[0], scrn.scroll[1] + scrn.size[1]];
+		if (position=="around")
+			return setAroundPos(panel, rect, scrnSize, offset);
 		setRelativePos(panel, rect, scrnSize, position=="bottom");
 	}
 	
@@ -134,7 +158,10 @@ IXW.Lib.PopPanel = function (cfg){
 		},
 		setPos : setPos,
 		isVisible : baseView.isVisible,
-		hide : baseView.hide,
+		hide : function(){
+			baseView.hide();
+			onhide();
+		},
 		show : _show
 	};
 };
@@ -165,21 +192,19 @@ IXW.Lib.PopTrigger = function(cfg){
 	var _popPanel = null;
 	cfg.id = cfg.id||IX.id();
 
- 	if(!$X(cfg.id)){
- 		var eventHandlers = {};
-	 	eventHandlers[eventName] = function(e){
-	 		if (!(_popPanel && _popPanel.isVisible()))
-	 			return;
-			var target = e.target;
-	 		var panel = $XH.ancestor(target, "ixw-pop");
-	 		if (panel && panel.id==_popPanel.getId())
-				return;
-			if (!ifKeepPanel(target, _popPanel.getTrigger()))
-				_popPanel.hide();
-		};
-
+	var eventHandlers = {};
+	eventHandlers[eventName] = function(e){
+		if (!(_popPanel && _popPanel.isVisible()))
+			return;
+		var target = e.target;
+			var panel = $XH.ancestor(target, "ixw-pop");
+			if (panel && panel.id==_popPanel.getId())
+			return;
+		if (!ifKeepPanel(target, _popPanel.getTrigger()))
+			_popPanel.hide();
+	};
+	if(!$X(cfg.id))
 		$Xw.bind(eventHandlers);
-	}
 
 	return {
 		trigger : function(el) {

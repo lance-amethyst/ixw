@@ -128,13 +128,13 @@ var appInitialized = false;
 	if (appInitialized)
 		return;
 	appInitialized = true;
-		ixwPages.listenOnClick(document.body);
+	ixwPages.listenOnClick(document.body);
 	ixwPages.configPages(PagesConfiurations, function(pageName, pageCfg){
 		return !$XP(pageCfg, "needAuth", true) || ixwSession.isValid();
 	});
 
 	ixwNavs.register("service", function(cfg){
-		navMgr.focus(cfg.navItem || "");
+		if($XP(cfg, "needAuth", true)) navMgr.focus(cfg.navItem || "");
 	});
 	ixwSession.load(function(){
 		ixwPages.start();

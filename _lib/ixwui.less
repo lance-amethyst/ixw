@@ -1,6 +1,10 @@
 .x-ellipsis() {
 	display:inline-block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
 }
+.x-triangle(@from, @w:5px, @color:#ccc) {
+	border:@w solid transparent;
+	border-@from-color:@color;
+}
 
 .ixw-fileUploader {
 	top:0px; position:relative; z-index:2; background:red;
