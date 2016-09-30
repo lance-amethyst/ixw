@@ -70,7 +70,7 @@ function evalCode(_script, _i) {
 	try {
 		/*
 		window.funcs = {};
-		funcs[jsFilePrev + _i] = new Function("return " + _script.codeStr + ";" + "//# sourceURL=" + _script.path);
+		funcs[jsFilePrev + _i] = new Function("return " + _script.codeStr + ";" + "//@ sourceURL=" + _script.path);
 		return funcs[jsFilePrev + _i]();
 		var n = new Function("return " + _script.codeStr + ";" + "//@ sourceURL=" + _script.path);
 		return n();*/

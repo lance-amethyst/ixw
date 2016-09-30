@@ -59,7 +59,6 @@ module.exports = {
 					IX_VERSION : true,
 
 					"alert" : true,
-					"localStorage" : true,
 					"escape" : true,
 					"unescape" : true,
 					"localStorage" : true,
