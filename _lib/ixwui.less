@@ -1,9 +1,21 @@
 .x-ellipsis() {
 	display:inline-block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
 }
+.x-border-side-color(left, @color){
+	border-left-color:@color;
+}
+.x-border-side-color(right, @color){
+	border-right-color:@color;
+}
+.x-border-side-color(top, @color){
+	border-top-color:@color;
+}
+.x-border-side-color(bottom, @color){
+	border-bottom-color:@color;
+}
 .x-triangle(@from, @w:5px, @color:#ccc) {
 	border:@w solid transparent;
-	border-@from-color:@color;
+	.x-border-side-color(@from, @color);
 }
 
 .ixw-fileUploader {
