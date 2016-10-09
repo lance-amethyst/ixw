@@ -1,36 +1,33 @@
-## Question-types
+## Question-type
 Please choose project type (default is pure project):
 	[0] pure : Web Frontend project only;
 	[1] mixed : Whole Web project including Frontend and Backend (require shell supported).
-
 ## Confirm-type
 	New project type will be : {TYPE}.
 
 ## Question-name
 Please input project name(default is sample):
-
 ## Confirm-name
 	New project's name will be: {NAME}.
 
 ## Question-namespace
 Please input namespace for project "{NAME}" (default is {NS}):
-
 ## Confirm-namespace
 	Namespace for project "{NAME}" will be: {NS}.
 
 ## Question-path
 Please input root directory for project "{NAME}" (default is {DIR}):
-
 ## Confirm-path
 	Root directory for project "{NAME}" will be: {DIR}.
 
 ## Question-files
 Please confirm above settings. If yes, please press [ENTER] to continue, otherwise press [CTRL-C] to exit.
-
 ## Confirm-files
 
-Above settings will be writen into {DIR}/ixw_config.js; you can change it manually.
+Above settings will be writen into ./ixw-config.js; you can change it manually.
 In ixw_config.js, the project's name can be changed simply, but its namespace must not be changed except you know what will happen.
+
+After confirmed ixw-config.js, type `grunt` to setup new project. 
 
 ## Promption-pure
 The new project has three grunt tasks, please check Gruntfile.js to get more information.
