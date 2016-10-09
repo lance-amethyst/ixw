@@ -22,7 +22,7 @@ function packImages(list) {
 		var len = Math.min(a.length, b.length);
 		for (var i=0; i <len; i++){
 			var v = a.charCodeAt(i) - b.charCodeAt(i);
-			if (v!=0)
+			if (v!==0)
 				return v>0?1:-1;
 		}
 		return a.length>len? 1: (b.length>len?-1 : 0);
@@ -40,8 +40,8 @@ function drawImages(list, callback){
 	var imgPng = createPng(imgInfoArr.root.w, imgInfoArr.root.h);
 	imgInfoArr.forEach(function(obj){
 		var img = obj.image, x = obj.fit.x, y = obj.fit.y;
-		obj.xpos = x==0?"0": ("-" + x+ "px");
-		obj.ypos = y==0?"0": ("-" + y+ "px");
+		obj.xpos = x===0?"0": ("-" + x+ "px");
+		obj.ypos = y===0?"0": ("-" + y+ "px");
 		img.bitblt(imgPng, 0, 0, img.width, img.height, x, y);
 	});
 	//console.log("after bitblt all:" + util.inspect(imgPng));
@@ -143,7 +143,7 @@ module.exports = function (cfg, cb) {
 	}
 	console.log("get images for picmap :" + cfg.src);
 	getFileInfoList(cfg.src, clzPrefix, cfg.margin || 8, function(list){
-		if (list.length==0)
+		if (list.length===0)
 			return cb(null);
 		//console.log("draw images for picmap : " + clzPrefix + "\n" + util.inspect(list));
 		drawImages(list, outputFiles);

@@ -114,7 +114,7 @@ function checkPageConfigs(pageConfigs, done){
 	IX.iterate(pageConfigs, function(cfg){
 		var _name = cfg.name;
 		if (!mapPageConfig(_name, cfg))
-			return;;
+			return;
 
 		var _pageInit = "initiator" in cfg? cfg.initiator : null;
 		if (IX.isString(_pageInit))
@@ -125,7 +125,7 @@ function checkPageConfigs(pageConfigs, done){
 	fnames = IX.Array.toSet(fnames);		
 	IX.checkReady(function(){
 		fnames = IX.loop(fnames, [], _checkItem);
-		return fnames.length==0;
+		return fnames.length===0;
 	}, done, 40, {
 		maxAge : 15000, //15 seconds
 		expire : function(){ 
@@ -198,7 +198,7 @@ function PageHelper(){
 		var name = (state && state.name) || DefaultPageName;
 		var cfg = PageConfigurations[name];
 		if(!pageAuthCheckFn(name, cfg))
-			return IXW.alert("该页面已经失效，无法浏览。请登录之后重新尝试。")
+			return IXW.alert("该页面已经失效，无法浏览。请登录之后重新尝试。");
 		isInitialized = true;
 		_loadByContext(state || cfg, resetContext, cbFn);
 	}
@@ -259,7 +259,7 @@ function jumpFor(el, evt){
 	var ch = _href.charAt(0), name = _href.substring(1);
 	if (ch ==="~"){ // pop up panel
 		var instance = IXW.Popups.getInstance(name);
-		instance && instance.show(el);
+		if (instance) instance.show(el);
 	} else if (ch ==='+') // open new window
 		IXW.openUrl(document.location.href.split("#")[0] + "#" + name);
 	else if(ch === '$') // do named actions
@@ -302,7 +302,7 @@ IXW.Pages.jump = jumpFor;
 IXW.Pages.listenOnClick = function(el){
 	IX.bind(el, {click : function(e){
 		var _el = $XD.ancestor(e.target, "a");
-		_el && jumpFor(_el, e);
+		if (_el) jumpFor(_el, e);
 	}});
 };
 IXW.Pages.bindOnInput = function(inputEl, handlers){

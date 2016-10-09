@@ -57,7 +57,7 @@ Example:
 
 ******************************************************************************/
 
-GrowingPacker = function() { };
+var GrowingPacker = function() { };
 
 GrowingPacker.prototype = {
 
@@ -120,9 +120,8 @@ GrowingPacker.prototype = {
       down: this.root,
       right: { x: this.root.w, y: 0, w: w, h: this.root.h }
     };
-    if (node = this.findNode(this.root, w, h))
-      return this.splitNode(node, w, h);
-    return null;
+    var node = this.findNode(this.root, w, h);
+    return node ? this.splitNode(node, w, h) : null;
   },
 
   growDown: function(w, h) {
@@ -135,9 +134,8 @@ GrowingPacker.prototype = {
       down:  { x: 0, y: this.root.h, w: this.root.w, h: h },
       right: this.root
     };
-    if (node = this.findNode(this.root, w, h))
-      return this.splitNode(node, w, h);
-    return null;
+    var node = this.findNode(this.root, w, h);
+    return node ? this.splitNode(node, w, h) : null;
   }
 };
 

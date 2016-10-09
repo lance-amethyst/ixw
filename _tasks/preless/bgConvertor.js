@@ -37,7 +37,7 @@ function getFileInfoList(srcPath, clzPrefix){
 module.exports = function(cfg, cb) {
 	var clzPrefix = cfg.classPrefix || "bg";
 	var list = getFileInfoList(cfg.src, clzPrefix);
-	if (list.length==0)
+	if (list.length===0)
 		return cb(null);
 	//console.info("backgrounds : " + clzPrefix + "::" + util.inspect(list));
 	cb({

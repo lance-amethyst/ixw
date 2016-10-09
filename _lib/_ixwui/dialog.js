@@ -49,7 +49,7 @@ function setRelativePos(panel, rect, scrnSize, isBottom){
 
 // offset : {dx, dy}
 function setAroundPos(el, rect, scrnSize, offset){
-	var delta = [offset.dx, dy = offset.dy];
+	var delta = [offset.dx, offset.dy];
 	var deltaWH = [el.offsetWidth +offset.dx , el.offsetHeight + offset.dy];
 	var center = [rect[0]+ rect[2]/2, rect[1]+rect[2]/2];
 
@@ -109,7 +109,7 @@ IXW.Lib.PopPanel = function (cfg){
 	function getZIndex(el) {return  _zIndex && !isNaN(_zIndex) ? (_zIndex - 0) : $XH.getZIndex(el);}	
 	function setOffsetPosition(panel, wh){
 		//console.log("popEl:",wh);
-		if(wh[2] == undefined){
+		if(wh[2] === undefined){
 			resetPos(panel, [wh[0] - 30, wh[1] - 100]);
 		}else{
 			resetPos(panel, [wh[0]+ (offset.left||0), wh[1]+wh[3]+ (offset.top||0)]);
@@ -123,7 +123,7 @@ IXW.Lib.PopPanel = function (cfg){
 		triggerEl = $X(el || triggerEl);
 
 		var zIndex = getZIndex(triggerEl);
-		if (zIndex!=null)
+		if (zIndex!==null)
 			panel.style.zIndex = zIndex+5;
 		baseView.show();
 
@@ -239,7 +239,7 @@ IXW.Lib.ModalDialog = function(cfg){
 		var bodyEl = baseView.getBodyContainer();
 		var scrnH = $Xw.getScreen().size[1], bodyH = bodyEl.offsetHeight;
 		var posY = (scrnH - bodyH)/2;
-		var marginTop = (posY < 120) ? (120 - scrnH) : Math.floor(0 - bodyH - Math.max(posY + 50, 0))
+		var marginTop = (posY < 120) ? (120 - scrnH) : Math.floor(0 - bodyH - Math.max(posY + 50, 0));
 		bodyEl.style.marginTop = marginTop + "px";
 	}
 	$Xw.bind({resize : _resize});

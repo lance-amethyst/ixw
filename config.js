@@ -74,18 +74,21 @@ module.exports = {
 			{cwd: '_tasks/', src: ['_lib/ix.js'], dest: '1//server/service/util/ix.js'},
 			{cwd: '_tpl/', src: 'bp_post.sh', dest: '1/init_project.sh'}
 		]},
-		"post-pure" : { files : 
+		"post-pure" : { files : [
 			{cwd: '0/', src: ['**'], dest: '<%= config.path %>', expand: true},
 			{cwd: 'tmp/', src: ['*.js'], dest: '<%= config.path %>/src/lib', expand: true}
-		} },
-		"post-mixed" : { files : 
+		]},
+		"post-mixed" : { files : [
 			{cwd: '1/', src: ['**'], dest: '<%= config.path %>', expand: true},
 			{cwd: 'tmp/', src: ['*.js'], dest: '<%= config.path %>/www/src/lib', expand: true}
-		} }
+		]}
 	},
 
 	jshint :{
 		options: {
+			"-W030" : true, // 禁止告警：Expected an assignment or function call and instead saw an expression
+			browser : true,
+			force : false, //设置为 true 将会报告 JSHint 错误，而不会将任务失败掉
 			//curly:true,  //大括号包裹  
 			//eqeqeq:true,  //对于简单类型，使用===和!==，而不是==和!=  
 			//newcap:true,  //对于首字母大写的函数（声明的类），强制使用new  
@@ -95,8 +98,9 @@ module.exports = {
 			boss:true,//查找类似与if(a = 0)这样的代码  
 			node:true,
 			globals: {
-				window: true,
-				document : true,
+				//window: true,
+				//document : true,
+				//"history" : true,
 				IX_GLOBAL : true,
 				IXDebug : true,
 				debugIsAllow : true,
@@ -105,9 +109,9 @@ module.exports = {
 				IX_VERSION : true,
 
 				"alert" : true,
-				"escape" : true,
-				"unescape" : true,
-				"localStorage" : true,
+				// "escape" : true,
+				// "unescape" : true,
+				// "localStorage" : true,
 				"requestAnimationFrame" : true,
 				"d3" : true,
 				"THREE" : true,
@@ -123,13 +127,15 @@ module.exports = {
 				"$XE" : true,
 				"$XF" : true,
 				"$XH" : true,
+				"IXS" : true,
 				"IXW" : true,
 				"IXW_NS" : true,
 				"IXW_BaseUrl" : true
 			}
 		},
 		files : [
-			'_bin/**/*.js', '_lib/**/*.js', '_tasks/**/*.js', 'tpl/**/*.js',
+			'_lib/**/*.js', '_tasks/**/*.js','_tpl/server/*.js',
+			'_tpl/www/proto/*.js','_tpl/www/*.js','_tpl/*.js',
 			'0/**/*.js', '1/**/*.js', "tmp/*.js"
 		]
 	}
