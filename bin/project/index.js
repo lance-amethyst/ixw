@@ -1,9 +1,8 @@
 var util = require('util');
 var fs = require('fs');
 
-var topDir = process.cwd() + "../../";
-var etsc = require(topDir + '_bin/tpl/lib/etsc.js');
-var etsRoot = topDir + "_lib/ixwui";
+var etsc = require('../../_bin/tpl/lib/etsc.js');
+var etsRoot = process.cwd() + "/_lib/ixwui";
 
 function _etsc(tplNS, ifClean){
 	return etsc(etsRoot, {

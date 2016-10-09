@@ -1,37 +1,35 @@
-var path = require('path');
-
 require("./_tasks/_lib/ix.js");
 require("./bin/_prompt/index.js");
 
+var path =  require('path');
+var gruntConfig = require("./grunt-config.js");
+
 module.exports = function (grunt) {
-	var gruntCfg = null;
-	
+	var prjCfg = null;
+
 	try {
-		gruntCfg = require('./ixw-config.js');
-	}catch(){}
-	if (!gruntCfg){
+		prjCfg = require('./ixw-config.js');
+	}catch(e){}
+	if (!prjCfg){
 		console.log("Missing file: ixw-config.js!");
 		console.log("You can run node config to create it automatically.");
 		console.log("Also you can create it manually with template file: config.js.");
-		return;
+		process.exit();
 	}
 
-	grunt.initConfig(gruntCfg);
-	
+	grunt.initConfig(IX.inherit(gruntConfig, {config : prjCfg}));
 	grunt.loadNpmTasks("grunt-contrib-jshint");
 	grunt.loadNpmTasks("grunt-contrib-concat");
 	grunt.loadNpmTasks("grunt-contrib-copy");
 	grunt.loadNpmTasks("grunt-string-replace");
 	grunt.loadNpmTasks("grunt-contrib-clean");
 
-
-	var prjCfg = gruntCfg.config;
 	prjCfg.dir = path.normalize(prjCfg.path);
 
 	var taskEntry = require("./bin/project/index.js");
 	// register task : "compileETS" and "cleanCompiledETS",
 	//		 "prompt:pure", "prompt:mixed"
-	taskEntry(grunt, prjCfg, this.async()); 
+	taskEntry(grunt, prjCfg, IX.emptyFn); 
 	
 	["pure", "mixed"].forEach(function(taskName){
 		var subname = ":" + taskName;
@@ -41,5 +39,5 @@ module.exports = function (grunt) {
 			"post-" + taskName, "clean" + subname, "prompt" + subname
 		]);
 	});
-	grunt.registerTask('default', ["chkconfig", prgCfg.type]);
+	grunt.registerTask('default', ["chkconfig", prjCfg.type]);
 };
