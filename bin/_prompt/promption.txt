@@ -40,6 +40,7 @@ After you config valid HTTP service for the project, please update line 11 in fi
 
 as your configuration before you open it in browser.
 
+Enjoy it!
 
 ## Promption-mixed
 The new project "{NAME}" has 2 directories under {DIR}:
