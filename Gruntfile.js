@@ -12,8 +12,8 @@ module.exports = function (grunt) {
 	}catch(e){}
 	if (!prjCfg){
 		console.log("Missing file: ixw-config.js!");
-		console.log("You can run node config to create it automatically.");
-		console.log("Also you can create it manually with template file: config.js.");
+		console.log("You can run `node config` to create it automatically.");
+		console.log("Also you can create it manually with template file: config-template.js.");
 		process.exit();
 	}
 
