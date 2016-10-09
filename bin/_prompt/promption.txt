@@ -1,0 +1,80 @@
+## Question-types
+Please choose project type (default is pure project):
+	[0] pure : Web Frontend project only;
+	[1] mixed : Whole Web project including Frontend and Backend (require shell supported).
+
+## Confirm-type
+	New project type will be : {TYPE}.
+
+## Question-name
+Please input project name(default is sample):
+
+## Confirm-name
+	New project's name will be: {NAME}.
+
+## Question-namespace
+Please input namespace for project "{NAME}" (default is {NS}):
+
+## Confirm-namespace
+	Namespace for project "{NAME}" will be: {NS}.
+
+## Question-path
+Please input root directory for project "{NAME}" (default is {DIR}):
+
+## Confirm-path
+	Root directory for project "{NAME}" will be: {DIR}.
+
+## Question-files
+Please confirm above settings. If yes, please press [ENTER] to continue, otherwise press [CTRL-C] to exit.
+
+## Confirm-files
+
+Above settings will be writen into {DIR}/ixw_config.js; you can change it manually.
+In ixw_config.js, the project's name can be changed simply, but its namespace must not be changed except you know what will happen.
+
+## Promption-pure
+The new project has three grunt tasks, please check Gruntfile.js to get more information.
+
+Before you start up project, please run 'sh init_project.sh' under directory {DIR}.
+
+After you config valid HTTP service for the project, please update line 11 in file proto/index.htm:
+
+	var IXW_BaseUrl = "http://localhost/{NAME}"
+
+as your configuration before you open it in browser.
+
+
+## Promption-mixed
+The new project "{NAME}" has 2 directories under {DIR}:
+	"www"    -- for frontend of project
+	"server" -- for backend of project
+
+CAUTION: Before starting up project, please run 'sh init_project.sh' to initialize project under directory {DIR}.
+
+After project is initialized:
+1) You can run 'npm start' under {DIR}/server to start server for the project and browse it with URL:
+	
+	http://localhost:4000
+
+2) Also you can visit sub-project for Frontend: 
+	i) With backend supported: 
+		http://localhost:4000/demo/proto/index.htm
+
+	ii)	With simulation data supported: 
+		http://localhost:4000/demo/proto/sim.htm
+
+3) If you want to change HTTP to HTTPS or other port, please update line 15-16 in config file {DIR}/server/config.js :
+
+	"port" : 4000,
+	"useHTTPS" : false,
+
+In same time, need to update the value of IXW_BaseUrl in following files:",
+	{DIR}/www/proto/index.htm
+	{DIR}/www/proto/sim.htm
+	{DIR}/server/public/index.htm
+
+More detail you can find in those files. 
+
+Enjoy it!
+
+## End!
