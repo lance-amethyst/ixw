@@ -1,7 +1,7 @@
 module.exports = {
 	clean :{
 		pure : ["0/", "tmp/"],
-		mixed : ["0/", "tmp/"]
+		mixed : ["1/", "tmp/"]
 	},
 	"string-replace" : {
 		options: {

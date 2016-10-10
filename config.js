@@ -78,7 +78,6 @@ function inputHandler(cmdData){
 		currentStep = "PRJ_FILES";
 		print("Q", "files");
 		return;
-			
 	default :
 		writeConfigFile();
 		print("C", "files");
@@ -92,10 +91,4 @@ process.stdin.on('readable', function() {
 	if (chunk !== null)
 		inputHandler(chunk);
 });
-
-process.stdin.on('end', function() {
-	print('Configuration done');
-});
 inputHandler();
-
-
