@@ -11,11 +11,11 @@ module.exports = {
 		dest : "./src",
 		demoDest : "./_demo",
 		background : [{
-//			classPrefix : "bg",  // css Class prefix, default is bg
-//			path : "background"		// the directory for the source files relative to srcRoot
+			// classPrefix : "bg",	// css Class prefix, default is bg
+			// path : "background"	// the directory for the source files relative to srcRoot
 		}],
-		picmap : [{		
-//			margin:8, // margin for each images in spirit file, default is 8
+		picmap : [{
+			// margin:8, // margin for each images in spirit file, default is 8
 			classPrefix : "ixpic", // defualt is pic
 			path : "ixpic" // default is "pic"
 		}]
@@ -27,9 +27,9 @@ module.exports = {
 	deploy: {
 	},
 	release :{
-//		jsUrl : "http://localhost/{NS}/_rel/js",
-//		imagesUrl : "http://localhost/{NS}/_rel/img",
-//		cssUrl : "http://localhost/{NS}/_rel/css"
+		// jsUrl : "http://localhost/{NS}/_rel/js",
+		// imagesUrl : "http://localhost/{NS}/_rel/img",
+		// cssUrl : "http://localhost/{NS}/_rel/css"
 	},
 
 	grunt : {
@@ -40,6 +40,11 @@ module.exports = {
 		},
 		jshint :{
 			options: {
+				"-W061" : true, //禁止告警："eval can be harmful.",
+				"-W069" : true, //禁止告警：['{a}'] is better written in dot notation.
+				"-W030" : true, // 禁止告警：Expected an assignment or function call and instead saw an expression
+				browser : true,
+				force : false, //设置为 true 将会报告 JSHint 错误，而不会将任务失败掉
 				//curly:true,  //大括号包裹  
 				//eqeqeq:true,  //对于简单类型，使用===和!==，而不是==和!=  
 				//newcap:true,  //对于首字母大写的函数（声明的类），强制使用new  
@@ -49,29 +54,26 @@ module.exports = {
 				boss:true,//查找类似与if(a = 0)这样的代码  
 				node:true,
 				globals: {
-					window: true,
-					document : true,
-					IX_GLOBAL : true,
-					IXDebug : true,
-					debugIsAllow : true,
-					IX_DEBUG_MODE :true,
-					IX_SCRIPT_NAME : true,
-					IX_VERSION : true,
-
+					// window: true,
+					// document : true,
 					"alert" : true,
-					"escape" : true,
-					"unescape" : true,
-					"localStorage" : true,
+					"ActiveXObject" : true,
+					// "escape" : true,
+					// "unescape" : true,
+					// "localStorage" : true,
 					"requestAnimationFrame" : true,
-
-					"{NS}" : true,
-					"jQuery" : true,
-					"echarts" : true,
 					"d3" : true,
 					"THREE" : true,
 					"topojson" : true,
+					"jQuery" : true,
 
 					"IX" : true,
+					"IX_GLOBAL" : true,
+					"IXDebug" : true,
+					"debugIsAllow" : true,
+					"IX_DEBUG_MODE" :true,
+					"IX_SCRIPT_NAME" : true,
+					"IX_VERSION" : true,
 					"$X" : true,
 					"$Xw" : true,
 					"$XA" : true,
@@ -82,7 +84,9 @@ module.exports = {
 					"$XH" : true,
 					"IXW" : true,
 					"IXW_NS" : true,
-					"IXW_BaseUrl" : true
+					"IXW_BaseUrl" : true,
+
+					"{NS}" : true
 				}
 			},
 			files : {src : ['src/ixw/*.js']},

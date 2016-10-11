@@ -94,16 +94,8 @@ module.exports = {
 			boss:true,//查找类似与if(a = 0)这样的代码  
 			node:true,
 			globals: {
-				//window: true,
-				//document : true,
-				//"history" : true,				
-				IX_GLOBAL : true,
-				IXDebug : true,
-				debugIsAllow : true,
-				IX_DEBUG_MODE :true,
-				IX_SCRIPT_NAME : true,
-				IX_VERSION : true,
-
+				// window: true,
+				// document : true,
 				"alert" : true,
 				"ActiveXObject" : true,
 				// "escape" : true,
@@ -113,9 +105,15 @@ module.exports = {
 				"d3" : true,
 				"THREE" : true,
 				"topojson" : true,
-
 				"jQuery" : true,
+
 				"IX" : true,
+				"IX_GLOBAL" : true,
+				"IXDebug" : true,
+				"debugIsAllow" : true,
+				"IX_DEBUG_MODE" :true,
+				"IX_SCRIPT_NAME" : true,
+				"IX_VERSION" : true,
 				"$X" : true,
 				"$Xw" : true,
 				"$XA" : true,
@@ -124,7 +122,6 @@ module.exports = {
 				"$XE" : true,
 				"$XF" : true,
 				"$XH" : true,
-				"IXS" : true,
 				"IXW" : true,
 				"IXW_NS" : true,
 				"IXW_BaseUrl" : true
