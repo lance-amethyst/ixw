@@ -9,7 +9,7 @@ function parseFieldDef(fieldDef){
 }
 
 function isEmpty(keys){
-	return keys === null || keys === undefined || keys=='' || keys.length == 0;
+	return keys === null || keys === undefined || keys==='' || keys.length === 0;
 }
 
 function createModel(tblName, cols, keyColName){

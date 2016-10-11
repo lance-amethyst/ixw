@@ -28,7 +28,7 @@ function _ix_tpl__translate(parsedData, transConfig) {
 		var text = "";
 		for (var _i = 0; _i < len; _i++) {
 			var ci = tArr[_i];
-			if (!ciq)
+			if (!ci)
 				continue;
 			var cMatch = ci.match(LineSplitReg);
 			if (cMatch)
@@ -69,7 +69,7 @@ function _ix_tpl__translate(parsedData, transConfig) {
 		lastLine = op.last_line + 1;
 	}
 	function compleTplExport(exportValue, idValue, _prevTpls){
-		var ifTopTpl = !_prevTpls || _prevTpls.length == 0;
+		var ifTopTpl = !_prevTpls || _prevTpls.length === 0;
 		if (!exportValue)
 			return ifTopTpl;
 

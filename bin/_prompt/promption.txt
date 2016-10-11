@@ -55,10 +55,10 @@ After project is initialized:
 	http://localhost:4000
 
 2) Also you can visit sub-project for Frontend: 
-	i) With backend supported: 
+	i)  With backend supported: 
 		http://localhost:4000/demo/proto/index.htm
 
-	ii)	With simulation data supported: 
+	ii) Only simulation data supported: 
 		http://localhost:4000/demo/proto/sim.htm
 
 3) If you want to change HTTP to HTTPS or other port, please update line 15-16 in config file {DIR}/server/config.js :

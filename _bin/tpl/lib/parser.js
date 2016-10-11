@@ -83,7 +83,7 @@ performAction: function anonymous(yytext, yyleng, yylineno, yy, yystate /* actio
 var $0 = $$.length - 1;
 switch (yystate) {
 case 2: return $$[$0];
-break;
+//break;
 case 3: this.$ = [$$[$0]]; 
 break;
 case 4: this.$ = $$[$0-1]; this.$.push($$[$0]); 
@@ -98,13 +98,13 @@ case 10: this.$=$$[$0-1]; $$[$0-1].text=$$[$0-1].text+$$[$0];
 break;
 case 11: this.$ = $$[$0]; 
 break;
-case 12: this.$ = $$[$0-1]; for(var p in $$[$0]) this.$[p] = $$[$0][p]; 
+case 12: this.$ = $$[$0-1]; for(p in $$[$0]) this.$[p] = $$[$0][p]; 
 break;
 case 13: this.$ = {}; this.$[($$[$0-2]+"").toLowerCase()] = {text: $$[$0-2]+'='+$$[$0], value: !$$[$0]?"":$$[$0][0]=="'"||$$[$0][0]=="\""?$$[$0].substr(1,$$[$0].length-2):$$[$0]}; 
 break;
 case 14: this.$ = [$$[$0]]; 
 break;
-case 15: this.$ = $$[$0-1]; var last=this.$[this.$.length-1]; if(last!=null && last.type=="text" && $$[$0].type=="text" && !last.text.match(/((\n\s*)|(\r\n\s*))$/) &&  !$$[$0].text.match(/^((\n\s*)|(\r\n\s*))/)) this.$[this.$.length-1].text+=$$[$0].text; else this.$.push($$[$0]); 
+case 15: this.$ = $$[$0-1]; var last=this.$[this.$.length-1]; if(last!==null && last.type=="text" && $$[$0].type=="text" && !last.text.match(/((\n\s*)|(\r\n\s*))$/) &&  !$$[$0].text.match(/^((\n\s*)|(\r\n\s*))/)) this.$[this.$.length-1].text+=$$[$0].text; else this.$.push($$[$0]); 
 break;
 case 16: this.$ = {type:"text"}; this.$.text = $$[$0]; 
 break;
@@ -339,8 +339,8 @@ unput:function (ch) {
             last_line: this.yylineno + 1,
             first_column: this.yylloc.first_column,
             last_column: lines ?
-                (lines.length === oldLines.length ? this.yylloc.first_column : 0)
-                 + oldLines[oldLines.length - lines.length].length - lines[0].length :
+                (lines.length === oldLines.length ? this.yylloc.first_column : 0) +
+                oldLines[oldLines.length - lines.length].length - lines[0].length :
               this.yylloc.first_column - len
         };
 
@@ -590,39 +590,39 @@ switch($avoiding_name_collisions) {
 case 0:/* skip whitespace */
 break;
 case 1: this.begin('Tpl'); this.begin('Tag'); return 8; 
-break;
+//break;
 case 2:/* skip whitespace */
-break;
+//break;
 case 3: this.begin('Script'); return 13; 
-break;
+//break;
 case 4: this.popState(); return 15; 
-break;
+//break;
 case 5: return 18; 
-break;
+//break;
 case 6: return 19; 
-break;
+//break;
 case 7: return 20; 
-break;
+//break;
 case 8: return 20; 
-break;
+//break;
 case 9: this.popState(); return 10; 
-break;
+//break;
 case 10: this.popState(); return 26; 
-break;
+//break;
 case 11: this.begin('Note'); return 25; 
-break;
+//break;
 case 12: this.popState(); return 12; 
-break;
+//break;
 case 13: this.begin('Tag'); return 24; 
-break;
+//break;
 case 14: return 16; 
-break;
+//break;
 case 15: return 16; 
-break;
+//break;
 case 16: return 16; 
-break;
+//break;
 case 17: return 'BAD'; 
-break;
+//break;
 }
 },
 rules: [/^(?:\s+)/,/^(?:<(([Tt]pl|TPL)))/,/^(?:\s+)/,/^(?:<(([Ss]cript|SCRIPT))>)/,/^(?:<\/(([Ss]cript|SCRIPT))>)/,/^(?:([a-zA-Z_][a-zA-Z0-9_-]*))/,/^(?:=)/,/^(?:"[^"]*")/,/^(?:'[^']*')/,/^(?:>)/,/^(?:.*-->)/,/^(?:<!--)/,/^(?:<\/(([Tt]pl|TPL))>)/,/^(?:<(([Uu]se|USE)))/,/^(?:(.|)+(\r*\n)*)/,/^(?:[^<]+)/,/^(?:<)/,/^(?:.)/],
@@ -635,7 +635,7 @@ function Parser () {
   this.yy = {};
 }
 Parser.prototype = parser;parser.Parser = Parser;
-return new Parser;
+return new Parser();
 })();
 
 

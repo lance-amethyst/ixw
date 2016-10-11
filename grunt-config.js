@@ -31,7 +31,7 @@ module.exports = {
 			{src: '_tpl/_www.src.ixw.index.js.html', dest: '1/www/src/ixw/index.js.html'},
 			
 			{src: '_tpl/_www.proto.sim.htm', dest: '1//www/proto/sim.htm'},
-			{src: '_tpl/_www.package.json', dest: '1/www/proto/index.htm'}
+			{src: '_tpl/_www.proto.index.htm', dest: '1/www/proto/index.htm'}
 		]}
 	},
 	concat: {
@@ -80,6 +80,8 @@ module.exports = {
 
 	jshint :{
 		options: {
+			"-W061" : true, //禁止告警："eval can be harmful.",
+			"-W069" : true, //禁止告警：['{a}'] is better written in dot notation.
 			"-W030" : true, // 禁止告警：Expected an assignment or function call and instead saw an expression
 			browser : true,
 			force : false, //设置为 true 将会报告 JSHint 错误，而不会将任务失败掉
@@ -103,6 +105,7 @@ module.exports = {
 				IX_VERSION : true,
 
 				"alert" : true,
+				"ActiveXObject" : true,
 				// "escape" : true,
 				// "unescape" : true,
 				// "localStorage" : true,
@@ -130,7 +133,13 @@ module.exports = {
 		files : [
 			'_lib/**/*.js', '_tasks/**/*.js','_tpl/server/*.js',
 			'_tpl/www/proto/*.js','_tpl/www//*.js','_tpl/*.js',
-			'0/**/*.js', '1/**/*.js', "tmp/*.js"
+
+			'0/_tasks/**/*.js', '0/proto/**/*.js',
+			'0/src/ixw/**/*.js','0/*.js',  
+
+			'1/server/**/*.js', '1/www/_tasks/**/*.js', '1/www/proto/**/*.js',
+			'1/www/src/ixw/**/*.js','1/www/*.js',   
+			"tmp/*.js"
 		]
 	}
 };

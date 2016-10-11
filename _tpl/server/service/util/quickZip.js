@@ -179,7 +179,8 @@ exports.zip = function(zipfilepath, zipInfo, cbFn){
 	var targetRoot = zipInfo.root || process.cwd();
 	//console.log("ZIP target root: " + targetRoot);
 
-	var zipFilesHT = new IX.I1ToNManager(); fileFilter = new IX.I1ToNManager();
+	var zipFilesHT = new IX.I1ToNManager(); 
+	var fileFilter = new IX.I1ToNManager();
 	IX.iterate(zipInfo.files, function(filepath){
 		var isStr = IX.isString(filepath);
 		var _path = isStr ? filepath : filepath[0];

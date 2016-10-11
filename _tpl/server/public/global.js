@@ -40,7 +40,7 @@ ajaxEngine.resetSetting({
 				return;
 			return commonInformation("网络中断，请检查网络或者服务器是否正常！", "重试");
 		}
-		if(data.retCode == 0){
+		if(data.retCode === 0){
 			if(IX.isFn(failFn))
 				return failFn(data);
 			return commonAlert(data.err);

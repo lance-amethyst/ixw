@@ -6,4 +6,5 @@ deps
 .DS_Store
 .settings
 .project
+ixw-config.js
 node_modules

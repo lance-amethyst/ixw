@@ -1,7 +1,7 @@
 <script>
 function _tpldataFn(id, items, ifSelectFn){return  {
 	id : id,
-	clz : items.length==0?"invisible":"",
+	clz : items.length===0?"invisible":"",
 	items : IX.map(items, function(item){return {
 		clz : ifSelectFn(item.id) ? "selected" : "",
 		id : item.id,

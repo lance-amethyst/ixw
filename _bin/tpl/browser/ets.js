@@ -1,5 +1,6 @@
 // ets : easy template script
-window.ETS = {};
+var ETS = {};
+window.ETS = ETS;
 ETS.namespace = window["ETS_NS"] || "IX.Tpl";
 ETS.lineDelimiter = "\n";
 var etsParseErros = [];
@@ -89,7 +90,7 @@ function evalCode(_script, _i) {
 		});
 		console.info(etsParseErros[etsParseErros.length - 1]);
 	}
-};
+}
 
 var TplFileReg = /\.js\.html?$/g;
 var scriptPaths =[]; 
@@ -123,53 +124,13 @@ function _loadETScriptSource(scriptPath){
 }
 
 var _debugPanel = null;
-if (debug) {
-	function addRule(style, selectorText, cssText, position) {
-		//style标签  选择器   样式   位置 
-		if (style.insertRule) { //chrome | FF |IE9+ 
-			style.insertRule(selectorText + '{' + cssText + '}', position);
-		} else if (style.addRule) { //IE8 IE7 IE6 
-			style.addRule(selectorText, cssText, position);
-		}
+function addRule(style, selectorText, cssText, position) {
+	//style标签  选择器   样式   位置 
+	if (style.insertRule) { //chrome | FF |IE9+ 
+		style.insertRule(selectorText + '{' + cssText + '}', position);
+	} else if (style.addRule) { //IE8 IE7 IE6 
+		style.addRule(selectorText, cssText, position);
 	}
-
-	var tableStyles = [
-		["table.etsdebug", 					"width:100%; border-collapse:collapse;table-layout:fixed;"],
-		["table.etsdebug td", 				"border: 1px solid gray;"],
-		["table.etsdebug td:first-child", 	"text-align:center;"],
-		["table.etsdebug th", 				"border: 1px solid gray; background-color: #ccc; color:black;"],
-		["table.etsdebug textarea",			"width:100%;height:100%; background-color:transparent;"],
-		["table.etsdebug tr td.path",		"word-break: break-all;word-wrap: break-word;"],
-		["table.etsdebug tr.error td.path", "color:red;"],
-		["table.etsdebug pre", 				"width:100%;height:100%; background-color:transparent; overflow: auto;"]
-	];
-	
-	var _style = document.createElement("style");
-	_style.type = "text/css";
-	document.head.appendChild(_style);
-	_style = document.styleSheets[document.styleSheets.length - 1];
-	var j = tableStyles.length, i = 0;
-	for (; i < j; i++)
-		addRule(_style, tableStyles[i][0], tableStyles[i][1], i);
-
-	var _debugPanel = document.createElement("table");
-	_debugPanel.className = 'etsdebug';
-	_debugPanel.innerHTML = [
-		"<colgroup>",
-			"<col width='40' />",
-			"<col width = '120' />",
-			"<col />",
-			"<col />",
-			"<col />",
-		"</colgroup>",
-		"<thead>",
-			"<tr><th colspan = 5></th><tr/>",
-			"<tr><th>#</th><th>PATH</th><th>SOURCE</th><th>REF</th><th>CODE</th><tr/>",
-		"</thead>",
-		"<tbody></tbody>",
-		"<tfoot><tr><td colspan = 5></td></tr></tfoot>"
-	].join("");
-	document.body.appendChild(_debugPanel);
 }
 function debugParseScript(ci, i, trtplcode){
 	var _div = document.createElement("table");
@@ -193,6 +154,46 @@ function debugParseScript(ci, i, trtplcode){
 	if (txt_s[0].innerHTML != txt_s[1].innerHTML)
 		row.className += "error";
 }
+if (debug) {
+	var tableStyles = [
+		["table.etsdebug", 					"width:100%; border-collapse:collapse;table-layout:fixed;"],
+		["table.etsdebug td", 				"border: 1px solid gray;"],
+		["table.etsdebug td:first-child", 	"text-align:center;"],
+		["table.etsdebug th", 				"border: 1px solid gray; background-color: #ccc; color:black;"],
+		["table.etsdebug textarea",			"width:100%;height:100%; background-color:transparent;"],
+		["table.etsdebug tr td.path",		"word-break: break-all;word-wrap: break-word;"],
+		["table.etsdebug tr.error td.path", "color:red;"],
+		["table.etsdebug pre", 				"width:100%;height:100%; background-color:transparent; overflow: auto;"]
+	];
+	
+	var _style = document.createElement("style");
+	_style.type = "text/css";
+	document.head.appendChild(_style);
+	_style = document.styleSheets[document.styleSheets.length - 1];
+	var j = tableStyles.length, i = 0;
+	for (; i < j; i++)
+		addRule(_style, tableStyles[i][0], tableStyles[i][1], i);
+
+	_debugPanel = document.createElement("table");
+	_debugPanel.className = 'etsdebug';
+	_debugPanel.innerHTML = [
+		"<colgroup>",
+			"<col width='40' />",
+			"<col width = '120' />",
+			"<col />",
+			"<col />",
+			"<col />",
+		"</colgroup>",
+		"<thead>",
+			"<tr><th colspan = 5></th><tr/>",
+			"<tr><th>#</th><th>PATH</th><th>SOURCE</th><th>REF</th><th>CODE</th><tr/>",
+		"</thead>",
+		"<tbody></tbody>",
+		"<tfoot><tr><td colspan = 5></td></tr></tfoot>"
+	].join("");
+	document.body.appendChild(_debugPanel);
+}
+
 function parseScript(ci, i){
 	if (ci.load) 
 		return 0;
@@ -219,7 +220,7 @@ function parseScript(ci, i){
 	return hasError?1:0;
 } 
 function parseFiles() {
-	if (loadedFiles != 0 || (debug && loadedSourceFiles != 0))
+	if (loadedFiles !== 0 || (debug && loadedSourceFiles !== 0))
 		return; // file not all loaded!
 
 	var errorNum = 0, total = scriptPaths.length ;

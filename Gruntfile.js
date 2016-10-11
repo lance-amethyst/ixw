@@ -49,15 +49,15 @@ module.exports = function (grunt) {
 	var taskEntry = require("./bin/project/index.js");
 	// register task : "compileETS" and "cleanCompiledETS",
 	//		 "prompt:pure", "prompt:mixed"
-	taskEntry(grunt, prjCfg, IX.emptyFn); 
+	taskEntry(grunt, gruntCfg.config, IX.emptyFn); 
 	
 	["pure", "mixed"].forEach(function(taskName){
 		var subname = ":" + taskName;
 		grunt.registerTask(taskName, [
 			"clean" + subname, "copy"+ subname, "string-replace"+ subname, 
 			"compileETS", "concat", "jshint:files", "cleanCompiledETS", 
-			"post-" + taskName, "clean" + subname, "prompt" + subname
+			"copy:post-" + taskName, "clean" + subname, "prompt" + subname
 		]);
 	});
-	grunt.registerTask('default', ["chkconfig", prjCfg.type]);
+	grunt.registerTask('default', [gruntCfg.config.type]);
 };

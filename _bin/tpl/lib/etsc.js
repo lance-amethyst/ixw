@@ -51,7 +51,7 @@ module.exports = function(fpath, options){
 		clean : false
 	};
 	if (IX.isFn(options))
-		cbFn = options;
+		opt = options();
 	else
 		IX.extend(opt, options);
 		

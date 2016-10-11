@@ -112,7 +112,7 @@ IXW.Lib.FileUploader = function(config){
 			formEl.reset();
 		});
 		formEl.submit();
-	};
+	}
 
 	return {
 		// getId : function(){return id;},
@@ -142,7 +142,7 @@ IXW.Lib.FileUploader = function(config){
  */
 IXW.Lib.FileUploadedCB = function(data, error){
 	var fn = uploadedCbHT.get(data.tkey); 
-	if(error && error.code == 0)
+	if(error && error.code === 0)
 		return IXW.alert(error.msg);
 	fn(data);
 };

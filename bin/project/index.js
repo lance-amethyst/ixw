@@ -2,7 +2,7 @@ var util = require('util');
 var fs = require('fs');
 
 var etsc = require('../../_bin/tpl/lib/etsc.js');
-var etsRoot = process.cwd() + "/_lib/ixwui";
+var etsRoot = process.cwd() + "/_lib/_ixwui";
 
 function _etsc(tplNS, ifClean){
 	return etsc(etsRoot, {

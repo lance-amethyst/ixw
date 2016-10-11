@@ -3,7 +3,7 @@ var fs = require('fs');
 var path = require('path');
 var JSZip = require('jszip');
 
-var service = require('../../service.js')
+var service = require('../../service.js');
 
 var quickZip = require("../util/quickZip.js");
 
