@@ -30,7 +30,7 @@ To create a web project, clone this repository in your workspace and do as follo
   };
 </pre>
 
-##3. run `grunt' to create the project. Also your can run `grunt pure` or `grunt mixed` to create with specified mode. 
+##3. run `grunt` to create the project. Also your can run `grunt pure` or `grunt mixed` to create with specified mode. 
 
 
 
