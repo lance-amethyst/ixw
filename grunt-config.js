@@ -123,6 +123,7 @@ module.exports = {
 				"$XF" : true,
 				"$XH" : true,
 				"IXW" : true,
+				"IXS" : true,
 				"IXW_NS" : true,
 				"IXW_BaseUrl" : true
 			}

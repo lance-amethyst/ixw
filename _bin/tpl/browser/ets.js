@@ -75,11 +75,11 @@ function evalCode(_script, _i) {
 		return funcs[jsFilePrev + _i]();
 		var n = new Function("return " + _script.codeStr + ";" + "//@ sourceURL=" + _script.path);
 		return n();*/
-		eval(_script.codeStr + "//@ sourceURL=" + _script.path);
-		/*var script= document.createElement('script');
+		//eval(_script.codeStr + "//# sourceURL=" + _script.path);
+		var script= document.createElement('script');
 		script.type= 'text/javascript';
-		script.text = _script.codeStr + "\r\n//@ sourceURL=" + jsFilePrev + _i + ".js";
-		document.body.appendChild(script);*/
+		script.text = _script.codeStr + "\r\n//@ sourceURL=" +  _script.path;
+		document.body.appendChild(script);
 	} catch (ex) {
 		etsParseErros.push({
 			method: "evalCode",
