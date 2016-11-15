@@ -106,7 +106,7 @@ module.exports = {
 		// concat: {
 		// 	ixw :{
 		// 		src : ["src/lib/ix.js", "src/lib/jquery-2.1.1.js", "src/bootstrap/js/bootstrap.js",
-		// 			"src/lib/ixw.js", "src/lib/ixwui.js", "src/lib/ext.js", "src/lib/echarts.js"],
+		// 			"src/lib/ixw.js", "src/lib/ixwui.js", "src/lib/ixwext.js", "src/lib/ext.js"],
 		// 		dest : "_dist/js/ixw.js"
 		// 	},
 		// 	project :{

@@ -54,7 +54,6 @@ module.exports = {
 			{expand: true, cwd: '_mapdata/', src: '**', dest: '0/_mapdata'},
 			{expand: true, cwd: '_tasks/', src: '**', dest: '0/_tasks'},
 			{expand: true, cwd: '_bin/tpl/lib/', src: '*.js', dest: '0/_tasks/deploy/_lib'},
-			{expand: true, cwd: '_tpl/src/lib/', src: 'jquery*.js', dest: '0/_tasks/_lib'},
 
 			{expand: true, cwd: '_lib/', src: 'ixwui.less', dest: '0/src/less'}
 		]},
@@ -65,16 +64,19 @@ module.exports = {
 			{expand: true, cwd: '_mapdata/', src: '**', dest: '1/www/_mapdata'},
 			{expand: true, cwd: '_tasks/', src: '**', dest: '1/www/_tasks'},
 			{expand: true, cwd: '_bin/tpl/lib/', src: '*.js', dest: '1/www/_tasks/deploy/_lib'},
-			{expand: true, cwd: '_tpl/src/lib/', src: 'jquery*.js', dest: '1/www/_tasks/_lib'},
 
 			{expand: true, cwd: '_lib/', src: 'ixwui.less', dest: '1/www/src/less'},
 			{expand: true, cwd: '_tasks/_lib/', src: 'ix.js', dest: '1/server/service/util'}
 		]},
 		"post-pure" : { files : [
+			{expand: true, cwd: '_tpl/www/src/lib/', src: 'jquery*.js', dest: '<%= config.path %>/_tasks/_lib'},
+
 			{expand: true, cwd: '0/', src: '**', dest: '<%= config.path %>'},
 			{expand: true, cwd: 'tmp/', src: '*.js', dest: '<%= config.path %>/src/lib'}
 		]},
 		"post-mixed" : { files : [
+			{expand: true, cwd: '_tpl/www/src/lib/', src: 'jquery*.js', dest: '<%= config.path %>/www/_tasks/_lib'},
+
 			{expand: true, cwd: '1/', src: '**', dest: '<%= config.path %>'},
 			{expand: true, cwd: 'tmp/', src: '*.js', dest: '<%= config.path %>/www/src/lib'}
 		]}

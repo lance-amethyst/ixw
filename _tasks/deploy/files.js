@@ -7,7 +7,7 @@ var translator = require("./_lib/translator.js");
 
 var jsdom = require('jsdom');
 
-function isEmpty(s){return s == "" || s === undefined || s === null;}
+function isEmpty(s){return s === "" || s === undefined || s === null;}
 function parse(basedir, fname, options, cbFn){
 	var ixwFiles = [],
 		pkgFiles = [];
@@ -85,7 +85,7 @@ function etsc_parse(filepath, opt) {
 		var result = parser.parse(content);
 		result = translator.translate(result, opt);
 		if("error" in result)
-			throw new Exception("file: " + filepath + " has error:" + result.error);
+			throw new Error("file: " + filepath + " has error:" + result.error);
 		return result.code;
 	}
 	return content;
@@ -109,7 +109,7 @@ function doConcat(basedir, destPath, srcFiles, opt){
 		}
 	});
 	if (ifParseFail)
-		throw new Exception("do concat fail!");
+		throw new Error("do auto-concat fail!");
 }
 
 function autoConcat(basedir, entryFile, destPath, options, cbFn){

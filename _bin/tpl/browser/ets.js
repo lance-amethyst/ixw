@@ -1,5 +1,6 @@
 // ets : easy template script
 window.ETS = {};
+var ETS = window.ETS;
 ETS.namespace = window["ETS_NS"] || "IX.Tpl";
 ETS.lineDelimiter = "\n";
 var etsParseErros = [];
@@ -123,16 +124,15 @@ function _loadETScriptSource(scriptPath){
 }
 
 var _debugPanel = null;
-if (debug) {
-	function addRule(style, selectorText, cssText, position) {
-		//style标签  选择器   样式   位置 
-		if (style.insertRule) { //chrome | FF |IE9+ 
-			style.insertRule(selectorText + '{' + cssText + '}', position);
-		} else if (style.addRule) { //IE8 IE7 IE6 
-			style.addRule(selectorText, cssText, position);
-		}
+function addRule(style, selectorText, cssText, position) {
+	//style标签  选择器   样式   位置 
+	if (style.insertRule) { //chrome | FF |IE9+ 
+		style.insertRule(selectorText + '{' + cssText + '}', position);
+	} else if (style.addRule) { //IE8 IE7 IE6 
+		style.addRule(selectorText, cssText, position);
 	}
-
+}
+if (debug) {
 	var tableStyles = [
 		["table.etsdebug", 					"width:100%; border-collapse:collapse;table-layout:fixed;"],
 		["table.etsdebug td", 				"border: 1px solid gray;"],
