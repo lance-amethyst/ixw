@@ -1,6 +1,5 @@
 // ets : easy template script
-var ETS = {};
-window.ETS = ETS;
+window.ETS = {};
 ETS.namespace = window["ETS_NS"] || "IX.Tpl";
 ETS.lineDelimiter = "\n";
 var etsParseErros = [];
@@ -124,37 +123,16 @@ function _loadETScriptSource(scriptPath){
 }
 
 var _debugPanel = null;
-function addRule(style, selectorText, cssText, position) {
-	//style标签  选择器   样式   位置 
-	if (style.insertRule) { //chrome | FF |IE9+ 
-		style.insertRule(selectorText + '{' + cssText + '}', position);
-	} else if (style.addRule) { //IE8 IE7 IE6 
-		style.addRule(selectorText, cssText, position);
-	}
-}
-function debugParseScript(ci, i, trtplcode){
-	var _div = document.createElement("table");
-	_div.innerHTML = [
-		"<tr><td>", i+1, 
-		"</td><td class='path'>", ci.path,
-		"</td><td><textarea>", ci.code || ci.source_error,
-		"</textarea></td><td><pre>", (ci.source_code || ci.source_error || "").replace(/</g, "&lt;"),
-		"</pre></td><td><pre>", trtplcode,
-		"</pre></td></tr>"].join("");
-
-	var row = _div.rows[0];
-	_debugPanel.tBodies[0].appendChild(row);
-
-	var txt_s = row.getElementsByTagName("pre");
-
-	var height = Math.max(txt_s[0].scrollHeight, txt_s[1].scrollHeight) + 30;
-	txt_s[0].style.height = height + "px";
-	txt_s[1].style.height = height + "px";
-
-	if (txt_s[0].innerHTML != txt_s[1].innerHTML)
-		row.className += "error";
-}
 if (debug) {
+	function addRule(style, selectorText, cssText, position) {
+		//style标签  选择器   样式   位置 
+		if (style.insertRule) { //chrome | FF |IE9+ 
+			style.insertRule(selectorText + '{' + cssText + '}', position);
+		} else if (style.addRule) { //IE8 IE7 IE6 
+			style.addRule(selectorText, cssText, position);
+		}
+	}
+
 	var tableStyles = [
 		["table.etsdebug", 					"width:100%; border-collapse:collapse;table-layout:fixed;"],
 		["table.etsdebug td", 				"border: 1px solid gray;"],
@@ -193,7 +171,28 @@ if (debug) {
 	].join("");
 	document.body.appendChild(_debugPanel);
 }
+function debugParseScript(ci, i, trtplcode){
+	var _div = document.createElement("table");
+	_div.innerHTML = [
+		"<tr><td>", i+1, 
+		"</td><td class='path'>", ci.path,
+		"</td><td><textarea>", ci.code || ci.source_error,
+		"</textarea></td><td><pre>", (ci.source_code || ci.source_error || "").replace(/</g, "&lt;"),
+		"</pre></td><td><pre>", trtplcode,
+		"</pre></td></tr>"].join("");
 
+	var row = _div.rows[0];
+	_debugPanel.tBodies[0].appendChild(row);
+
+	var txt_s = row.getElementsByTagName("pre");
+
+	var height = Math.max(txt_s[0].scrollHeight, txt_s[1].scrollHeight) + 30;
+	txt_s[0].style.height = height + "px";
+	txt_s[1].style.height = height + "px";
+
+	if (txt_s[0].innerHTML != txt_s[1].innerHTML)
+		row.className += "error";
+}
 function parseScript(ci, i){
 	if (ci.load) 
 		return 0;

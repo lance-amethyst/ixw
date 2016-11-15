@@ -1,6 +1,7 @@
 var util = require('util');
 var fs = require('fs');
 
+var autoConcat = require('./files.js');
 var etsc = require('./_lib/etsc.js');
 var etsRoot = process.cwd() + "/src";
 var lessPath = etsRoot + "/less/";
@@ -57,8 +58,16 @@ module.exports = function(grunt, prjCfg, done){
 			console.error("clean compile ETS failed");
 	});
 
+	grunt.registerTask("autoConcat", "auto concating", function(){
+		autoConcat(prjCfg, this.async());
+	});
+	grunt.registerTask("deploy done", "auto done", function(){
+		console.log("Deploy done");
+	});
+
 	grunt.task.run(["clean:deploy", "compileOEMLess", "less:deploy", "cleanOEMLess",
-		"compileETS", "jshint:files","concat", "jshint:afterconcat", "copy:deploy", 
-		"cleanCompiledETS"]);
+		"compileETS", "jshint:files", "cleanCompiledETS",
+		"autoConcat", //"concat", 
+		"jshint:afterconcat", "copy:deploy", "deploy done"]);
 	done();
 };

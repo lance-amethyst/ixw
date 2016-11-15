@@ -122,9 +122,8 @@ var PagesConfiurations = IX.map([
 	}, item);
 });
 
-IX.ns("{NS}");
 var appInitialized = false;
-{NS}.init = function(){
+IXW.startup(function(){
 	if (appInitialized)
 		return;
 	appInitialized = true;
@@ -139,5 +138,5 @@ var appInitialized = false;
 	ixwSession.load(function(){
 		ixwPages.start();
 	});
-};
+});
 </script>

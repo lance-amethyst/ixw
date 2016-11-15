@@ -35,8 +35,8 @@ IXW.onmousewheel = function(el, fn){
 			fn({dx:0, dy : evt.detail * 10 });
 		}, false);
     el.onmousewheel = function(event) {
-    	var evt = event || window.event;
-    	fn({dx : evt.wheelDeltaX/10, dy : evt.wheelDeltaY/10});
+		var evt = event || window.event;
+		fn({dx : evt.wheelDeltaX/10, dy : evt.wheelDeltaY/10});
     };
 };
 })();

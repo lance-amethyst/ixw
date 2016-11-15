@@ -28,7 +28,7 @@ IXW.ready = function(_fname, fn){
 	});
 };
 
-IXW.openUrl = function openUrl(url) {
+IXW.openUrl = function(url) {
 	window.open(url);
 };
 

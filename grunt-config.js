@@ -37,7 +37,7 @@ module.exports = {
 	concat: {
 		"tmp/ixw.js" : [
 				"_lib/_ixw/base.js","_lib/_ixw/session.js", "_lib/_ixw/engine.js",
-				"_lib/_ixw/pages.js"],
+				"_lib/_ixw/pages.js", "_lib/_ixw/startup.js"],
 		"tmp/ixwui.js" : [
 				"_lib/_ixwui/base.js","_lib/_ixwui/dialog.js", "_lib/_ixwui/sysDialog.js", 
 				"_lib/_ixwui/fileUploader.js","_lib/_ixwui/datepicker.js",
@@ -54,6 +54,7 @@ module.exports = {
 			{expand: true, cwd: '_mapdata/', src: '**', dest: '0/_mapdata'},
 			{expand: true, cwd: '_tasks/', src: '**', dest: '0/_tasks'},
 			{expand: true, cwd: '_bin/tpl/lib/', src: '*.js', dest: '0/_tasks/deploy/_lib'},
+			{expand: true, cwd: '_tpl/src/lib/', src: 'jquery*.js', dest: '0/_tasks/_lib'},
 
 			{expand: true, cwd: '_lib/', src: 'ixwui.less', dest: '0/src/less'}
 		]},
@@ -64,6 +65,7 @@ module.exports = {
 			{expand: true, cwd: '_mapdata/', src: '**', dest: '1/www/_mapdata'},
 			{expand: true, cwd: '_tasks/', src: '**', dest: '1/www/_tasks'},
 			{expand: true, cwd: '_bin/tpl/lib/', src: '*.js', dest: '1/www/_tasks/deploy/_lib'},
+			{expand: true, cwd: '_tpl/src/lib/', src: 'jquery*.js', dest: '1/www/_tasks/_lib'},
 
 			{expand: true, cwd: '_lib/', src: 'ixwui.less', dest: '1/www/src/less'},
 			{expand: true, cwd: '_tasks/_lib/', src: 'ix.js', dest: '1/server/service/util'}

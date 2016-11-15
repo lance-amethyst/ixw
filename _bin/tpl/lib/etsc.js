@@ -6,12 +6,12 @@ var translator = require("./translator.js");
 var TplFileReg = /\.js\.html?$/g;
 
 function _parse_file(filepath, opt) {
-	console.log("parsing file :" + filepath);
+	console.log("try parsing file :" + filepath);
 	var srcPath = filepath.replace(TplFileReg, '.js');
 	if(fs.existsSync(srcPath))
 		fs.unlinkSync(srcPath);
 	if (opt.clean)
-		return;
+		return console.log("clean file :" + srcPath);
 
 	var result = parser.parse(fs.readFileSync(filepath, "utf8"));
 	console.log("translating ... ");
@@ -26,7 +26,7 @@ function _parse_file(filepath, opt) {
 		var isSame = fs.readFileSync(refFilePath, "utf8") == result.code;
 		console.log("Check compiled:" + (isSame?"PASS":"FAIL") + " for " + filepath + "");
 	}
-	console.log("compile done");
+	//console.log("compile done");
 }
 function checkpath(filepath, opt){
 	var file = fs.statSync(filepath);
