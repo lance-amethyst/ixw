@@ -2,17 +2,17 @@
 
 IXW is a set of Web development framework base on IX library.
 
-There are 2 mode for create a new project:
+There are 2 modes for create a new project:
    "pure" -- only Web Frontend 
    "mixed" -- Both Web Frontend and Backend (need supported by shell, backend is based on Node.js)
-Default, "pure" mode is used.
+Normally, "pure" mode is used.
 
 To create a web project, clone this repository in your workspace and do as following:
 
 ##1. run `npm install` to load dependency packages
 ##2. run `node config` to create project configuration file : ixw-config.js;
     also you can create it by modify the template file : config-template.js;
-    Following is an examples :
+    Following is an example :
 
 <pre>
   module.exports = {
