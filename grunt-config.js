@@ -55,6 +55,7 @@ module.exports = {
 			{expand: true, cwd: '_tasks/', src: '**', dest: '0/_tasks'},
 			{expand: true, cwd: '_bin/tpl/lib/', src: '*.js', dest: '0/_tasks/deploy/_lib'},
 
+			{expand: true, cwd: './', src: 'grunt.cmd', dest: '0/'},
 			{expand: true, cwd: '_lib/', src: 'ixwui.less', dest: '0/src/less'}
 		]},
 		mixed: { files: [
@@ -65,6 +66,7 @@ module.exports = {
 			{expand: true, cwd: '_tasks/', src: '**', dest: '1/www/_tasks'},
 			{expand: true, cwd: '_bin/tpl/lib/', src: '*.js', dest: '1/www/_tasks/deploy/_lib'},
 
+			{expand: true, cwd: './', src: 'grunt.cmd', dest: '1/www'},
 			{expand: true, cwd: '_lib/', src: 'ixwui.less', dest: '1/www/src/less'},
 			{expand: true, cwd: '_tasks/_lib/', src: 'ix.js', dest: '1/server/service/util'}
 		]},
