@@ -110,16 +110,24 @@ var PagesConfiurations = IX.map([
 {name: "entry", bodyClz: "entry", needAuth : false}
 ], function(item){
 	var name = item.name;
-	var moduleName = name.split("-")[0];
+	var arr = name.split("-");
+	var moduleName = arr[0];
+	var className = item.type || moduleName.capitalize();
+
+	var _clz = [moduleName];
+	if (item.bodyClz) _clz.push(item.bodyClz);
+
 	return IX.inherit({
-		initiator : [IXW_NS, item.type || moduleName.capitalize(), "init"].join("."),
-		path : name,
+		initiator : [IXW_NS, className, "init"].join("."),
+		path : arr.join("/"),
 
 		nav : "service",
 		navItem : moduleName,
 
 		needAuth : true
-	}, item);
+	}, item, {
+		bodyClz : _clz.join(" ")
+	});
 });
 
 var appInitialized = false;
@@ -127,6 +135,7 @@ IXW.startup(function(){
 	if (appInitialized)
 		return;
 	appInitialized = true;
+
 	ixwPages.listenOnClick(document.body);
 	ixwPages.configPages(PagesConfiurations, function(pageName, pageCfg){
 		return !$XP(pageCfg, "needAuth", true) || ixwSession.isValid();
