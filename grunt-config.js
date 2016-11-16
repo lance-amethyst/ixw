@@ -15,7 +15,6 @@ module.exports = {
 			{src: '_tpl/_www.ixw_config.js', dest: '0/ixw_config.js'},
 			{src: '_tpl/_www.package.json', dest: '0/package.json'},
 
-			{src: '_tpl/_www.src.ixw.index.js.html', dest: '0/src/ixw/index.js.html'},
 			{src: '_tpl/_front.proto.index.htm', dest: '0/proto/index.htm'},
 			{src: '_tpl/_front.proto.dist.index.htm', dest: '0/proto/dist/index.htm'}
 		]},
@@ -27,9 +26,7 @@ module.exports = {
 			{src: '_tpl/_server.service.db.db.sql', dest: '1/server/service/db/db.sql'},
 
 			{src: '_tpl/_www.ixw_config.js', dest: '1/www/ixw_config.js'},
-			{src: '_tpl/_www.package.json', dest: '1/www/package.json'},
-			{src: '_tpl/_www.src.ixw.index.js.html', dest: '1/www/src/ixw/index.js.html'},
-			
+			{src: '_tpl/_www.package.json', dest: '1/www/package.json'},			
 			{src: '_tpl/_www.proto.sim.htm', dest: '1//www/proto/sim.htm'},
 			{src: '_tpl/_www.proto.index.htm', dest: '1/www/proto/index.htm'}
 		]}
