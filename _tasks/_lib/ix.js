@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20160930T145034Z301
+ * Distrib No : 20161116T113021Z683
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -24,7 +24,8 @@ try {
 }catch(ex){}
 var ixGlobal = isInDom?window: global;
 
-IX_GLOBAL = ixGlobal;
+var IX_GLOBAL = ixGlobal;
+IX_GLOBAL.IX_GLOBAL = IX_GLOBAL;
 IX_GLOBAL.IX_DOM_MODE = isInDom;
 
 IX_GLOBAL.IX_VERSION = "1.0";
@@ -1962,11 +1963,11 @@ function chownFileOwner(filePath){
 		childProcess.exec("chown -R " + global.processOwner  + " " + filePath);
 }
 function _safeMkdirSync(_path){
-	var dirs = _path.split("/"), currentDir = "";
+	var dirs = _path.split(path.sep), currentDir = "";
 	dirs.shift();
 	try {
 		dirs.forEach(function(dir){
-			currentDir = currentDir + "/"  + dir;
+			currentDir = currentDir + path.sep  + dir;
 			if (!fs.existsSync(currentDir))		
 				fs.mkdirSync(currentDir, 0755);
 		});
@@ -1975,7 +1976,7 @@ function _safeMkdirSync(_path){
 	}
 }
 function saveFileIfNotExist(filePath, filename, fileData, cbFn){
-	var fileName = filePath + "/" +filename;	
+	var fileName = filePath + path.sep +filename;
 	if (fs.existsSync(fileName))
 		return cbFn(new Error("File existed: " + fileName), fileName);
 
@@ -1993,8 +1994,8 @@ function saveFileIfNotExist(filePath, filename, fileData, cbFn){
 	});
 }
 function safeChkFileSync(dir, subdir, filename){
-	var filePath = dir + "/" + subdir; 
-	var fileName = filePath + "/" + filename;
+	var filePath = dir + path.sep + subdir;
+	var fileName = filePath + path.sep + filename;
 	if (debugIsAllow("file"))
 		IX.log("safeChkFileSync  " +  fileName);
 	if (fs.existsSync(fileName))
@@ -2039,7 +2040,7 @@ function iterDirSync(rootPath, filePath, iterFn){
 	var file = fs.statSync(_path);
 	if (file.isDirectory())
 		(fs.readdirSync(_path) || []).forEach(function(fname){
-			iterDirSync(rootPath, filePath + "/" + fname, iterFn);
+			iterDirSync(rootPath, filePath + path.sep + fname, iterFn);
 		}); 
 	else if(file.isFile())
 		iterFn(filePath, _path);
@@ -2064,7 +2065,7 @@ function setLogPath(logPath, filename) {
 		return;
 	if (!fs.existsSync(logPath))
 		_safeMkdirSync(logPath);
-	logFile = logPath + "/" + filename;
+	logFile = logPath + path.sep + filename;
 	try{
 		fs.appendFileSync(logFile + '.log', "\n");	
 		console.log("success set log path : " + logFile);

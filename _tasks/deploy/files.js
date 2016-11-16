@@ -8,6 +8,12 @@ var translator = require("./_lib/translator.js");
 var jsdom = require('jsdom');
 
 function isEmpty(s){return s === "" || s === undefined || s === null;}
+var IXJsPath = pathApi.normalize("src/lib/ix.js"),
+	GlobalJsPath = pathApi.normalize("proto/global.js"),
+	GlobalDistJsPath = pathApi.normalize("proto/dist/global.js"),
+	SimDirPath =  pathApi.normalize("sim/"),
+	ETSJsPath =  pathApi.normalize("src/lib/ets.js"),
+	JQueryJSPath = pathApi.normalize("_lib/jquery-2.1.1.js");
 function parse(basedir, fname, options, cbFn){
 	var ixwFiles = [],
 		pkgFiles = [];
@@ -31,15 +37,15 @@ function parse(basedir, fname, options, cbFn){
 		}
 		if (isEmpty(path))
 			return;
-		var path1 = pathApi.normalize(filedir + "/" + path);
+		var path1 = pathApi.join(filedir, path);
 
-		if (path1.indexOf("src/lib/ix.js")>=0)
+		if (path1.indexOf(IXJsPath)>=0)
 			srcType = "ixw";
-		else if (path1.indexOf("proto/global.js")>=0 || path1.indexOf("proto/dist/global.js")>=0)
+		else if (path1.indexOf(GlobalJsPath)>=0 || path1.indexOf(GlobalDistJsPath)>=0)
 			srcType = "sim";
-		else if (srcType == "sim" && path1.indexOf("sim/")<0)
+		else if (srcType == "sim" && path1.indexOf(SimDirPath)<0)
 			srcType = "pkg";
-		else if (path1.indexOf("src/lib/ets.js")>=0)
+		else if (path1.indexOf(ETSJsPath)>=0)
 			srcType = "end";
 
 		if (tag.hasAttribute("undeploy")){
@@ -56,18 +62,18 @@ function parse(basedir, fname, options, cbFn){
 			pkgFiles.push(path1);
 			return;
 		}
-		if (path.indexOf("_lib/jquery-2.1.1.js")<0)
+		if (path.indexOf(JQueryJSPath)<0)
 			dumpMsg.push("[DISCARD ]" + path);
 	}
 	function dumpInfo(){
 		dumpMsg.push("concat to ixw.js: " + ixwFiles.length + " files");
 		dumpMsg.push("concat to " + pkgJs + ": " + pkgFiles.length + " files");
-		fs.writeFileSync(basedir + "/autoconcat.inf", dumpMsg.join("\n"));
+		fs.writeFileSync(pathApi.join(basedir, "autoconcat.inf"), dumpMsg.join("\n"));
 	}
 
 	jsdom.env(
 		fs.readFileSync(filepath, "utf8"),
-		[basedir + "/_tasks/_lib/jquery-2.1.1.js"],
+		[pathApi.join(basedir, "/_tasks/_lib/jquery-2.1.1.js")],
 		function (err, w) {
 			w.$('link,script').each(function(){
 				iterateTag(this);
@@ -115,10 +121,10 @@ function doConcat(basedir, destPath, srcFiles, opt){
 function autoConcat(basedir, entryFile, destPath, options, cbFn){
 	parse(basedir, entryFile, options, function(ixwFiles, pkgFiles){
 		var opt = {nsName : options.namespace + ".Tpl"};
-		doConcat(basedir, destPath + "js/ixw.js", ixwFiles, opt);
-		doConcat(basedir, destPath + "js/" + options.name + ".js", pkgFiles, opt);
+		doConcat(basedir, pathApi.join(destPath, "js", "ixw.js"), ixwFiles, opt);
+		doConcat(basedir, pathApi.join(destPath, "js", options.name + ".js"), pkgFiles, opt);
 
-		console.log("Detail for auto-concating can be seen in file: " + basedir + "/autoconcat.inf");
+		console.log("Detail for auto-concating can be seen in file: " + pathApi.join(basedir, "autoconcat.inf"));
 		cbFn();
 	});
 }
@@ -127,7 +133,7 @@ module.exports = function(cfg, done){
 	autoConcat(process.cwd(), cfg.deploy.file, cfg.deploy.dest, cfg, done);
 };
 
-// autoConcat("/data/share/github/dog", "proto/index.htm", "_dist/", {
+// autoConcat("e://proList//dog", "proto/index.htm", "_dist/", {
 // 	name : "dog",
 // 	namespace : "DOG"
 // }, function(){});
