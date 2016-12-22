@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20160930T145034Z301
+ * Distrib No : 20161222T144000Z613
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -24,7 +24,8 @@ try {
 }catch(ex){}
 var ixGlobal = isInDom?window: global;
 
-IX_GLOBAL = ixGlobal;
+var IX_GLOBAL = ixGlobal;
+IX_GLOBAL.IX_GLOBAL = IX_GLOBAL;
 IX_GLOBAL.IX_DOM_MODE = isInDom;
 
 IX_GLOBAL.IX_VERSION = "1.0";
@@ -1405,15 +1406,27 @@ function formatNumber(v, len){
 	return markNumber(Math.floor(v * f) / f);
 }
 
+/* 
+	Used for Axis mark:
+	getYAxisMax(1234, 5) ==> 1500, //[0, 300,600,900,1200,1500]
+	getYAxisMax(234.6, 6) ==> 240, //[0, 40,80,120,160,200,240]
+ */ 
+function getYAxisMax(v, n){
+	var k = Math.floor(v / n);
+	var t = Math.pow(10, Math.floor(Math.log10(k)));
+	var p = Math.floor(k / t)+1;
+	return p * t * n;
+}
+
 IX.ns("IX.Math");
 IX.Math.markNumber = markNumber;
 IX.Math.formatNumber = formatNumber;
+IX.Math.getYAxisMax = getYAxisMax;
 
 /** v: 1.031145 ==> 103.11 */
 IX.Math.getPercentage = function (v){
 	return formatNumber(v*100, 2);
 };
-
 })();
 (function(){
 /**
