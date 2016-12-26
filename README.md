@@ -1,6 +1,6 @@
 # IXW project
 
-IXW is a set of Web development framework base on IX library. About how it works, see <a href="doc/idea.md">The idea of IXW</a> for more detail(Sorry, only Chinese language).
+IXW is a set of Web development framework base on <a href="https://github.com/lance-amethyst/IX">IX library</a>. About how it works, see <a href="doc/idea.md">the idea of IXW</a> for more detail(Sorry, only Chinese language).
 
 There are 2 modes for create a new project:
    "pure" -- only Web Frontend 
