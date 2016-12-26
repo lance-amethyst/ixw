@@ -1,6 +1,6 @@
 # IXW project
 
-IXW is a set of Web development framework base on IX library.
+IXW is a set of Web development framework base on IX library. About how it works, see <a href="doc/idea.md">The idea of IXW</a> for more detail(Sorry, only Chinese language).
 
 There are 2 modes for create a new project:
    "pure" -- only Web Frontend 
@@ -30,8 +30,10 @@ To create a web project, clone this repository in your workspace and do as follo
   };
 </pre>
 
-##3. run `grunt` to create the project. Also your can run `grunt pure` or `grunt mixed` to create with specified mode. 
+##3. run `grunt` to create the project.
+Also your can run `grunt pure` or `grunt mixed` to create with specified mode. 
 
+##4. after created, refer the <a href="doc/architecture.md">development statements</a> to know how to develop on it.
 
 
 

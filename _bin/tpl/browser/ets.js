@@ -1,7 +1,7 @@
 // ets : easy template script
 window.ETS = {};
 var ETS = window.ETS;
-ETS.namespace = window["ETS_NS"] || "IX.Tpl";
+ETS.namespace = window["IXW_NS"] + ".Tpl";
 ETS.lineDelimiter = "\n";
 var etsParseErros = [];
 ETS.parseErrors = etsParseErros;
