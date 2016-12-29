@@ -276,8 +276,8 @@ pageConfigs : [{
 	isDefault : true/, default false
 	bodyClz : "minor projectPage projectConfigPage",
 	nav : "String" or function navRefresh(){}
-	...
 	[user-defined page config :]
+	navItem : "string"
 	needAuth : true/false
 	}]
 pageAuthCheckFn :function(name, cfg)
@@ -288,7 +288,7 @@ IXW.Pages.configPages = function(pageConfigs, pageAuthCheckFn){
 	if (IX.isFn(pageAuthCheckFn))
 		pageHelper.init(pageAuthCheckFn); 
 };
-IXW.Pages.createPath = getPathByName;	
+IXW.Pages.createPath = getPathByName;
 IXW.Pages.start = pageHelper.start;
 IXW.Pages.load = pageHelper.load;
 IXW.Pages.reload = pageHelper.reload;

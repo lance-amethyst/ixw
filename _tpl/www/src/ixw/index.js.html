@@ -115,13 +115,13 @@ var PagesConfiurations = IX.map([
 	var name = item.name;
 	var arr = name.split("-");
 	var moduleName = arr[0];
-	var className = item.type || moduleName.capitalize();
+	var subNS = item.type || moduleName.capitalize();
 
 	var _clz = [moduleName];
 	if (item.bodyClz) _clz.push(item.bodyClz);
 
 	return IX.inherit({
-		initiator : [IXW_NS, className, "init"].join("."),
+		initiator : [IXW_NS, subNS, "init"].join("."),
 		path : arr.join("/"),
 
 		nav : "service",
