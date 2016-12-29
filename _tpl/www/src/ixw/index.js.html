@@ -57,7 +57,7 @@ function NavManager(focusedNavName){
 		$XH.addClass(el, "active");
 	}
 	function getTpldata(){
-		var sessionMgr = ixwSession.get();
+		//var sessionMgr = ixwSession.get();
 		return IX.loop(NavItems, [], function(acc, item){
 			var name = item[0];
 			//if (/*name == "home" ||*/ sessionMgr.checkIfModuleEnabled(name))
@@ -71,6 +71,9 @@ function NavManager(focusedNavName){
 	};
 }
 var navMgr = new NavManager();
+ixwNavs.register("service", function(cfg){
+	if($XP(cfg, "needAuth", true)) navMgr.focus(cfg.navItem || "");
+});
 
 ixwSession.config({
 	load: function(cbFn) {
@@ -130,6 +133,10 @@ var PagesConfiurations = IX.map([
 	});
 });
 
+ixwPages.configPages(PagesConfiurations, function(pageName, pageCfg){
+	return !$XP(pageCfg, "needAuth", true) || ixwSession.isValid();
+});
+
 var appInitialized = false;
 IXW.startup(function(){
 	if (appInitialized)
@@ -137,13 +144,6 @@ IXW.startup(function(){
 	appInitialized = true;
 
 	ixwPages.listenOnClick(document.body);
-	ixwPages.configPages(PagesConfiurations, function(pageName, pageCfg){
-		return !$XP(pageCfg, "needAuth", true) || ixwSession.isValid();
-	});
-
-	ixwNavs.register("service", function(cfg){
-		if($XP(cfg, "needAuth", true)) navMgr.focus(cfg.navItem || "");
-	});
 	ixwSession.load(function(){
 		ixwPages.start();
 	});
