@@ -11,7 +11,7 @@ To create a web project, clone this repository in your workspace and do as follo
 
 ##1. run `npm install` to load dependency packages
 ##2. run `node config` to create project configuration file : ixw-config.js;
-    also you can create it by modify the template file : config-template.js;
+    also you can create it by modify the template file : config-template.js; 
     Following is an example :
 
 <pre>
