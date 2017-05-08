@@ -77,7 +77,7 @@ IXW框架的基本思路是配置化和自动化，不希望开发者在一些�
 		return !$XP(pageCfg, "needAuth", true) || ixwSession.isValid();
 	});
 
-此函数的具体参数说明参见参见对`src/lib/ixw.js`中IXW.Pages.configPages的描述:
+此函数的具体参数说明可以看`src/lib/ixw.js`中IXW.Pages.configPages的描述:
 
 	/**  
 	pageConfigs : [{
@@ -88,7 +88,6 @@ IXW框架的基本思路是配置化和自动化，不希望开发者在一些�
 		isDefault : true/, default false //是否缺省页面，只能有一个为true
 		bodyClz : "minor projectPage projectConfigPage",//页面对应的整体样式
 		nav : "String" or function navRefresh(){} // 对应的导航管理入口或者函数
-		...
 		[user-defined page config :] //用户可自行扩充属性，下面是推荐项
 		navItem :  //导航菜单名称
 		needAuth : true/false  //是否需要Session支持
@@ -98,7 +97,7 @@ IXW框架的基本思路是配置化和自动化，不希望开发者在一些�
 	*/
 	IXW.Pages.configPages = function(pageConfigs, pageAuthCheckFn){...}
 
-关于第一个参数的实例，可以参考`src/ixw/index.js.html`中的PagesConfiurations声明；需要注意的是：<b>navItem一般和name保持一致，并且必须在导航管理中明确被处理</b>
+关于第一个参数的示例，可以参考`src/ixw/index.js.html`中的PagesConfiurations声明；需要注意的是：<b>navItem一般和name保持一致，并且必须在导航管理中明确被处理</b>
 
 页面管理IXW.Pages还包含如下接口：
 
@@ -116,10 +115,10 @@ IXW框架的基本思路是配置化和自动化，不希望开发者在一些�
 	listenOnClick ：对制定标签下的所有DOM绑定点击操作，使用常规动作监听。
 	bindOnInput ：对特定的INPUT标签绑定事件，避免重复绑定
 	
-其实，常用的是createPath，start，load, listenOnClick函数，其他用的不多。
+常用的一般是createPath，start，load, listenOnClick函数，其他用的不多。
 
 ### 2.1.5 应用startup
-IXW还实现了应用的自动加载(IXW.startup)，需要开发者做的：声明在启动该干些什么。下面是示例：
+IXW还实现了应用的自动加载(IXW.startup)，需要开发者做的：声明在启动时该干些什么。下面是示例：
 	
 	var appInitialized = false;
 	IXW.startup(function(){
@@ -133,13 +132,64 @@ IXW还实现了应用的自动加载(IXW.startup)，需要开发者做的：声�
 		});
 	});
 
-如上，简单的来看就三个事：监听常规点击操作，加载Session，刷新当前页面
+如上，简单的来看就三件事：监听常规点击操作，加载Session，刷新当前页面
 
 ## 2.2 页面开发
+页面的开发，其实很简单，`src/ixw/m1/index.js.html`已经完整的示例了在IXW框架下如何进行页面开发。其中的关键代码如下：
 
+	var nsModule = IXW.ns("ModuleA");
+	nsModule.init = function(pageCfg, pageParams, cbFn){
+		...
+		$X('body').innerHTML = t_info.renderData("", {
+			info : ["pageCfg", JSON.stringify(pageCfg), "", 
+					"pageParams:",JSON.stringify(pageParams), "",
+					"result", JSON.stringify(data)].join("\n")
+		});
+		cbFn();
+		...
+	};
+
+`ModuleA`对应的就是前面在2.1.4页面配置中描述的initiator对应的命名空间。函数参数中:
+
+	pageCfg : 对应页面注册时的页面配置信息
+	pageParams : 页面被加载时对应的页面参数，主要是页面路径经过模式匹配后的提取的参数
+	cbFn：在页面被初始化完成之后，回调给页面管理引擎的通知函数
+	
+特别得，在页面初始化函数里，可以对pageCfg附加switchOut函数。该函数可以在页面切换出来之前，被引擎调用，做一些清理工作，避免一些遗留得内容导致内存泄漏，重复监听等事宜。该函数得接口如下：
+
+	pageCfg.switchOut = function(currentPageContext, nextPageContext){}
 
 ## 2.3 组件开发
+组件的开发在IXW框架里没有做明确的规范，这里简单说一下。IXW中的组件一般分为两类：外部组件和项目内组件。
+	
+	外部组件：对于如何定义，IXW框架基本没有约束；更多的是开发人员之间互相之间的约定和默契，建议通过IX.ns定义独立的命名空间管理这些组件，而且一般将之置于src下的特定目录中。
+	项目内组件：将组件代码文件置于src/ixw下的特定目录中，通过IXW.ns规范其命名空间。
+	
+无论外部组件，还是项目内组件，建议如下的方式定义和声明组件：
 
+	IX.ns('IXW.LibD3');
+	var nsD3 = IXW.LibD3;
+	/** 在指定显示区域viewbox内显示棱柱/棱锥/棱台
+		viewbox : [x,y,w,h]
+		options : {
+			type : "prism" / "pyramid" / "truncated", 缺省: prism
+			schemes : 棱柱配色集,参考DefPolygonSchemes
+			max : 最大显示数值 必须为正数
+			value : 当前显示数值
+			baseH : 最小柱体高度，即当前数值为0时高度
+			showAvail : 是否显示剩余数值的柱体
+			useBubbles : 是否使用bubbles组件,
+			density : 每秒释放的气泡数量
+		}
+		return {
+			setValue : function(v)
+			setVisible : function(visible)
+			hover : function(overFn, outFn)
+		}
+	 */
+	nsD3.createFrustum = function(svg, viewbox, options){
+		...
+	};	
  
  
 # 3. 常规动作监听
