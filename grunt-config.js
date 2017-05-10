@@ -34,7 +34,8 @@ module.exports = {
 	concat: {
 		"tmp/ixw.js" : [
 				"_lib/_ixw/base.js", "_lib/_ixw/session.js", "_lib/_ixw/engine.js",
-				"_lib/_ixw/pages.js","_lib/_ixw/pubsub.js", "_lib/_ixw/startup.js"],
+				"_lib/_ixw/pages.js", "_lib/_ixw/pubsub.js", "_lib/_ixw/message.js", 
+				"_lib/_ixw/startup.js"],
 		"tmp/ixwui.js" : [
 				"_lib/_ixwui/base.js","_lib/_ixwui/dialog.js", "_lib/_ixwui/sysDialog.js", 
 				"_lib/_ixwui/fileUploader.js","_lib/_ixwui/datepicker.js",
