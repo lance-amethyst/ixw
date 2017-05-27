@@ -55,8 +55,7 @@ function Wrapper(container, graphClz, options){
 
 	function _resize(){
 		var w = container.offsetWidth, h = container.offsetHeight;
-		var halfW = w/2, halfH = h/2;
-		var vb = viewbox || [0-halfW, 0-halfH, halfW, halfH];
+		var vb = viewbox || [0 - w / 2, 0 - h / 2, w, h];
 		
 		viewbox = calcFn(w, h, ratio, minAreaW, minAreaH);
 		baseX = viewbox[0]; baseY = viewbox[1];
@@ -71,6 +70,12 @@ function Wrapper(container, graphClz, options){
 		resize: _resize,
 		move : function(_dx, _dy){
 			dx += _dx; dy += _dy;
+			viewbox[0] = baseX + dx; viewbox[1] = baseY + dy;
+			svg.attr("viewBox", viewbox.join(" "));
+		},
+		getCenter: function(){return [dx, dy]; },
+		setCenter: function(xy){
+			dx = xy[0]; dy = xy[1];
 			viewbox[0] = baseX + dx; viewbox[1] = baseY + dy;
 			svg.attr("viewBox", viewbox.join(" "));
 		},
