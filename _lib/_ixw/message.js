@@ -16,7 +16,7 @@ IXW.listenOnMessage = function(name, fn){
 };
 IXW.postMessage = function(acceptor, name, message){
 	var w = acceptor || window;
-	console.log("IXW:", w);
+	// console.log("IXW:", w, name, message);
 	w.postMessage({
 		name: name,
 		message: message

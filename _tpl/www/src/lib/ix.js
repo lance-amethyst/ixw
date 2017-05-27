@@ -1,7 +1,7 @@
 /*
  * IX project 
  * https://github.com/lance-amethyst/IX
- * Distrib No : 20161222T144000Z613
+ * Distrib No : 20170527T154314Z654
  *
  * Copyright (c) 2015 Lance GE, contributors
  * Licensed under the MIT license.
@@ -1411,9 +1411,11 @@ function formatNumber(v, len){
 	getYAxisMax(1234, 5) ==> 1500, //[0, 300,600,900,1200,1500]
 	getYAxisMax(234.6, 6) ==> 240, //[0, 40,80,120,160,200,240]
  */ 
+var LOG10 = Math.log(10);
 function getYAxisMax(v, n){
 	var k = Math.floor(v / n);
-	var t = Math.pow(10, Math.floor(Math.log10(k)));
+	var r = Math.log10 ? Math.log10(k) : (Math.log(k) / LOG10);
+	var t = Math.pow(10, Math.round(r));
 	var p = Math.floor(k / t)+1;
 	return p * t * n;
 }
@@ -1421,6 +1423,7 @@ function getYAxisMax(v, n){
 IX.ns("IX.Math");
 IX.Math.markNumber = markNumber;
 IX.Math.formatNumber = formatNumber;
+IX.Math.formatMaxValue = getYAxisMax;
 IX.Math.getYAxisMax = getYAxisMax;
 
 /** v: 1.031145 ==> 103.11 */
@@ -1983,6 +1986,7 @@ $Xc = IX.Cookie;
 
 	bind(el, handlers) : bind event handler on el
 	unbind(el, handlers) : remove event handler on el
+	listen(el, evtName, handler) : bind evt handler on el, and return remove method to unbind;
 	
 	getComputedStyle(el) : get the computed style after render in browser;
 	decodeTXT(txt) : decode from encoded text,
@@ -2168,6 +2172,14 @@ function EventBindManager(){
 		unbind : _unbind
 	};
 }
+
+function listenEvt(el, eName, fn){
+	ix_attachEvent(el, eName, fn);
+	return {
+		remove : function(){ix_detachEvent(el, eName, fn);}
+	};
+}
+
 var DOM_EventList = [
 	"click", "dblclick", "focus", "blur", 
 	"keyup", "keydown", "keypress",
@@ -2188,6 +2200,7 @@ function _bindHandlers(el, handlers, isUnbind){
 IX.extend(IX, {
 	bind : function(el, handlers) {_bindHandlers(el, handlers);},		
 	unbind : function(el, handlers) {_bindHandlers(el, handlers, true);},
+	listen : listenEvt,
 	
 	getComputedStyle : $XP(document, "defaultView.getComputedStyle")? function(el){
 		return document.defaultView.getComputedStyle(el);
@@ -2263,6 +2276,7 @@ IX.win =  {
 
 	bind : function(handlers){_winBindHandlers(handlers);},
 	unbind : function(handlerIds){_winBindHandlers(handlerIds, true);},
+	listen : function(eName, fn){return listenEvt(window, eName, fn);},
 	scrollTo : function(x,y){
 		window.scrollTo(x, y);
 		winBindMgr.exec("scroll", null);

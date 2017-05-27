@@ -12,7 +12,7 @@ IXW.publish = function (evtname, params) {
 	});
 };
 IXW.subscribe = function (evtname, fn) {
-	var key = evtname + (new Date()).getTime();
+	var key = evtname + IX.UUID.generate();
 
 	fnHT[key] = fn;
 	evtHT.put(evtname, key);
