@@ -81,12 +81,14 @@ function calcFacesTemplate(viewbox, schemes, numOfSegments){
 
 	var baseMatrix = ["translate(", dx0, ",YPOS) scale(", ratio*schemesMagicNumber, ")"].join("");
 	function getBaseFace(segIdx, isBot){
+		var clz = isBot ? "f-bot" : "f-top";
 		return {
+			clz: clz,
 			width : schemesRect[0],
 			height: schemesRect[1],
-			imgUrl : getSchemeByName(segIdx, isBot ? "f-bot" : "f-top"),
+			imgUrl : getSchemeByName(segIdx, clz),
 			getTransMatrix : function(h0, h1){
-				return baseMatrix.replace("YPOS", dy0 - (isBot?h0:h1));
+				return baseMatrix.replace("YPOS", dy0 - (isBot ? h0 : h1));
 			}
 		};
 	}
@@ -99,6 +101,7 @@ function calcFacesTemplate(viewbox, schemes, numOfSegments){
 		var pt1 = polygon[idx], pt2 = polygon[nextIdx];
 		var matrix = [(pt1[0] - pt2[0])/w, (pt1[1] - pt2[1])/w, 0, 1, pt2[0], 0];
 		return {
+			clz: "f-side",
 			width : w,
 			height: h,
 			imgUrl : faceItem,
@@ -166,12 +169,11 @@ function FrustumBaseModel(viewbox, options){
 	}
 	_calc([]);
 	return {
-		getArea : function(){return base.polygon;},
-		getDesity : function(){return density;},
-		getHeight : function(){return height;},
-
-		getData : function(){return data;},
-		getViewbox : function(){return viewbox;},
+		getArea : function(){ return base.polygon; },
+		getDesity : function(){ return density; },
+		getHeight : function(){ return height; },
+		getData : function(){ return data; },
+		getViewbox : function(){ return viewbox; },
 		setValue : function(value){
 			_calc((numOfSegments === 1 && !isNaN(value)) ? [].concat(value) : value);
 			return data;
@@ -182,10 +184,11 @@ function FrustumBaseModel(viewbox, options){
 function FrustumBaseView(gEl, model){
 	var facesEl = gEl.selectAll("image").data(model.getData());
 	facesEl.enter().append("image")
-			.attr("width", function(dd){return dd.width;})
-			.attr("height",  function(dd){return dd.height;})
-			.attr("xlink:href", function(dd){return dd.imgUrl;})
-			.attr("transform", function(dd){return dd.transform;});	
+			.attr("class",  function(dd){ return dd.clz; })
+			.attr("width", function(dd){ return dd.width; })
+			.attr("height",  function(dd){ return dd.height; })
+			.attr("xlink:href", function(dd){ return dd.imgUrl; })
+			.attr("transform", function(dd){ return dd.transform; });
 
 	return {
 		setValue : function setValue(v){
@@ -198,6 +201,7 @@ function FrustumBaseView(gEl, model){
 function FrustumView(svg, viewbox, options){
 	var model = new FrustumBaseModel(viewbox, options);
 	var values = options.value || [];
+	var disableDefaultHover = !!options.disableDefaultHover;
 
 	var useBubbles = $XP(options, "useBubbles");
 	var workerId = null;
@@ -207,19 +211,25 @@ function FrustumView(svg, viewbox, options){
 	var scaleMatrix = [
 		"translate(", (viewbox[0] + 0.1*viewbox[2]), ",", (viewbox[1]+0.1*viewbox[3]), ")",
 		" scale(0.8,0.9) translate(-", viewbox[0], ",-", viewbox[1], ")"].join("");
+	function hover(isOn){
+		if (disableDefaultHover)
+			return;
+		var matrix = isOn ? scaleMatrix : "";
+		gEl.attr("transform", matrix);
+		if (bubbleEl) bubbleEl.attr("transform", matrix);
+	}
 	var mouseoverFn = IX.emptyFn, mouseoutFn = IX.emptyFn;
-	gEl.on("mouseover", function(){
-		gEl.attr("transform", scaleMatrix);
-		if (bubbleEl) bubbleEl.attr("transform", scaleMatrix);
-		mouseoverFn();
-	}).on("mouseout", function(){
-		gEl.attr("transform", "");
-		if (bubbleEl) bubbleEl.attr("transform", "");
-		mouseoutFn();
+	gEl.on("mouseover", function(data){
+		hover(true);
+		mouseoverFn(this,data);
+	}).on("mouseout", function(data){
+		hover(false);
+		mouseoutFn(this,data);
 	});
 
 	var view = new FrustumBaseView(gEl, model);
 	view.setValue(values);
+
 	if (useBubbles)
 		registerBubbleWorker(bubbleEl, model, model.getHeight(), function(_id){
 			workerId = _id;

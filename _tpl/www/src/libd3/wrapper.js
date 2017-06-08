@@ -55,7 +55,7 @@ function Wrapper(container, graphClz, options){
 
 	function _resize(){
 		var w = container.offsetWidth, h = container.offsetHeight;
-		var vb = viewbox || [0 - w / 2, 0 - h / 2, w, h];
+		var vb = viewbox || calcFn(w, h, ratio, minAreaW, minAreaH); //[0 - w / 2, 0 - h / 2, w, h];
 		
 		viewbox = calcFn(w, h, ratio, minAreaW, minAreaH);
 		baseX = viewbox[0]; baseY = viewbox[1];
