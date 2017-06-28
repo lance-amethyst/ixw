@@ -51,7 +51,7 @@ function DefPolygonSchemes(){
 		sideRect : SideRect,
 		getSchemeByName : function(segIdx, name){
 			var arr = name.split("-"), _name = name;
-			var _schemes = schemes[1-segIdx % 2];
+			var _schemes = schemes[1 - segIdx % 2];
 			while(arr.length>=1){
 				if (_name in _schemes) return _schemes[_name];
 				arr.pop();
@@ -210,7 +210,7 @@ function FrustumView(svg, viewbox, options){
 	var gEl = svg.append('g').attr("class", "prism");
 	var scaleMatrix = [
 		"translate(", (viewbox[0] + 0.1*viewbox[2]), ",", (viewbox[1]+0.1*viewbox[3]), ")",
-		" scale(0.8,0.9) translate(-", viewbox[0], ",-", viewbox[1], ")"].join("");
+		" scale(0.8,0.9) translate(", 0 - viewbox[0], ",", 0 - viewbox[1], ")"].join("");
 	function hover(isOn){
 		if (disableDefaultHover)
 			return;
