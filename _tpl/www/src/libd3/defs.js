@@ -12,19 +12,27 @@ function getDefSvg(){
 
 IX.ns('IXW.LibD3');
 var nsD3 = IXW.LibD3;
+function load(svg){
+	var dummy = document.createElement('div');
+		dummy.innerHTML = '<svg>' + currentDefsHTML + '</svg>';
+	var svgChildNodes = dummy.childNodes[0].childNodes;
+	while(svgChildNodes.length){
+		svg.node(0).appendChild(svgChildNodes[0]);
+	}
+}
 nsD3.loadDefs = function(defsUrl){
 	if (defsUrl in defsHT)
 		return;
 	d3.text(defsUrl, function(xml){
 		defsHT[defsUrl] = true;
-		var svg = getDefSvg();
 		currentDefsHTML += xml;
-		svg.html(currentDefsHTML);
+		load(getDefSvg());
 	});
 };
 nsD3.restoreDefs = function(){
 	var svg = getDefSvg();
-	svg.html(currentDefsHTML);
+	svg.selectAll("*").remove();
+	load(svg);
 };
 nsD3.getSelfDefinedDefs = function(key){
 	var svg = getDefSvg();

@@ -121,6 +121,8 @@ function checkPageConfigs(pageConfigs, done){
 			_detect(_name, _pageInit);
 		else if (!IX.isFn(_pageInit))
 			IXW.alert("Configuration : error page initiator for " + _name);
+		else
+			cfg.init = _pageInit;
 	});
 	fnames = IX.Array.toSet(fnames);		
 	IX.checkReady(function(){
