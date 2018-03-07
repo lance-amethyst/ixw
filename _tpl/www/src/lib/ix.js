@@ -2161,7 +2161,7 @@ function EventBindManager(){
 			return;
 		var ehKey = evtKeys.id + "." + evtName;
 		ht.remove(ehKey, handler);
-		if (!ht.isEmpty(ehKey)){
+		if (!ht.hasValue(ehKey)){
 			ix_detachEvent(el, evtName, evtKeys[evtName]);
 			evtKeys[evtName] = null;
 		}
