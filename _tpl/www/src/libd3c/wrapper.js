@@ -36,8 +36,10 @@ function Wrapper(container, graphClz, options){
 
 	var calcFn = $XP(options, "calcViewbox", commonCalcViewbox);	
 
-	container.innerHTML = '<canvas style="width:100%;height:100%;"></canvas>';
-	var canvas = $XD.first(container, "canvas");
+	var canvasEl = d3.select(container).append("canvas")
+			.style("width", "100%")
+			.style("height", "100%");
+	var canvas = canvasEl.node();
 	var ctx = canvas.getContext("2d");
 
 	var _graph = graphClz(ctx, canvas);
