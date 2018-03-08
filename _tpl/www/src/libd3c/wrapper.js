@@ -3,22 +3,10 @@ IX.ns('IXW.LibD3');
 var nsD3 = IXW.LibD3;
 var commonCalcViewbox =  nsD3.commonCalcViewbox;
 
-function getAttrTween(vb, viewbox){
-	var vb0 = viewbox[0] - vb[0],
-		vb1 = viewbox[1] - vb[1],
-		vb2 = viewbox[2] - vb[2],
-		vb3 = viewbox[3] - vb[3];
-	return function(){
-		return function(t){ return [
-			vb[0] + t*vb0, 
-			vb[1] + t*vb1, 
-			vb[2] + t*vb2, 
-			vb[3] + t*vb3, 
-		].join(" ");};
-	};
-}
-/** graphClz : function(svg){ // svg = d3.select('SVG')
+/** graphClz : function(ctx, canvasEl){ // ctx = canvas.context
 		return {
+			paint: function()
+			pickAt: function(x, y){retun node;} // 判断(x, y)是否对应某个目标
 			resize : function(visibleW, visibleH)
 			scale : function(r)
 		}
@@ -26,14 +14,15 @@ function getAttrTween(vb, viewbox){
 
 	options : {
 		minVisibleArea : [], //optional, [minWidth, minHeight]
-		calViewbox : function(
+		calcViewbox : function(
 				viewportAreaW, viewportAreaH,
 				ratio, 
 				minVisibleAreaW, minVisibleAreaH) {
 			return [viewboxX, viewboxY, viewboxW, viewboxH];
 		}
 	}
-	return IX.inherit(graph(svg), {
+	return IX.inherit(graph(ctx), {
+		paint : function()
 		resize : function()
 		move : function(dx, dy)
 		scale : function(r)
@@ -47,9 +36,25 @@ function Wrapper(container, graphClz, options){
 
 	var calcFn = $XP(options, "calcViewbox", commonCalcViewbox);	
 
-	container.innerHTML = "";
-	var svg = d3.select(container).append("svg");
-	var _graph = graphClz(svg);
+	container.innerHTML = '<canvas style="width:100%;height:100%;"></canvas>';
+	var canvas = $XD.first(container, "canvas");
+	var ctx = canvas.getContext("2d");
+
+	var _graph = graphClz(ctx, canvas);
+
+	function _paint(){
+		var width = viewbox[2], height = viewbox[3];
+
+		canvas.width=width;
+		canvas.height=height;
+		ctx.clearRect(0 - dx, 0 - dy, width, height);
+		ctx.save();
+		ctx.translate(width / 2 - dx, height / 2 - dy);
+
+		_graph.paint();
+
+		ctx.restore();
+	}
 
 	function _resize(){
 		var w = container.offsetWidth, h = container.offsetHeight;
@@ -58,24 +63,31 @@ function Wrapper(container, graphClz, options){
 		viewbox = calcFn(w, h, ratio, minAreaW, minAreaH);
 		baseX = viewbox[0]; baseY = viewbox[1];
 		viewbox[0] = baseX + dx; viewbox[1] = baseY + dy;
-		svg.transition().duration(1000).attr("width", w).attr("height", h)
-				.attrTween("viewBox", getAttrTween(vb, viewbox));
 
 		_graph.resize(viewbox[2], viewbox[3]);
+
+		_paint();
 	}
 	_resize();
+
 	return IX.inherit(_graph, {
 		resize: _resize,
+		paint: _paint,
+		pickAt: function(x, y){
+			//console.log("pick:", viewbox, x, y);
+			return _graph.pickAt(viewbox[0] + x, viewbox[1] + y);
+		},
 		move : function(_dx, _dy){
+			//console.log("move: ", _dx, _dy);
 			dx += _dx; dy += _dy;
 			viewbox[0] = baseX + dx; viewbox[1] = baseY + dy;
-			svg.attr("viewBox", viewbox.join(" "));
+			_paint();
 		},
 		getCenter: function(){return [dx, dy]; },
 		setCenter: function(xy){
 			dx = xy[0]; dy = xy[1];
 			viewbox[0] = baseX + dx; viewbox[1] = baseY + dy;
-			svg.attr("viewBox", viewbox.join(" "));
+			_paint();
 		},
 		scale : function(r){
 			ratio = 1/r;
@@ -85,6 +97,8 @@ function Wrapper(container, graphClz, options){
 	});
 }
 
+IX.ns('IXW.LibD3c');
+var nsD3c = IXW.LibD3c;
 /** 以坐标(0,0)为中心；可放大缩小，拖放；	
 
 	options : {
@@ -97,56 +111,41 @@ function Wrapper(container, graphClz, options){
 			return [viewboxX, viewboxY, viewboxW, viewboxH];
 		}
 	}
-	return IX.inherit(graph(svg), {
+	return IX.inherit(graph(ctx), {
 		resize : function()
 		move : function(dx, dy)
 		scale : function(r)
 	})
  */
-nsD3.GraphWrapper = function(container, graphClz, options){
+nsD3c.GraphWrapper = function(container, graphClz, options){
 	var _graph = new Wrapper(container, graphClz, options);
 	var draggable = (options && "draggable" in options) ? options.draggable : true;
 	var dragExptFn = $XP(options, "dragExptFn");
-	var _dragExptFn = IX.isFn(dragExptFn)? function(e){
-		return dragExptFn(e.target);
-	} : function(e){return false;};
+	if (!IX.isFn(dragExptFn))
+		dragExptFn = function(){return false;};
 
-	if (draggable)
-		IXW.draggable(container, _dragExptFn, function(evt){
-			_graph.move(evt.dx, evt.dy);
-		});
+	function dragSubject(){
+		var evtX = d3.event.x, evtY = d3.event.y;
+		var node =  _graph.pickAt(evtX, evtY);
+		return dragExptFn(node) ? node : {type: null, x: evtX, y: evtY};
+	}
+	function dragHandler(){
+		var subject = d3.event.subject;
+		var evtDx = d3.event.dx, evtDy = d3.event.dy;
+		if (!subject.type) // drag on the canvas
+			return _graph.move(0 - evtDx, 0 - evtDy );
+		subject.x += evtDx;
+		subject.y += evtDx;
+		_graph.paint();
+	}
+
+	if (draggable) {
+		var canvas = $XD.first(container, "canvas");
+		d3.select(canvas).call(d3.drag().container(canvas)
+	        .subject(dragSubject)
+	        .on("drag", dragHandler));
+	}
 	return _graph;
 };
 
-/** 以坐标(0,0)为左上顶点；不改变比例，最大化展示，不放大，自动缩小，不可拖放;
-
-	return IX.inherit(graph(svg), {
-		resize : function()
-		move : function(dx, dy)
-	})
- */
-nsD3.AreaWrapper = function(container, graphClz, minWidth, minHeight){
-	return IX.inherit(new Wrapper(container, graphClz, {
-		minVisibleArea : [minWidth || 0, minHeight || 0],
-		calcViewbox : function(w, h, r, minW, minH){
-			var vb = commonCalcViewbox(w, h, r, minW, minH);
-			return [vb[0] + minW/2, vb[1] + minH/2, vb[2], vb[3]];
-		}
-	}), {scale : function(){}});
-};
-/** 以坐标(0,0)为左上顶点；不改变比例，按指定尺寸尽可能铺满容器，不可拖放；
-
-	return IX.inherit(graph(svg), {
-		resize : function()
-	})
- */
-nsD3.FullfillWrapper = function(container, graphClz, width, height){
-	return IX.inherit(new Wrapper(container, graphClz, {
-		minVisibleArea : [width, height],
-		calcViewbox : function(w, h, r, minW, minH){
-			var vb = commonCalcViewbox(w, h, 0, minW, minH);
-			return [vb[0] + minW/2, vb[1] + minH/2, vb[2], vb[3]];
-		}
-	}), {scale : function(){}});
-};
 })();

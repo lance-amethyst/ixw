@@ -1,0 +1,78 @@
+<tpl id="info">
+	<div style="position:fixed;left:0;right:0;top:60px; bottom:0px;">
+	</div>
+</tpl>
+<script>
+var nsGlobal = IXW.ns("Global");
+
+function RectNode(ctx, w, h){
+	var halfW = w / 2, halfH = h /2;
+	var node = {
+		type: "rect",
+		x : 0,  // centerX
+		y :0  	// centerY
+	};
+
+	return {
+		paint: function(){
+			ctx.strokeStyle = "rgba(100,0,0, 0.5)";
+			ctx.fillStyle = "rgba(0,0,100, 0.5)";
+			ctx.fillRect(node.x - halfW , node.y - halfH, w, h);
+		},
+		checkPicked:function(x, y) {
+			var dx = Math.abs(x - node.x), dy = Math.abs(y - node.y);
+			return dx < halfW && dy < halfH ? node : null;
+		}
+	};
+}
+function LocalGraph(ctx, canvas){
+	var width = 300, height = 200;
+	var rectNode = new RectNode(ctx, 200, 200);
+	
+	return {
+		paint: function() {
+			ctx.beginPath();
+
+			rectNode.paint();
+
+			ctx.rect(100 - width / 2, 100 - height / 2, width - 200, height - 200);
+			ctx.strokeStyle = "rgba(0,0,0, 0.1)";
+
+			ctx.stroke();
+		},
+		pickAt: function(x, y){// 判断(x, y)是否对应某个目标
+			return rectNode.checkPicked(x, y);
+		},
+		resize : function(visibleW, visibleH){
+			width = visibleW;
+			height = visibleH;
+		},
+		scale : function(r){return r;}
+	}
+}
+function working(container){
+	var _graph = new IXW.LibD3c.GraphWrapper(container, LocalGraph, {
+		dragExptFn : function(node){ return !!node; }
+	});
+
+	_graph.paint(); 
+	$Xw.bind({
+		resize: _graph.resize
+	});
+}
+
+var nsModule = IXW.ns("ModuleB");
+nsModule.init = function(pageCfg, pageParams, cbFn){
+	nsGlobal.serviceCaller("getModule", {
+		name : pageCfg.name
+	}, function(data){
+		$X('body').innerHTML = t_info.renderData("", {
+			// info : ["pageCfg", JSON.stringify(pageCfg), "", 
+			// 		"pageParams:",JSON.stringify(pageParams), "",
+			// 		"result", JSON.stringify(data)].join("\n")
+		});
+		working($XD.first($X('body'), 'div'));
+		cbFn();
+	});
+};
+</script>
